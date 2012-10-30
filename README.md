@@ -4,8 +4,8 @@ This module is used to calculate the merit order for the
 [Energy Transition Model](http://et-model.com).
 
 The **merit order** predicts/calculates which electricity generating
-technologies will produce electricity when the demand/load on the electricity
-network has a certain value.
+technologies are switched on or off to meet the demand/load on the electricity
+network.
 
 ## Quick Demonstration
 
@@ -16,20 +16,20 @@ merit_order = Merit::Order.new
 => "<Merit::Order, 0 participants>"
 ```
 
-Add the dispatchable participants to the Merit Order, with its *marginal costs*
-in EUR / KWh and *the installed capacity* (in MW electric)
+Add the dispatchable participants to the Merit Order, with their *marginal costs*
+in EUR / MWh and *the installed capacity* (in MW electric)
 
 ```Ruby
-merit_order.add_participant(:nuclear, :dispatchable, 0.05, 800)
-merit_order.add_participant(:coal,    :dispatchable, 0.12, 2000)
-merit_order.add_participant(:gas,     :dispatchable, 0.15, 3000)
+merit_order.add_participant(:nuclear_gen3,             :dispatchable, 50.0, 800)
+merit_order.add_participant(:ultra_supercritical_coal, :dispatchable, 48.0, 2000)
+merit_order.add_participant(:combined_cycle_gas,       :dispatchable, 60.0, 3000)
 ```
 
-Add the `must_run` and `volatile` participants with their full load
-hours (8000 in this case) to the Merit Order
+Add the `must_run` and `volatile` participants with their marginal costs, 
+installed capacity and full load hours (8000 in this case) to the Merit Order
 
 ```Ruby
-merit_order.add_participant(:industry_chp:, :must_run, 1.23, 1200, 8000)
+merit_order.add_participant(:industry_chp_combined_cycle_gas, :must_run, 110.0, 1200, 8000)
 ```
 
 Specify with what demand you want to calculate the merit order
@@ -42,10 +42,10 @@ Now you have supplied the minimal amount of information to calculate output
 for this situation, and you can start to ask for this output, e.g.
 
 ```Ruby
-merit_order.participant[:coal].full_load_hours
+merit_order.participant[:ultra_supercritical_coal].full_load_hours
 => 2000 # hours
-merit_order.participant[:coal].profitability
-=> 0.30 # EUR/kWh
+merit_order.participant[:ultra_supercritical_coal].profitability
+=> 10.0 # EUR/MWh
 ```
 
 ## Input
@@ -62,16 +62,16 @@ has to be either:
 * volatile
 * dispatchable
 
-The full load hours of a **must run** or **volatile** participant is determined
-by outside factors, and thus has to be supplied when this participant is added.
+The full load hours of a **must run** or **volatile** participant are determined
+by outside factors, and have to be supplied when this participant is added.
 
 For example, 8000 hours for the industry chps:
 
 ```Ruby
-merit_order.add_participant(:industry_chp:, :must_run    , 1.23, 1200, 8000)
+merit_order.add_participant(:industry_chp_combined_cycle_gas, :must_run, 110.0, 1200, 8000)
 ```
 
-The full load hours of a **dispatchable** participant is determined by this
+The full load hours of a **dispatchable** participant are determined by this
 module.
 
 ```Ruby
@@ -102,12 +102,12 @@ technology in **hours**.
 
 #### Profitability
 
-Returns the profit this type of power generator makes in EUROS per **kWh**
+Returns the profit this type of power generator makes in EUROS per **MWh**
 
 ## Load curves
 
 For each **must_run** and **volatile** participant a load curve has to be
-defined in the merit order.
+defined in the merit order module.
 
 Currently, the following load curves are supported
 
@@ -124,24 +124,24 @@ These load curves are defined in
 
 ## Road Map
 
-* Currently, the load curve is expected to consists of 8_760 data points for
+* Currently, the load curve is expected to consist of 8_760 data points for
   the `full_load_hours` to work correctly.
 * Additional features will (probably) be added, including:
   - number of times switched on/off
-  - duration of intermittence
+  - duration of on/off periods
   - ramp speeds
   - ...much more..
   - [add your ideas!](http://github.com/quintel/merit/issues/new)
 * Seasonal output
 * This module can import from [ETSource](http://github.com/quintel/etsource)
-* User can define its own load curve, or change an existing one
+* User can define his own load curve, or change an existing one
 
 ## Units used
 
 * full_load_hours: hours per year
 * installed_capacity: MW(electric output)
-* marginal_costs: EUR/kWh
-* profitability: EUR/kWh
+* marginal_costs: EUR/MWh
+* profitability: EUR/MWh
 
 ## Issues
 
