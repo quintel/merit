@@ -9,6 +9,8 @@ module Merit
                 :capacity, :marginal_costs, :availability, :full_load_hours
 
     # Public: creates a new participant
+    # params opts[Hash] set the attributes
+    # returns Participant
     def initialize(opts = nil)
       if opts
         @key               = opts[:key]
