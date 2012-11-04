@@ -6,7 +6,7 @@ module Merit
   class Participant
 
     attr_reader :key, :type,
-                :capacity, :marginal_costs, :availability
+                :capacity, :marginal_costs, :availability, :full_load_hours
 
     # Public: creates a new participant
     def initialize(opts = nil)
@@ -16,6 +16,7 @@ module Merit
         @capacity          = opts[:capacity]
         @marginal_costs    = opts[:marginal_costs]
         @availability      = opts[:availability]
+        @full_load_hours   = opts[:full_load_hours]
       end
     end
 

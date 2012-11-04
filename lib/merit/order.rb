@@ -24,13 +24,16 @@ module Merit
       @participants = []
     end
 
+    # Public: adds a participant to this order
+    # returns Participant
     def add_participant(*opts)
       participant = Participant.new({
-        key:            opts[0],
-        type:           opts[1],
-        marginal_costs: opts[2],
-        capacity:       opts[3],
-        availability:   opts[4]
+        key:             opts[0],
+        type:            opts[1],
+        marginal_costs:  opts[2],
+        capacity:        opts[3],
+        availability:    opts[4],
+        full_load_hours: opts[5]
       })
       @participants << participant
       participant
