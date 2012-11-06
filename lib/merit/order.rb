@@ -17,11 +17,13 @@ module Merit
   #
   class Order
 
-    attr_accessor :participants
+    attr_reader   :participants
+    attr_accessor :total_demand
 
     # Public: created a new Order
-    def initialize
+    def initialize(total_demand = nil)
       @participants = []
+      @total_demand = total_demand
     end
 
     # Public: adds a participant to this order

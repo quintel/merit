@@ -104,12 +104,12 @@ technology in **hours**.
 
 Returns the profit this type of power generator makes in EUROS per **MWh**
 
-## Load curves
+## Load profile
 
-For each **must_run** and **volatile** participant a load curve has to be
+For each **must_run** and **volatile** participant a load profile has to be
 defined in the merit order module.
 
-Currently, the following load curves are supported
+Currently, the following load profile are supported
 
 1. industry chps
 2. agriculural chps
@@ -119,12 +119,12 @@ Currently, the following load curves are supported
 6. coastal wind turbines
 7. inland wind turbines
 
-These load curves are defined in
-[merit_order.csv](http://github.com/merit/data/merit_order.csv).
+These load profile are defined in the
+[load_profiles](http://github.com/merit/load_profiles/) directory.
 
 ## Road Map
 
-* Currently, the load curve is expected to consist of 8_760 data points for
+* Currently, the load profile is expected to consist of 8_760 data points for
   the `full_load_hours` to work correctly.
 * Additional features will (probably) be added, including:
   - number of times switched on/off
@@ -134,7 +134,7 @@ These load curves are defined in
   - [add your ideas!](http://github.com/quintel/merit/issues/new)
 * Seasonal output
 * This module can import from [ETSource](http://github.com/quintel/etsource)
-* User can define his own load curve, or change an existing one
+* User can define his own load profile, or change an existing one
 
 ## Units used
 
