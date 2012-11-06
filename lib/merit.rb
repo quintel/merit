@@ -1,6 +1,10 @@
 require 'merit/root'
 require 'merit/order'
-require 'merit/participant'
 require 'merit/load_curve'
 require 'merit/load_curve_point'
 require 'merit/load_profile'
+
+require 'merit/participant'
+require 'merit/participants/must_run_participant'
+require 'merit/participants/volatile_participant'
+require 'merit/participants/dispatchable_participant'

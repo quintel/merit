@@ -16,20 +16,22 @@ merit_order = Merit::Order.new
 => "<Merit::Order, 0 participants>"
 ```
 
-Add the dispatchable participants to the Merit Order, with their *marginal costs*
-in EUR / MWh and *the installed capacity* (in MW electric)
+Add the dispatchable participants to the Merit Order, with their *marginal
+costs* in EUR / MWh, the (installed) *capacity* (in MW electric) and the
+**availability**.
 
 ```Ruby
-merit_order.add_participant(:nuclear_gen3,             :dispatchable, 50.0, 800)
-merit_order.add_participant(:ultra_supercritical_coal, :dispatchable, 48.0, 2000)
-merit_order.add_participant(:combined_cycle_gas,       :dispatchable, 60.0, 3000)
+merit_order.add_dispatchable(:nuclear_gen3,             50.0, 800, 0.95)
+merit_order.add_dispatchable(:ultra_supercritical_coal, 48.0, 2000, 0.90)
+merit_order.add_dispatchable(:combined_cycle_gas,       60.0, 3000, 0.85)
 ```
 
-Add the `must_run` and `volatile` participants with their marginal costs, 
-installed capacity and full load hours (8000 in this case) to the Merit Order
+Add the `must_run` and `volatile` participants with the **load_profile_key**, its
+**marginal costs**, the (installed) **capacity** and it's **full load hours** 
 
 ```Ruby
-merit_order.add_participant(:industry_chp_combined_cycle_gas, :must_run, 110.0, 1200, 8000)
+merit_order.add_must_run(:industry_chp_combined_cycle_gas, :industry_chp,  110.0, 1200, 8000)
+merit_order.add_volatile(:wind_offshore,                   :wind_offshore, 120.0, 1400, 7500)
 ```
 
 Specify with what demand you want to calculate the merit order
@@ -68,7 +70,7 @@ by outside factors, and have to be supplied when this participant is added.
 For example, 8000 hours for the industry chps:
 
 ```Ruby
-merit_order.add_participant(:industry_chp_combined_cycle_gas, :must_run, 110.0, 1200, 8000)
+merit_order.add_must_run(:industry_chp_combined_cycle_gas, :industry_chp, 110.0, 1200, 8000)
 ```
 
 The full load hours of a **dispatchable** participant are determined by this
@@ -92,7 +94,7 @@ Merit order can supply the user with the **full load hours** and the
 merit_order.participants[:coal].full_load_hours
 => 8_760 # it runs all the time!
 merit_order.participants[:coal].profitability
-=> 1_000_000_000 # it makes a billion euros!
+=> 0.50 EUR/MWh # it makes a billion euros!
 ```
 
 #### Full load hours
@@ -102,7 +104,7 @@ technology in **hours**.
 
 #### Profitability
 
-Returns the profit this type of power generator makes in EUROS per **MWh**
+Returns the profit this type of power generator makes in EUROS per **MWh**.
 
 ## Load profile
 
@@ -122,6 +124,10 @@ Currently, the following load profile are supported
 These load profile are defined in the
 [load_profiles](https://github.com/quintel/merit/tree/master/load_profiles) directory.
 
+## Assumptions
+
+* This module just calculates yearly averages. No seasons, months, or days
+
 ## Road Map
 
 * Currently, the load profile is expected to consist of 8_760 data points for
@@ -138,6 +144,7 @@ These load profile are defined in the
 
 ## Units used
 
+* total_demand: MJ (per year)
 * full_load_hours: hours per year
 * installed_capacity: MW(electric output)
 * marginal_costs: EUR/MWh

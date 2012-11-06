@@ -12,33 +12,59 @@ module Merit
       end
     end
 
-    describe "#add_participant" do
-      it "should be able to add a participant with full load hours" do
-        order.add_participant(:a,:b,1,2,0.9)
-        expect(order.participants).to have(1).participant
-        expect(order.participants.first.full_load_hours).to be_nil
+    describe "#load_curve" do
+      it "should contain 2190 LoadCurvePoints" do
+        expect(order.load_curve).to have(2190).points
       end
-      it "should be able to add a participant without full load hours" do
-        order.add_participant(:a,:b,1,2,0.9,1000)
-        expect(order.participants).to have(1).participant
-        expect(order.participants.first.full_load_hours).to_not be_nil
-      end
-      it "should set attributes correctly" do
-        participant = order.add_participant(:a,:b,1,2,0.9,8760)
-        expect(participant.key).to             eql(:a)
-        expect(participant.type).to            eql(:b)
-        expect(participant.marginal_costs).to  eql(1)
-        expect(participant.capacity).to        eql(2)
-        expect(participant.availability).to    eql(0.9)
-        expect(participant.full_load_hours).to eql(8760)
+    end
+
+    describe "#participants" do
+      it 'should be able to add different types' do
+        order.add_must_run(:foo, :profile, 1,2,3,4)
+        order.add_volatile(:foo, :profile, 1,2,3,4)
+        order.add_dispatchable(:foo, :profile, 1,2)
       end
     end
 
     describe "#inspect" do
       it "should contain the number of participants" do
         expect(order.to_s).to match("0")
-        order.add_participant(Participant.new)
-        expect(order.to_s).to match("1")
+        order.add_must_run(1,2,3,4,5,6)
+        expect(order.to_s).to match("1 participant")
+      end
+      it "shows the total demand"  do
+        expect(order.to_s).to match("demand: not set")
+        expect(Order.new(2000).to_s).to match("demand: 2000")
+      end
+    end
+
+    describe "#must_runs" do
+      it "must be empty at start" do
+        expect(order.must_runs).to be_empty
+      end
+      it "should contain a new must run" do
+        order.add_must_run(1,2,3,4,5,6)
+        expect(order.must_runs).to_not be_empty
+      end
+    end
+
+    describe "#volatiles" do
+      it "must be empty at start" do
+        expect(order.volatiles).to be_empty
+      end
+      it "should contain a new must run" do
+        order.add_volatile(1,2,3,4,5,6)
+        expect(order.volatiles).to_not be_empty
+      end
+    end
+
+    describe "#dispatchables" do
+      it "must be empty at start" do
+        expect(order.dispatchables).to be_empty
+      end
+      it "should contain a new must run" do
+        order.add_dispatchable(1,2,3,4)
+        expect(order.dispatchables).to_not be_empty
       end
     end
 

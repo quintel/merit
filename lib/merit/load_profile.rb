@@ -23,5 +23,9 @@ module Merit
 
       self.new(values)
     end
+
+    def to_s
+      "<#{self.class} #{values.size} values>"
+    end
   end
 end

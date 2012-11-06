@@ -2,6 +2,11 @@ module Merit
 
   # A LoadCurve is a container for LoadCurvePoints and is a timed
   # series
+  #
+  # It will contain the 'global' methods for e.g. the total_profit
+  # of all the load_curve_points
+  #
+  # DEBT: might also be a mixin for Order class?
   class LoadCurve
 
     attr_accessor :points
