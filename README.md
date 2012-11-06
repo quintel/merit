@@ -120,7 +120,7 @@ Currently, the following load profile are supported
 7. inland wind turbines
 
 These load profile are defined in the
-[load_profiles](http://github.com/merit/load_profiles/) directory.
+[load_profiles](https://github.com/quintel/merit/tree/master/load_profiles) directory.
 
 ## Road Map
 
