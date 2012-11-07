@@ -13,7 +13,7 @@ First, you have to initialize a new Merit Order 'session'
 
 ```Ruby
 merit_order = Merit::Order.new
-=> "<Merit::Order, 0 participants>"
+=> "<Merit::Order, 0 participants, demand: not set>"
 ```
 
 Add the dispatchable participants to the Merit Order, with their *marginal
