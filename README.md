@@ -46,8 +46,10 @@ for this situation, and you can start to ask for this output, e.g.
 ```Ruby
 merit_order.participant[:ultra_supercritical_coal].full_load_hours
 => 2000 # hours
-merit_order.participant[:ultra_supercritical_coal].profitability
+merit_order.participant[:ultra_supercritical_coal].profit
 => 10.0 # EUR/MWh
+merit_order.participant[:ultra_supercritical_coal].profitability
+=> "profitable"
 ```
 
 ## Input
@@ -91,15 +93,25 @@ demand curve.
 
 ## Output
 
-Merit order can supply the user with the **full load hours** and the
-**profitability** of the *participants*:
+Merit order can supply the user with the following information of the *participants*:
+
+1. full load hours 
+2. profitability
+3. cost
+3. income
+4. OPEX
+5. CAPEX
+6. profit 
 
 ```Ruby
 merit_order.participants[:coal].full_load_hours
 => 8_760 # it runs all the time!
-merit_order.participants[:coal].profitability
+merit_order.participants[:coal].profit
 => 0.50 EUR/MWh # it makes a billion euros!
+merit_order.participants[:coal].profitability
+=> "profitable" # hurray, it is profitable!
 ```
+This information is shown in a table. 
 
 #### Full load hours
 
@@ -108,7 +120,14 @@ technology in **hours**.
 
 #### Profitability
 
-Returns the profit this type of power generator makes in EUROS per **MWh**.
+Returns one of three states:
+
+1. Profitable (if income > OPEX + CAPEX)
+2. Conditionally profitable (if OPEX > income >= OPEX + CAPEX)
+3. Unprofitable (if income =< OPEX)
+
+These three states are communicated to the user by coloring the participants **green**, 
+**orange** and **red** respectively in the Merit Order table.
 
 #### Diagnostic output
 
@@ -167,7 +186,7 @@ is not equal to its demand).
   - number of times switched on/off
   - duration of on/off periods
   - ramp speeds
-  - Seasonal output
+  - seasonal output
   - ...much more..
   - [add your ideas!](http://github.com/quintel/merit/issues/new)
 * This module can import from [ETSource](http://github.com/quintel/etsource)
