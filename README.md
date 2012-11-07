@@ -19,6 +19,7 @@ merit_order = Merit::Order.new
 Add the dispatchable participants to the Merit Order, with their *marginal
 costs* in EUR / MWh, the (installed) *capacity* (in MW electric) and the
 **availability**.
+The marginal costs per plant are calculated by normalizing the variable costs of the plant by the amount of MWh it has produced.
 
 ```Ruby
 merit_order.add_dispatchable(:nuclear_gen3,             50.0, 800, 0.95)
@@ -47,10 +48,13 @@ for this situation, and you can start to ask for this output, e.g.
 merit_order.participant[:ultra_supercritical_coal].full_load_hours
 => 2000 # hours
 merit_order.participant[:ultra_supercritical_coal].profit
-=> 10.0 # EUR/MWh
+=> 10.0 # EUR (annual)
 merit_order.participant[:ultra_supercritical_coal].profitability
 => "profitable"
 ```
+
+The electricity price is an outcome of the merit order calculation, and is determined to be:
+Marginal costs of the plant that comes next to the price setting plant (EUR/MWh)
 
 ## Input
 
@@ -96,18 +100,19 @@ demand curve.
 Merit order can supply the user with the following information of the *participants*:
 
 1. full load hours 
-2. profitability
-3. cost
-3. income
-4. OPEX
-5. CAPEX
-6. profit 
+2. income
+3. total costs (fixed costs + variable costs)
+4. fixed costs (cost of capital + depreciation costs + fixed O&M costs)
+5. variable costs (fuel costs + CO2-emissions costs + variable O&M costs)
+6. profitability (green, orange or red)
+7. profit (EUR)
+8. load fraction
 
 ```Ruby
 merit_order.participants[:coal].full_load_hours
 => 8_760 # it runs all the time!
 merit_order.participants[:coal].profit
-=> 0.50 EUR/MWh # it makes a billion euros!
+=> 1_000_000_000 EUR (annual) # it makes a billion euros!
 merit_order.participants[:coal].profitability
 => "profitable" # hurray, it is profitable!
 ```
@@ -115,16 +120,47 @@ This information is shown in a table.
 
 #### Full load hours
 
-Return the full load hours or a participating electricity generating
+Return the full load hours of a participating electricity generating
 technology in **hours**.
+
+#### Income and load fraction
+
+The income of a plant is calculated by summing up the (load fraction * electricity price) for each data point.
+Each data point represents 1 hour (so 8760 data points per year).
+The load fraction is the fraction of capacity of a plant that is used for matching the total electricity demand, so:
+
+load fraction = Capacity used (MW) / maximum capacity (MW)
+
+For the price setting plant this load fraction is probably lower than 1.
+
+#### Total costs, fixed costs and variable costs
+
+The calculation of these costs per plant (annually) is done in ETEngine
+[ETEngine](https://github.com/quintel/etengine/blob/master/app/models/qernel/converter_api/cost.rb) .
+
+Needed input for these calculations:
+* WACC
+* construction time
+* technical lifetime 
+* depreciation costs
+* total investment over lifetime
+* residual value
+* fixed O&M costs (EUR/FLH) (annual)
+* variable O&M costs (EUR/FLH)
+* fuel used (MJ)
+* fuel price (EUR/MJ)
+* CO2 emissions costs
+* % free CO2 credits
+* % ETS (which part of the plant is restricted by the ETS)
+* % CO2 emissions with no costs
 
 #### Profitability
 
 Returns one of three states:
 
-1. Profitable (if income > OPEX + CAPEX)
-2. Conditionally profitable (if OPEX > income >= OPEX + CAPEX)
-3. Unprofitable (if income =< OPEX)
+1. Profitable (if income >= total costs)
+2. Conditionally profitable (if variable costs =< income < total costs)
+3. Unprofitable (if income < variable costs)
 
 These three states are communicated to the user by coloring the participants **green**, 
 **orange** and **red** respectively in the Merit Order table.
@@ -146,18 +182,20 @@ In addition, for **each participant**, the following quantities are written to (
 3. number_of_units
 4. full_load_hours
 5. availability
-6. OPEX
-7. CAPEX
-8. income
-9. type (dispatchable, volatile or must_run)
-10. total production (redundant but easy)
+6. fuel_costs
+7. CO2-emissions_costs
+8. variable_O&M_costs
+9. fixed_costs
+10. income
+11. type (dispatchable, volatile or must_run)
+12. total production (redundant but easy)
 
 ## Load profile
 
 For each **must_run** and **volatile** participant a **normalized** load profile has to be
 defined in the merit order module.
 
-Currently, the following load profile are supported
+Currently, the following load profiles are supported
 
 1. industry chps
 2. agriculural chps
@@ -187,6 +225,7 @@ is not equal to its demand).
   - duration of on/off periods
   - ramp speeds
   - seasonal output
+  - cost differentiation of plants of the same type
   - ...much more..
   - [add your ideas!](http://github.com/quintel/merit/issues/new)
 * This module can import from [ETSource](http://github.com/quintel/etsource)
@@ -199,8 +238,12 @@ is not equal to its demand).
 * installed_capacity: MW(electric output)
 * marginal_costs: EUR/MWh
 * profitability: not profitable (red), conditionally profitable (orange), profitable (green)
-* OPEX: EUR/MWh
-* CAPEX: EUR/MWh
+* variable costs: EUR (annual)
+* fixed costs: EUR (annual)
+* income: EUR (annual)
+* profit: EUR (annual)
+* electricity price: EUR/MWh
+* 
 
 ## Issues
 
