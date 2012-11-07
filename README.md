@@ -83,7 +83,11 @@ merit_order.participant[:coal].full_load_hours
 
 #### Total demand
 
-Total demand must be supplied in **MJ**.
+Total demand must be supplied in **MJ**. It is the sum of all electricity consumption 
+of converters in the final demand converter group **plus** losses of the electricity network. 
+
+The total demand is used to scale up the **normalized** demand curve to it produce the correct
+demand curve.
 
 ## Output
 
@@ -106,9 +110,19 @@ technology in **hours**.
 
 Returns the profit this type of power generator makes in EUROS per **MWh**.
 
+#### Diagnostic output
+
+Developers of the ETM (not users) have the possibility to extract extra information
+ from the Merit Order calculations. In particular, the following quantities are being
+ written to file **for every datapoint**:
+
+1. total demand
+2. price of electricity
+3. load of **each** participant
+
 ## Load profile
 
-For each **must_run** and **volatile** participant a load profile has to be
+For each **must_run** and **volatile** participant a **normalized** load profile has to be
 defined in the merit order module.
 
 Currently, the following load profile are supported
@@ -123,6 +137,10 @@ Currently, the following load profile are supported
 
 These load profile are defined in the
 [load_profiles](https://github.com/quintel/merit/tree/master/load_profiles) directory.
+These curves are normalized such that the surface area underneath each curve equals unity.
+This means that the load of a must_run or volatile participant at every point in time can
+be found by multiplying its load profile with its **electricity production** (not that this
+is not equal to its demand). 
 
 ## Assumptions
 
