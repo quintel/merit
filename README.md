@@ -113,12 +113,25 @@ Returns the profit this type of power generator makes in EUROS per **MWh**.
 #### Diagnostic output
 
 Developers of the ETM (not users) have the possibility to extract extra information
- from the Merit Order calculations. In particular, the following quantities are being
- written to file **for every datapoint**:
+ from the Merit Order calculations. In particular, the following quantities are
+ written to file (CSV) **for every datapoint**:
 
 1. total demand
 2. price of electricity
 3. load of **each** participant
+
+In addition, for **each participant**, the following quantities are written to (CSV) file:
+
+1. key
+2. production_capacity (MWe)
+3. number_of_units
+4. full_load_hours
+5. availability
+6. OPEX
+7. CAPEX
+8. income
+9. type (dispatchable, volatile or must_run)
+10. total production (redundant but easy)
 
 ## Load profile
 
@@ -154,9 +167,9 @@ is not equal to its demand).
   - number of times switched on/off
   - duration of on/off periods
   - ramp speeds
+  - Seasonal output
   - ...much more..
   - [add your ideas!](http://github.com/quintel/merit/issues/new)
-* Seasonal output
 * This module can import from [ETSource](http://github.com/quintel/etsource)
 * User can define his own load profile, or change an existing one
 
@@ -166,7 +179,9 @@ is not equal to its demand).
 * full_load_hours: hours per year
 * installed_capacity: MW(electric output)
 * marginal_costs: EUR/MWh
-* profitability: EUR/MWh
+* profitability: not profitable (red), conditionally profitable (orange), profitable (green)
+* OPEX: EUR/MWh
+* CAPEX: EUR/MWh
 
 ## Issues
 
