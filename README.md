@@ -139,7 +139,7 @@ These load profile are defined in the
 [load_profiles](https://github.com/quintel/merit/tree/master/load_profiles) directory.
 These curves are normalized such that the surface area underneath each curve equals unity.
 This means that the load of a must_run or volatile participant at every point in time can
-be found by multiplying its load profile with its **electricity production** (not that this
+be found by multiplying its load profile with its **electricity production** (note that this
 is not equal to its demand). 
 
 ## Assumptions
