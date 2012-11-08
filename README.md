@@ -51,7 +51,7 @@ fixed_costs: 4000000,
 variable_costs: 30.00  ))
 ```
 
-**<Here we need to write a bit about where these inputs come from and how they are generated.>**
+**Here we need to write a bit about where these inputs come from and how they are generated.**
 
 Add the `must_run` and `volatile` participants with the **load_profile_key**, its
 **marginal costs**, the (installed) **capacity** and it's **full load hours** 
