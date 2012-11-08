@@ -18,66 +18,62 @@ merit_order = Merit::Order.new
 
 Add the dispatchable participants to the Merit Order, with their:
 * marginal costs (EUR/MWh) 
-* installed_production_capacity_in_mw_electricity (MW electric)
+* installed_production_capacity (MW electric)
 * availability (%)
-
-The marginal costs per plant are calculated by normalizing the variable costs of the plant 
-by the amount of MWh it has produced. The marginal costs are calculated in ETEngine and 
-are called merit_order_variable_costs_per(:mwh_electricity).
-
-The electricity price is an outcome of the merit order calculation, and is
-determined to be: Marginal costs of the plant that comes next to the price
-setting plant (EUR/MWh)
-
-Furthermore the following attributes per plant are necessary for the merit order and 
-profitability calculation:
 * fixed_costs (EUR/plant/year)
-* co2_emissions_costs_per(:full_load_hour) (EUR/full load hour)
-* fuel_costs_per(:full_load_hour) (EUR/full load hour)
-* variable_operation_and_maintenance_costs_per_full_load_hour (EUR/full load hour)
-* variable_operation_and_maintenance_costs_for_ccs_per_full_load_hour (EUR/full load hour)
+* variable_costs (EUR/plant/year)
+
+Now the (dispatchable) participants have certain attributes, e.g.
 
 ```Ruby
-Merit::Order.add(MustRunParticipant.new(
+Merit::Order.add(Participant.new(
 key: "ultra_supercritical_coal",
-merit_order_variable_costs_per(:mwh_electricity): 20.02, 
-installed_production_capacity_in_mw_electricity: 2000, 
+marginal_costs: 20.02, 
+installed_production_capacity: 2000, 
 availability: 0.90, 
 fixed_costs: 3000000, 
-co2_emissions_costs_per(:full_load_hour): 5.67, 
-fuel_costs_per(:full_load_hour): 13.50, 
-variable_operation_and_maintenance_costs_per_full_load_hour: 10.00, 
-variable_operation_and_maintenance_costs_for_ccs_per_full_load_hour: 0.00  ))
+variable_costs: 30.00  ))
 
-Merit::Order.add(MustRunParticipant.new(
+Merit::Order.add(Participant.new(
 key: "combined_cycle_gas",
-merit_order_variable_costs_per(:mwh_electricity): 23.00, 
-installed_production_capacity_in_mw_electricity: 3000, 
+marginal_costs: 23.00, 
+installed_production_capacity: 3000, 
 availability: 0.85, 
 fixed_costs: 5000000, 
-co2_emissions_costs_per(:full_load_hour): 2.45, 
-fuel_costs_per(:full_load_hour): 20.50, 
-variable_operation_and_maintenance_costs_per_full_load_hour: 9.00, 
-variable_operation_and_maintenance_costs_for_ccs_per_full_load_hour: 0.00  ))
+variable_costs: 40.00  ))
 
-Merit::Order.add(MustRunParticipant.new(
+Merit::Order.add(Participant.new(
 key: "nuclear_gen3",
-merit_order_variable_costs_per(:mwh_electricity): 22.10, 
-installed_production_capacity_in_mw_electricity: 300, 
+marginal_costs: 22.10, 
+installed_production_capacity: 300, 
 availability: 0.95, 
 fixed_costs: 4000000, 
-co2_emissions_costs_per(:full_load_hour): 0.00, 
-fuel_costs_per(:full_load_hour): 10.00, 
-variable_operation_and_maintenance_costs_per_full_load_hour: 3.00, 
-variable_operation_and_maintenance_costs_for_ccs_per_full_load_hour: 0.00  ))
+variable_costs: 30.00  ))
 ```
 
 Add the `must_run` and `volatile` participants with the **load_profile_key**, its
 **marginal costs**, the (installed) **capacity** and it's **full load hours** 
 
 ```Ruby
-merit_order.add_must_run(:industry_chp_combined_cycle_gas, :industry_chp,  110.0, 1200, 8000)
-merit_order.add_volatile(:wind_offshore,                   :wind_offshore, 120.0, 1400, 7500)
+Merit::Order.add(MustRunParticipant.new(
+key: "industry_chp_combined_cycle_gas",
+marginal_costs: 1.00, 
+installed_production_capacity: 1240, 
+availability: 0.95, 
+fixed_costs: 400000,
+variable_costs: 0.00,
+load_profile_key: 0.00, 
+full_load_hours: 8000 ))
+
+Merit::Order.add(VolatileParticipant.new(
+key: "wind_offshore",
+marginal_costs: 2.10, 
+installed_production_capacity: 1400, 
+availability: 0.95, 
+fixed_costs: 400000, 
+variable_costs: 0.00,
+load_profile_key: 0.00, 
+full_load_hours: 7000 ))
 ```
 
 Specify with what demand you want to calculate the merit order
@@ -85,7 +81,6 @@ Specify with what demand you want to calculate the merit order
 ```Ruby
 merit_order.total_demand = 300 * 10**9 #MJ
 ```
-
 Now you have supplied the minimal amount of information to calculate output
 for this situation, and you can start to ask for this output, e.g.
 
@@ -112,13 +107,23 @@ has to be either:
 * volatile
 * dispatchable
 
+#### Full load hours
+
 The full load hours of a **must run** or **volatile** participant are determined
 by outside factors, and have to be supplied when this participant is added.
 
 For example, 8000 hours for the industry chps:
 
 ```Ruby
-merit_order.add_must_run(:industry_chp_combined_cycle_gas, :industry_chp, 110.0, 1200, 8000)
+Merit::Order.add(MustRunParticipant.new(
+key: "industry_chp_combined_cycle_gas",
+marginal_costs: 1.00, 
+installed_production_capacity: 1240, 
+availability: 0.95, 
+fixed_costs: 400000,
+variable_costs: 0.00,
+load_profile_key: 0.00, 
+full_load_hours: 8000 ))
 ```
 
 The full load hours of a **dispatchable** participant are determined by this
@@ -136,6 +141,20 @@ of converters in the final demand converter group **plus** losses of the electri
 
 The total demand is used to scale up the **normalized** demand curve to it produce the correct
 demand curve.
+
+#### Marginal costs
+
+The marginal_costs per plant are calculated by normalizing the variable costs of the plant 
+by the amount of MWh it has produced. The marginal costs are calculated in ETEngine and 
+are called merit_order_variable_costs_per(:mwh_electricity).
+
+#### Fixed costs and variable costs
+
+The fixed costs are calculated in ETEngine and are a given constant per plant. 
+
+The variable costs are calculated in ETEngine by summing up fuel costs, CO2-emission costs 
+and variable operation and maintenance costs. In ETEngine the function variable_costs_per(:mw_electricity) 
+gives 
 
 ## Output
 
@@ -159,6 +178,7 @@ merit_order.participants[:coal].profit
 merit_order.participants[:coal].profitability
 => "profitable" # hurray, it is profitable!
 ```
+
 This information is shown in a table. 
 
 #### Full load hours and load fraction
@@ -168,10 +188,11 @@ technology in **hours**. The number of full load hours is calculated by summing 
 fraction for each data point.
 Each data point represents 1 hour (so 8760 data points per year).
 The load fraction is the fraction of capacity of a plant that is used for matching the electricity 
-demand in 
-the merit order, so:
+demand in the merit order, so:
 
+```Ruby
 load fraction (%) = Capacity used (MW) / maximum capacity (MW)
+```
 
 For the plants that are cheaper than the price setting plant, the load fraction is equal to 1.
 For the price setting plant this load fraction is generally lower than 1, 
@@ -280,6 +301,8 @@ is not equal to its demand).
 ## Assumptions
 
 * This module just calculates yearly averages. No seasons, months, or days
+* The electricity price is marginal costs of the plant that comes next to the price
+  setting plant (EUR/MWh)
 
 ## Road Map
 
