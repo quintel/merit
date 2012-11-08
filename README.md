@@ -147,13 +147,13 @@ demand curve.
 The marginal_costs per plant are calculated by normalizing the variable costs of the plant 
 by the amount of MWh it has produced. The marginal costs are calculated in ETEngine and 
 are called merit_order_variable_costs_per(:mwh_electricity).
+The variable costs are calculated in ETEngine based on research data 
+by summing up fuel costs, CO2-emission costs and variable operation and maintenance costs.
 
 #### Fixed costs and variable costs
 
 The fixed costs are calculated in ETEngine and are a given constant per plant. 
 
-The variable costs are calculated in ETEngine based on research data 
-by summing up fuel costs, CO2-emission costs and variable operation and maintenance costs. 
 In ETEngine the function variable_costs_per(:full_load_hour) (EUR/full load hour) 
 gives a value which can be multiplied with the number of full load hours calculated 
 by the merit order, so that the variable costs per plant are determined.
