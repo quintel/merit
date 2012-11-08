@@ -19,12 +19,30 @@ merit_order = Merit::Order.new
 Add the dispatchable participants to the Merit Order, with their *marginal
 costs* in EUR / MWh, the (installed) *capacity* (in MW electric) and the
 **availability**.
-The marginal costs per plant are calculated by normalizing the variable costs of the plant by the amount of MWh it has produced.
+
+The marginal costs per plant are calculated by normalizing the variable costs of the plant 
+by the amount of MWh it has produced. The marginal costs are calculated in ETEngine and are called
+merit_order_variable_costs_per(:mwh_electricity)
+
+Furthermore the following attributes per plant are necessary for themerit order and profitability calculation:
+* WACC
+* construction_time (years)
+* technical_lifetime (years)
+* total_investment_over_lifetime (EUR)
+* residual_value (EUR)
+* fixed_operation_and_maintenance_costs_per_year (EUR/FLH)
+* variable O&M costs (EUR/FLH)
+* typical_fuel_input (MJ)
+* weighted_carrier_cost_per_mj (EUR/MJ)
+* weighted_carrier_co2_per_mj (
+* area.co2_percentage_free (how much co2 is given away for free)
+* part_ets (which part of the plant is restricted by the ETS)
+* co2_free (CO2-emissions with no costs)
 
 ```Ruby
-merit_order.add_dispatchable(:nuclear_gen3,             50.0, 800, 0.95)
-merit_order.add_dispatchable(:ultra_supercritical_coal, 48.0, 2000, 0.90)
-merit_order.add_dispatchable(:combined_cycle_gas,       60.0, 3000, 0.85)
+merit_order.add_dispatchable(key: nuclear_gen3,             50.0, 800, 0.95)
+merit_order.add_dispatchable(key: ultra_supercritical_coal, 48.0, 2000, 0.90)
+merit_order.add_dispatchable(key: combined_cycle_gas,       60.0, 3000, 0.85)
 ```
 
 Add the `must_run` and `volatile` participants with the **load_profile_key**, its
@@ -48,7 +66,7 @@ for this situation, and you can start to ask for this output, e.g.
 merit_order.participant[:ultra_supercritical_coal].full_load_hours
 => 2000 # hours
 merit_order.participant[:ultra_supercritical_coal].profit
-=> 10.0 # EUR (annual)
+=> 10.0 # EUR/plant/year
 merit_order.participant[:ultra_supercritical_coal].profitability
 => "profitable"
 ```
@@ -100,13 +118,14 @@ demand curve.
 Merit order can supply the user with the following information of the *participants*:
 
 1. full load hours 
-2. income
-3. total costs (fixed costs + variable costs)
-4. fixed costs (cost of capital + depreciation costs + fixed O&M costs)
-5. variable costs (fuel costs + CO2-emissions costs + variable O&M costs)
-6. profitability (green, orange or red)
-7. profit (EUR)
-8. load fraction
+2. load fraction
+3. income
+4. total costs
+5. fixed costs
+6. variable costs
+7. profitability
+8. profit
+
 
 ```Ruby
 merit_order.participants[:coal].full_load_hours
@@ -118,41 +137,52 @@ merit_order.participants[:coal].profitability
 ```
 This information is shown in a table. 
 
-#### Full load hours
+#### Full load hours and load fraction
 
 Return the full load hours of a participating electricity generating
-technology in **hours**.
-
-#### Income and load fraction
-
-The income of a plant is calculated by summing up the (load fraction * electricity price) for each data point.
+technology in **hours**. The number of full load hours is calculated by summing up the load fraction for each data point.
 Each data point represents 1 hour (so 8760 data points per year).
-The load fraction is the fraction of capacity of a plant that is used for matching the total electricity demand, so:
+The load fraction is the fraction of capacity of a plant that is used for matching the electricity demand in 
+the merit order, so:
 
-load fraction = Capacity used (MW) / maximum capacity (MW)
+load fraction (%) = Capacity used (MW) / maximum capacity (MW)
 
-For the price setting plant this load fraction is probably lower than 1.
+For the plants that are cheaper than the price setting plant, the load fraction is equal to 1.
+For the price setting plant this load fraction is generally lower than 1, 
+since only a fraction of its maximum capacity is needed to meet the demand.
+For the plants that are more expensive than the price setting plant, the load fraction is equal to 0.
 
-#### Total costs, fixed costs and variable costs
+#### Income
 
-The calculation of these costs per plant (annually) is done in ETEngine
-[ETEngine](https://github.com/quintel/etengine/blob/master/app/models/qernel/converter_api/cost.rb) .
+The income in EUR of a plant is calculated by summing up the (load fraction * electricity price) for each data point.
 
-Needed input for these calculations:
-* WACC
-* construction time
-* technical lifetime 
-* depreciation costs
-* total investment over lifetime
-* residual value
-* fixed O&M costs (EUR/FLH) (annual)
-* variable O&M costs (EUR/FLH)
-* fuel used (MJ)
-* fuel price (EUR/MJ)
-* CO2 emissions costs
-* % free CO2 credits
-* % ETS (which part of the plant is restricted by the ETS)
-* % CO2 emissions with no costs
+#### Total costs 
+
+The total_costs (EUR/plant/year) of a power plant is calculated by summing up the fixed_costs and 
+the variable_costs.
+
+The calculation of these costs per plant is done in 
+[ETEngine](https://github.com/quintel/etengine/blob/master/app/models/qernel/converter_api/cost.rb).
+
+#### Fixed costs 
+
+The fixed_costs (EUR/plant/year) of a power plant is calculated by summing up cost_of_capital, depreciation_costs and 
+fixed_operation_and_maintenance_costs_per_year
+
+The calculation of these costs per plant is done in 
+[ETEngine](https://github.com/quintel/etengine/blob/master/app/models/qernel/converter_api/cost.rb).
+
+#### Variable costs
+
+The variable_costs (EUR/plant/year) of a power plant is calculated by summing up fuel_costs, co2_emissions_costs and 
+variable_operation_and_maintenance_costs
+
+The calculation of these costs per plant is done in 
+[ETEngine](https://github.com/quintel/etengine/blob/master/app/models/qernel/converter_api/cost.rb).
+
+#### Profit
+
+The profit of a plant (EUR/plant/year) is calculated by subtracting the total_costs from the income of the plant.
 
 #### Profitability
 
@@ -162,6 +192,8 @@ Returns one of three states:
 2. Conditionally profitable (if variable costs =< income < total costs)
 3. Unprofitable (if income < variable costs)
 
+These three states are communicated to ETEngine with the terms **profitable**, 
+**conditionally profitable** and **unprofitable**.
 These three states are communicated to the user by coloring the participants **green**, 
 **orange** and **red** respectively in the Merit Order table.
 
@@ -183,9 +215,9 @@ In addition, for **each participant**, the following quantities are written to (
 4. full_load_hours
 5. availability
 6. fuel_costs
-7. CO2-emissions_costs
-8. variable_O&M_costs
-9. fixed_costs
+7. co2_emissions_costs
+8. variable_operation_and_maintenance_costs
+9. fixed_operation_and_maintenance_costs_per_year
 10. income
 11. type (dispatchable, volatile or must_run)
 12. total production (redundant but easy)
@@ -237,13 +269,12 @@ is not equal to its demand).
 * full_load_hours: hours per year
 * installed_capacity: MW(electric output)
 * marginal_costs: EUR/MWh
-* profitability: not profitable (red), conditionally profitable (orange), profitable (green)
-* variable costs: EUR (annual)
-* fixed costs: EUR (annual)
-* income: EUR (annual)
-* profit: EUR (annual)
+* profitability: unprofitable (red), conditionally profitable (orange), profitable (green)
+* variable_costs: (EUR/plant/year)
+* fixed_costs: (EUR/plant/year)
+* income: (EUR/plant/year)
+* profit: (EUR/plant/year)
 * electricity price: EUR/MWh
-* 
 
 ## Issues
 
