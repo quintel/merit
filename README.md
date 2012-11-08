@@ -328,16 +328,17 @@ is not equal to its demand).
 
 ## Units used
 
-* total_demand: MJ (per year)
-* full_load_hours: hours per year
-* installed_capacity: MW(electric output)
-* marginal_costs: EUR/MWh
-* profitability: unprofitable (red), conditionally profitable (orange), profitable (green)
-* variable_costs: (EUR/plant/year)
+* marginal_costs: (EUR/MWh/year) 
+* effective_output_capacity: (MW electric/plant)
+* number_of_units: (#)
+* availability: (fraction)
 * fixed_costs: (EUR/plant/year)
+* total_demand: MJ (per year)
+* full_load_hours: (hours per year)
+* profitability: (string)
 * income: (EUR/plant/year)
 * profit: (EUR/plant/year)
-* electricity price: EUR/MWh
+* electricity price: (EUR/MWh)
 
 ## Issues
 
