@@ -16,12 +16,12 @@ merit_order = Merit::Order.new
 => "<Merit::Order, 0 participants, demand: not set>"
 ```
 
-Add the dispatchable participants to the Merit Order, with their:
-* marginal costs (EUR/MWh) 
-* installed_production_capacity (MW electric)
+Add the dispatchable participants to the Merit Order, by using the following parameters as input:
+* marginal_costs (EUR/MWh) 
+* effective_output_capacity (MW electric/plant)
+* number_of_units
 * availability (%)
 * fixed_costs (EUR/plant/year)
-* variable_costs (EUR/plant/year)
 
 Now the (dispatchable) participants have certain attributes, e.g.
 
@@ -29,10 +29,10 @@ Now the (dispatchable) participants have certain attributes, e.g.
 Merit::Order.add(Participant.new(
 key: "ultra_supercritical_coal",
 marginal_costs: 20.02, 
-installed_production_capacity: 2000, 
+effective_output_capacity: 792,
+number_of_units: 3
 availability: 0.90, 
-fixed_costs: 3000000, 
-variable_costs: 30.00  ))
+fixed_costs: 3000000  ))
 
 Merit::Order.add(Participant.new(
 key: "combined_cycle_gas",
@@ -50,6 +50,8 @@ availability: 0.95,
 fixed_costs: 4000000, 
 variable_costs: 30.00  ))
 ```
+
+**<Here we need to write a bit about where these inputs come from and how they are generated.>**
 
 Add the `must_run` and `volatile` participants with the **load_profile_key**, its
 **marginal costs**, the (installed) **capacity** and it's **full load hours** 
