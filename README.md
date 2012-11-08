@@ -157,7 +157,7 @@ demand curve.
 
 #### Marginal costs
 
-The marginal_costs (EUR/MWh/year) are calculated by dividing the variable costs (EUR/plant/year) of the plant 
+The marginal_costs (EUR/MWh/year) are calculated by dividing the variable costs (EUR/plant/year) of the participant 
 by its (yearly) electricity production (in MWh). The marginal costs can be queried from the ETM with
  variable_costs_per(:mwh_electricity).
 
@@ -187,35 +187,35 @@ merit_order.participants[:coal].full_load_hours
 merit_order.participants[:coal].profit
 => 1_000_000_000 EUR (annual) # it makes a billion euros!
 merit_order.participants[:coal].profitability
-=> "profitable" # hurray, it is profitable!
+=> :profitable # hurray, it is profitable!
 ```
 
 #### Full load hours and load fraction
 
-Return the full load hours of a participating electricity generating
-technology in **hours**. The number of full load hours is calculated by summing up the load 
-fraction for each data point.
+Return the full_load_hours of a participating electricity generating
+technology in **hours**. The number of full load hours is calculated by summing up the load_fraction 
+for each data point.
 Each data point represents 1 hour (so 8760 data points per year).
-The load fraction is the fraction of capacity of a plant that is used for matching the electricity 
+The load_fraction is the fraction of capacity of a participant that is used for matching the electricity 
 demand in the merit order, so:
 
 ```Ruby
-load fraction (%) = Capacity used (MW) / maximum capacity (MW)
+load_fraction = capacity used / maximum capacity
 ```
 
-For the plants that are cheaper than the price setting plant, the load fraction is equal to 1.
-For the price setting plant this load fraction is generally lower than 1, 
+For the participants that are cheaper than the price setting participant, the load fraction is equal to 1.
+For the price setting participant this load fraction is generally lower than 1, 
 since only a fraction of its maximum capacity is needed to meet the demand.
-For the plants that are more expensive than the price setting plant, the load fraction is equal to 0.
+For the participants that are more expensive than the price setting participant, the load_fraction is equal to 0.
 
 #### Income
 
-The income (in EUR) of a plant is calculated by summing up the (load fraction * electricity price) 
+The income (in EUR) of a participant is calculated by summing up the (load fraction * electricity price) 
 for each data point.
 
 #### Total costs 
 
-The total_costs (EUR/plant/year) of a power plant is calculated by summing up the fixed_costs (which is input) and 
+The total_costs (EUR/plant/year) of a power participant is calculated by summing up the fixed_costs (which is input) and 
 the variable_costs.
 
 #### Variable costs
@@ -229,7 +229,7 @@ variable_costs = marginal_costs * effective_output_capacity * number_of_units * 
 
 #### Profit
 
-The profit of a plant (EUR/plant/year) is calculated by subtracting the total_costs from the income of the plant.
+The profit of a participant (EUR/plant/year) is calculated by subtracting the total_costs from the income of the participant.
 
 #### Profitability
 
@@ -308,8 +308,8 @@ is not equal to its demand).
 ## Assumptions
 
 * This module just calculates yearly averages. No seasons, months, or days
-* The electricity price is marginal costs of the plant that comes next to the price
-  setting plant (EUR/MWh)
+* The electricity price is marginal costs of the participant that comes next to the price
+  setting participant (EUR/MWh)
 
 ## Road Map
 
@@ -320,7 +320,7 @@ is not equal to its demand).
   - duration of on/off periods
   - ramp speeds
   - seasonal output
-  - cost differentiation of plants of the same type
+  - cost differentiation of participants of the same type
   - ...much more..
   - [add your ideas!](http://github.com/quintel/merit/issues/new)
 * This module can import from [ETSource](http://github.com/quintel/etsource)
