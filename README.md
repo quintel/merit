@@ -68,11 +68,12 @@ merit_order.participant[:ultra_supercritical_coal].full_load_hours
 merit_order.participant[:ultra_supercritical_coal].profit
 => 10.0 # EUR/plant/year
 merit_order.participant[:ultra_supercritical_coal].profitability
-=> "profitable"
+=> :profitable
 ```
 
-The electricity price is an outcome of the merit order calculation, and is determined to be:
-Marginal costs of the plant that comes next to the price setting plant (EUR/MWh)
+The electricity price is an outcome of the merit order calculation, and is
+determined to be: Marginal costs of the plant that comes next to the price
+setting plant (EUR/MWh)
 
 ## Input
 
@@ -226,6 +227,12 @@ In addition, for **each participant**, the following quantities are written to (
 
 For each **must_run** and **volatile** participant a **normalized** load profile has to be
 defined in the merit order module.
+
+#### Definition
+
+**CHAEL, please define it here**
+
+#### Current Load Profiles
 
 Currently, the following load profiles are supported
 
