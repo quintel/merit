@@ -16,31 +16,27 @@ merit_order = Merit::Order.new
 => "<Merit::Order, 0 participants, demand: not set>"
 ```
 
-Add the dispatchable participants to the Merit Order, with their *marginal
-costs* in EUR / MWh, the (installed) *capacity* (in MW electric) and the
-**availability**.
+Add the dispatchable participants to the Merit Order, with their:
+* marginal costs (EUR/MWh) 
+* installed_production_capacity_in_mw_electricity (MW electric)
+* availability (%)
 
 The marginal costs per plant are calculated by normalizing the variable costs of the plant 
-by the amount of MWh it has produced. The marginal costs are calculated in ETEngine and are called
-merit_order_variable_costs_per(:mwh_electricity)
+by the amount of MWh it has produced. The marginal costs are calculated in ETEngine and 
+are called merit_order_variable_costs_per(:mwh_electricity).
 
-Furthermore the following attributes per plant are necessary for themerit order and profitability calculation:
-* WACC
-* construction_time (years)
-* technical_lifetime (years)
-* total_investment_over_lifetime (EUR)
-* residual_value (EUR)
-* fixed_operation_and_maintenance_costs_per_year (EUR/FLH)
-* variable O&M costs (EUR/FLH)
-* typical_fuel_input (MJ)
-* weighted_carrier_cost_per_mj (EUR/MJ)
-* weighted_carrier_co2_per_mj (
-* area.co2_percentage_free (how much co2 is given away for free)
-* part_ets (which part of the plant is restricted by the ETS)
-* co2_free (CO2-emissions with no costs)
+Furthermore the following attributes per plant are necessary for the merit order and 
+profitability calculation:
+* fixed_costs (EUR/plant/year)
+* co2_emissions_costs_per(:mwh_electricity) (EUR/MWh)
+* fuel_costs_per(:mwh_electricity) (EUR/MWh)
+* variable_operation_and_maintenance_costs_per_full_load_hour (EUR/full load hour)
+* variable_operation_and_maintenance_costs_for_ccs_per_full_load_hour (EUR/full load hour)
 
 ```Ruby
-merit_order.add_dispatchable(key: nuclear_gen3,             50.0, 800, 0.95)
+Merit::Order.add(MustRunParticipant.new(key: "coal",
+merit_order_variable_costs_per(:mwh_electricity): 20.02, 
+installed_production_capacity_in_mw_electricity: )
 merit_order.add_dispatchable(key: ultra_supercritical_coal, 48.0, 2000, 0.90)
 merit_order.add_dispatchable(key: combined_cycle_gas,       60.0, 3000, 0.85)
 ```
