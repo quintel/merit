@@ -18,75 +18,78 @@ merit_order = Merit::Order.new
 
 Add the dispatchable participants to the Merit Order, by using the following 
 parameters as input:
-* marginal_costs (EUR/MWh) 
+* marginal_costs (EUR/MWh/year) 
 * effective_output_capacity (MW electric/plant)
-* number_of_units
+* number_of_units (#)
 * availability (%)
 * fixed_costs (EUR/plant/year)
 
 Now the (dispatchable) participants have certain attributes, e.g.
 
 ```Ruby
-Merit::Order.add(DispatchableParticipant.new(
-key: "ultra_supercritical_coal",
-marginal_costs: 20.02, 
-effective_output_capacity: 792,
-number_of_units: 3
-availability: 0.90, 
-fixed_costs: 3000000  ))
+Merit::Order.add(
+  DispatchableParticipant.new(
+    key: "ultra_supercritical_coal",
+    marginal_costs: 20.02, 
+    effective_output_capacity: 792,
+    number_of_units: 3
+    availability: 0.90, 
+    fixed_costs: 3000000
+  )
+)
 
-Merit::Order.add(DispatchableParticipant.new(
-key: "combined_cycle_gas",
-marginal_costs: 23.00, 
-effective_output_capacity: 3000,
-number_of_units: 3
-availability: 0.85, 
-<<<<<<< HEAD
-fixed_costs: 5000000  ))
-
-Merit::Order.add(Participant.new(
-key: "nuclear_gen3",
-marginal_costs: 22.10, 
-effective_output_capacity: 300, 
-number_of_units: 3
-availability: 0.95, 
-fixed_costs: 4000000  ))
-=======
-fixed_costs: 5000000, 
-variable_costs: 40.00  ))
->>>>>>> Cleaned up README.md a little bit.
+Merit::Order.add(
+  DispatchableParticipant.new(
+    key: "combined_cycle_gas",
+    marginal_costs: 23.00, 
+    effective_output_capacity: 3000,
+    number_of_units: 3
+    availability: 0.85, 
+    fixed_costs: 5000000
+  )
+)
 ```
 
-Add the `must_run` and `volatile` participants with the **load_profile_key**, its
-**marginal costs**, the (installed) **capacity** and it's **full load hours** 
+Add the `must_run` and `volatile` participants. They have two additional
+parameters: 
+
+1. load_profile_key
+2. full_load_hours
 
 ```Ruby
-Merit::Order.add(MustRunParticipant.new(
-key: "industry_chp_combined_cycle_gas",
-marginal_costs: 1.00, 
-effective_output_capacity: 1240, 
-availability: 0.95, 
-fixed_costs: 400000,
-number_of_units: 2
-load_profile_key: 0.00, 
-full_load_hours: 8000 ))
+Merit::Order.add(
+  MustRunParticipant.new(
+    key: "industry_chp_combined_cycle_gas",
+    marginal_costs: 1.00, 
+    effective_output_capacity: 1240, 
+    number_of_units: 2
+    availability: 0.95, 
+    fixed_costs: 400000,
+    load_profile_key: "industry_chps_profile", 
+    full_load_hours: 8000
+  )
+)
 
-Merit::Order.add(VolatileParticipant.new(
-key: "wind_offshore",
-marginal_costs: 0.00, 
-effective_output_capacity: 1400, 
-availability: 0.95, 
-fixed_costs: 400000, 
-number_of_units: 30
-load_profile_key: 0.00, 
-full_load_hours: 7000 ))
+Merit::Order.add(
+  VolatileParticipant.new(
+    key: "wind_offshore",
+    marginal_costs: 0.0, 
+    effective_output_capacity: 1400, 
+    availability: 0.95, 
+    fixed_costs: 400000, 
+    number_of_units: 30,
+    load_profile_key: "offshore_wind_profile", 
+    full_load_hours: 7000
+  )
+)
 ```
 
-Specify with what demand you want to calculate the merit order
+Specify what demand you want to calculate the merit order with
 
 ```Ruby
 merit_order.total_demand = 300 * 10**9 #MJ
 ```
+
 Now you have supplied the minimal amount of information to calculate output
 for this situation, and you can start to ask for this output, e.g.
 
@@ -102,7 +105,8 @@ merit_order.participant[:ultra_supercritical_coal].profitability
 ## Input
 
 The Merit Order needs to know about **which technologies participate** in the
-merit order, and about the **total energy demand**.
+merit order, what **parameters** these participants have, 
+and about the **total energy demand**.
 
 #### Participants
 
@@ -121,15 +125,18 @@ by outside factors, and have to be supplied when this participant is added.
 For example, 8000 hours for the industry chps:
 
 ```Ruby
-Merit::Order.add(MustRunParticipant.new(
-key: "industry_chp_combined_cycle_gas",
-marginal_costs: 1.00, 
-installed_production_capacity: 1240, 
-availability: 0.95, 
-fixed_costs: 400000,
-variable_costs: 0.00,
-load_profile_key: 0.00, 
-full_load_hours: 8000 ))
+Merit::Order.add(
+  MustRunParticipant.new(
+    key: "industry_chp_combined_cycle_gas",
+    marginal_costs: 1.00, 
+    effective_output_capacity: 1240, 
+    number_of_units: 2
+    availability: 0.95, 
+    fixed_costs: 400000,
+    load_profile_key: "industry_chps_profile", 
+    full_load_hours: 8000
+  )
+)
 ```
 
 The full load hours of a **dispatchable** participant are determined by this
@@ -150,23 +157,15 @@ demand curve.
 
 #### Marginal costs
 
-The marginal_costs per plant are calculated by normalizing the variable costs of the plant 
-by the amount of MWh it has produced. The marginal costs are calculated in ETEngine and 
-are called merit_order_variable_costs_per(:mwh_electricity).
+The marginal_costs (EUR/MWh/year) are calculated by dividing the variable costs (EUR/plant/year) of the plant 
+by its (yearly) electricity production (in MWh). The marginal costs can be queried from the ETM with
+ variable_costs_per(:mwh_electricity).
 
-The variable costs are calculated in ETEngine (based on research data)
-by summing up fuel costs, CO2-emission costs and variable operation and maintenance costs.
+#### Fixed costs
 
-#### Fixed costs and variable costs
+The fixed costs (EUR/plant) can be queried from the ETM with the fixed_costs function.
 
-The fixed costs are calculated in ETEngine in the function fixed_costs and are a given constant per plant. 
 
-In ETEngine the function variable_costs_per(:full_load_hour) (EUR/full load hour) 
-gives a value which can be multiplied with the number of full load hours calculated 
-by the merit order, so that the variable costs per plant are determined.
-
-The fixed costs and variable costs can be summed up so that the total costs can be calculated 
-per plant as an output of the merit order module.
 
 ## Output
 
@@ -211,32 +210,22 @@ For the plants that are more expensive than the price setting plant, the load fr
 
 #### Income
 
-The income in EUR of a plant is calculated by summing up the (load fraction * electricity price) 
+The income (in EUR) of a plant is calculated by summing up the (load fraction * electricity price) 
 for each data point.
 
 #### Total costs 
 
-The total_costs (EUR/plant/year) of a power plant is calculated by summing up the fixed_costs and 
+The total_costs (EUR/plant/year) of a power plant is calculated by summing up the fixed_costs (which is input) and 
 the variable_costs.
-
-The calculation of these costs per plant is done in 
-[ETEngine](https://github.com/quintel/etengine/blob/master/app/models/qernel/converter_api/cost.rb).
-
-#### Fixed costs 
-
-The fixed_costs (EUR/plant/year) of a power plant is calculated by summing up cost_of_capital, depreciation_costs 
-and fixed_operation_and_maintenance_costs_per_year
-
-The calculation of these costs per plant is done in 
-[ETEngine](https://github.com/quintel/etengine/blob/master/app/models/qernel/converter_api/cost.rb).
 
 #### Variable costs
 
-The variable_costs (EUR/plant/year) of a power plant is calculated by summing up fuel_costs, co2_emissions_costs 
-and variable_operation_and_maintenance_costs
+The variable_costs (EUR/plant/year) of a participant is calculated by multiplying the (input parameter) 
+marginal_costs (EUR/MWh/year) by the electricity production of the participant.
 
-The calculation of these costs per plant is done in 
-[ETEngine](https://github.com/quintel/etengine/blob/master/app/models/qernel/converter_api/cost.rb).
+```Ruby
+variable_costs = marginal_costs * effective_output_capacity * number_of_units * full_load_hours
+```
 
 #### Profit
 
@@ -287,7 +276,15 @@ defined in the merit order module.
 
 #### Definition
 
-A load profile has 8760 datapoints.
+A load profile has 8760 datapoints, one for every hour in a year. Profiles are normalized
+such that multiplying them with the total produced electricity (in **MJ**) yields the load at every 
+point in time in units of **MW**.
+
+This normalization effectively implies that the surface area under the load profiles is equal to 1 MJ.
+This can be checked by taking
+``` Ruby
+Merit::LoadProfile.load(:total_demand).values.inject(:+) * 3600
+```
 
 #### Current Load Profiles
 
