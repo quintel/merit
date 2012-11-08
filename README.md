@@ -37,21 +37,19 @@ fixed_costs: 3000000  ))
 Merit::Order.add(Participant.new(
 key: "combined_cycle_gas",
 marginal_costs: 23.00, 
-installed_production_capacity: 3000, 
+effective_output_capacity: 3000,
+number_of_units: 3
 availability: 0.85, 
-fixed_costs: 5000000, 
-variable_costs: 40.00  ))
+fixed_costs: 5000000  ))
 
 Merit::Order.add(Participant.new(
 key: "nuclear_gen3",
 marginal_costs: 22.10, 
-installed_production_capacity: 300, 
+effective_output_capacity: 300, 
+number_of_units: 3
 availability: 0.95, 
-fixed_costs: 4000000, 
-variable_costs: 30.00  ))
+fixed_costs: 4000000  ))
 ```
-
-**Here we need to write a bit about where these inputs come from and how they are generated.**
 
 Add the `must_run` and `volatile` participants with the **load_profile_key**, its
 **marginal costs**, the (installed) **capacity** and it's **full load hours** 
@@ -60,20 +58,20 @@ Add the `must_run` and `volatile` participants with the **load_profile_key**, it
 Merit::Order.add(MustRunParticipant.new(
 key: "industry_chp_combined_cycle_gas",
 marginal_costs: 1.00, 
-installed_production_capacity: 1240, 
+effective_output_capacity: 1240, 
 availability: 0.95, 
 fixed_costs: 400000,
-variable_costs: 0.00,
+number_of_units: 2
 load_profile_key: 0.00, 
 full_load_hours: 8000 ))
 
 Merit::Order.add(VolatileParticipant.new(
 key: "wind_offshore",
-marginal_costs: 2.10, 
-installed_production_capacity: 1400, 
+marginal_costs: 0.00, 
+effective_output_capacity: 1400, 
 availability: 0.95, 
 fixed_costs: 400000, 
-variable_costs: 0.00,
+number_of_units: 30
 load_profile_key: 0.00, 
 full_load_hours: 7000 ))
 ```
@@ -154,9 +152,14 @@ are called merit_order_variable_costs_per(:mwh_electricity).
 
 The fixed costs are calculated in ETEngine and are a given constant per plant. 
 
-The variable costs are calculated in ETEngine by summing up fuel costs, CO2-emission costs 
-and variable operation and maintenance costs. In ETEngine the function variable_costs_per(:mw_electricity) 
-gives 
+The variable costs are calculated in ETEngine based on research data 
+by summing up fuel costs, CO2-emission costs and variable operation and maintenance costs. 
+In ETEngine the function variable_costs_per(:full_load_hour) (EUR/full load hour) 
+gives a value which can be multiplied with the number of full load hours calculated 
+by the merit order, so that the variable costs per plant are determined.
+
+The fixed costs and variable costs can be summed up so that the total costs can be calculated 
+per plant as an output of the merit order module.
 
 ## Output
 
