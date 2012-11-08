@@ -20,16 +20,14 @@ module Merit
 
     describe "#participants" do
       it 'should be able to add different types' do
-        order.add_must_run(:foo, :profile, 1,2,3,4)
-        order.add_volatile(:foo, :profile, 1,2,3,4)
-        order.add_dispatchable(:foo, :profile, 1,2)
+        order.add(MustRunParticipant.new({}))
       end
     end
 
     describe "#inspect" do
       it "should contain the number of participants" do
-        expect(order.to_s).to match("0")
-        order.add_must_run(1,2,3,4,5,6)
+        expect(order.to_s).to match("0 participant")
+        order.add(MustRunParticipant.new({}))
         expect(order.to_s).to match("1 participant")
       end
       it "shows the total demand"  do
@@ -43,7 +41,7 @@ module Merit
         expect(order.must_runs).to be_empty
       end
       it "should contain a new must run" do
-        order.add_must_run(1,2,3,4,5,6)
+        order.add(MustRunParticipant.new({}))
         expect(order.must_runs).to_not be_empty
       end
     end
@@ -53,7 +51,7 @@ module Merit
         expect(order.volatiles).to be_empty
       end
       it "should contain a new must run" do
-        order.add_volatile(1,2,3,4,5,6)
+        order.add(VolatileParticipant.new({}))
         expect(order.volatiles).to_not be_empty
       end
     end
@@ -63,7 +61,7 @@ module Merit
         expect(order.dispatchables).to be_empty
       end
       it "should contain a new must run" do
-        order.add_dispatchable(1,2,3,4)
+        order.add(DispatchableParticipant.new({}))
         expect(order.dispatchables).to_not be_empty
       end
     end

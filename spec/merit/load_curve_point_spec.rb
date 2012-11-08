@@ -14,15 +14,7 @@ module Merit
       end
     end
 
-    describe '#running_participants' do
-
-      xit 'should be able to calculate which participants are running' do
-        load_curve_point = LoadCurvePoint.new(100)
-        expect(load_curve_point.running_participants).to have(3).participants
-      end
-    end
-
-  end
+  end #describe LoadCurvePoint
 
 end
 
