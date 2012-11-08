@@ -25,20 +25,51 @@ The marginal costs per plant are calculated by normalizing the variable costs of
 by the amount of MWh it has produced. The marginal costs are calculated in ETEngine and 
 are called merit_order_variable_costs_per(:mwh_electricity).
 
+The electricity price is an outcome of the merit order calculation, and is
+determined to be: Marginal costs of the plant that comes next to the price
+setting plant (EUR/MWh)
+
 Furthermore the following attributes per plant are necessary for the merit order and 
 profitability calculation:
 * fixed_costs (EUR/plant/year)
-* co2_emissions_costs_per(:mwh_electricity) (EUR/MWh)
-* fuel_costs_per(:mwh_electricity) (EUR/MWh)
+* co2_emissions_costs_per(:full_load_hour) (EUR/full load hour)
+* fuel_costs_per(:full_load_hour) (EUR/full load hour)
 * variable_operation_and_maintenance_costs_per_full_load_hour (EUR/full load hour)
 * variable_operation_and_maintenance_costs_for_ccs_per_full_load_hour (EUR/full load hour)
 
 ```Ruby
-Merit::Order.add(MustRunParticipant.new(key: "coal",
+Merit::Order.add(MustRunParticipant.new(
+key: "ultra_supercritical_coal",
 merit_order_variable_costs_per(:mwh_electricity): 20.02, 
-installed_production_capacity_in_mw_electricity: )
-merit_order.add_dispatchable(key: ultra_supercritical_coal, 48.0, 2000, 0.90)
-merit_order.add_dispatchable(key: combined_cycle_gas,       60.0, 3000, 0.85)
+installed_production_capacity_in_mw_electricity: 2000, 
+availability: 0.90, 
+fixed_costs: 3000000, 
+co2_emissions_costs_per(:full_load_hour): 5.67, 
+fuel_costs_per(:full_load_hour): 13.50, 
+variable_operation_and_maintenance_costs_per_full_load_hour: 10.00, 
+variable_operation_and_maintenance_costs_for_ccs_per_full_load_hour: 0.00  ))
+
+Merit::Order.add(MustRunParticipant.new(
+key: "combined_cycle_gas",
+merit_order_variable_costs_per(:mwh_electricity): 23.00, 
+installed_production_capacity_in_mw_electricity: 3000, 
+availability: 0.85, 
+fixed_costs: 5000000, 
+co2_emissions_costs_per(:full_load_hour): 2.45, 
+fuel_costs_per(:full_load_hour): 20.50, 
+variable_operation_and_maintenance_costs_per_full_load_hour: 9.00, 
+variable_operation_and_maintenance_costs_for_ccs_per_full_load_hour: 0.00  ))
+
+Merit::Order.add(MustRunParticipant.new(
+key: "nuclear_gen3",
+merit_order_variable_costs_per(:mwh_electricity): 22.10, 
+installed_production_capacity_in_mw_electricity: 300, 
+availability: 0.95, 
+fixed_costs: 4000000, 
+co2_emissions_costs_per(:full_load_hour): 0.00, 
+fuel_costs_per(:full_load_hour): 10.00, 
+variable_operation_and_maintenance_costs_per_full_load_hour: 3.00, 
+variable_operation_and_maintenance_costs_for_ccs_per_full_load_hour: 0.00  ))
 ```
 
 Add the `must_run` and `volatile` participants with the **load_profile_key**, its
@@ -66,10 +97,6 @@ merit_order.participant[:ultra_supercritical_coal].profit
 merit_order.participant[:ultra_supercritical_coal].profitability
 => :profitable
 ```
-
-The electricity price is an outcome of the merit order calculation, and is
-determined to be: Marginal costs of the plant that comes next to the price
-setting plant (EUR/MWh)
 
 ## Input
 
@@ -137,9 +164,11 @@ This information is shown in a table.
 #### Full load hours and load fraction
 
 Return the full load hours of a participating electricity generating
-technology in **hours**. The number of full load hours is calculated by summing up the load fraction for each data point.
+technology in **hours**. The number of full load hours is calculated by summing up the load 
+fraction for each data point.
 Each data point represents 1 hour (so 8760 data points per year).
-The load fraction is the fraction of capacity of a plant that is used for matching the electricity demand in 
+The load fraction is the fraction of capacity of a plant that is used for matching the electricity 
+demand in 
 the merit order, so:
 
 load fraction (%) = Capacity used (MW) / maximum capacity (MW)
@@ -151,7 +180,8 @@ For the plants that are more expensive than the price setting plant, the load fr
 
 #### Income
 
-The income in EUR of a plant is calculated by summing up the (load fraction * electricity price) for each data point.
+The income in EUR of a plant is calculated by summing up the (load fraction * electricity price) 
+for each data point.
 
 #### Total costs 
 
@@ -163,16 +193,16 @@ The calculation of these costs per plant is done in
 
 #### Fixed costs 
 
-The fixed_costs (EUR/plant/year) of a power plant is calculated by summing up cost_of_capital, depreciation_costs and 
-fixed_operation_and_maintenance_costs_per_year
+The fixed_costs (EUR/plant/year) of a power plant is calculated by summing up cost_of_capital, depreciation_costs 
+and fixed_operation_and_maintenance_costs_per_year
 
 The calculation of these costs per plant is done in 
 [ETEngine](https://github.com/quintel/etengine/blob/master/app/models/qernel/converter_api/cost.rb).
 
 #### Variable costs
 
-The variable_costs (EUR/plant/year) of a power plant is calculated by summing up fuel_costs, co2_emissions_costs and 
-variable_operation_and_maintenance_costs
+The variable_costs (EUR/plant/year) of a power plant is calculated by summing up fuel_costs, co2_emissions_costs 
+and variable_operation_and_maintenance_costs
 
 The calculation of these costs per plant is done in 
 [ETEngine](https://github.com/quintel/etengine/blob/master/app/models/qernel/converter_api/cost.rb).
