@@ -16,7 +16,8 @@ merit_order = Merit::Order.new
 => "<Merit::Order, 0 participants, demand: not set>"
 ```
 
-Add the dispatchable participants to the Merit Order, by using the following parameters as input:
+Add the dispatchable participants to the Merit Order, by using the following 
+parameters as input:
 * marginal_costs (EUR/MWh) 
 * effective_output_capacity (MW electric/plant)
 * number_of_units
@@ -26,7 +27,7 @@ Add the dispatchable participants to the Merit Order, by using the following par
 Now the (dispatchable) participants have certain attributes, e.g.
 
 ```Ruby
-Merit::Order.add(Participant.new(
+Merit::Order.add(DispatchableParticipant.new(
 key: "ultra_supercritical_coal",
 marginal_costs: 20.02, 
 effective_output_capacity: 792,
@@ -34,12 +35,13 @@ number_of_units: 3
 availability: 0.90, 
 fixed_costs: 3000000  ))
 
-Merit::Order.add(Participant.new(
+Merit::Order.add(DispatchableParticipant.new(
 key: "combined_cycle_gas",
 marginal_costs: 23.00, 
 effective_output_capacity: 3000,
 number_of_units: 3
 availability: 0.85, 
+<<<<<<< HEAD
 fixed_costs: 5000000  ))
 
 Merit::Order.add(Participant.new(
@@ -49,6 +51,10 @@ effective_output_capacity: 300,
 number_of_units: 3
 availability: 0.95, 
 fixed_costs: 4000000  ))
+=======
+fixed_costs: 5000000, 
+variable_costs: 40.00  ))
+>>>>>>> Cleaned up README.md a little bit.
 ```
 
 Add the `must_run` and `volatile` participants with the **load_profile_key**, its
@@ -185,8 +191,6 @@ merit_order.participants[:coal].profitability
 => "profitable" # hurray, it is profitable!
 ```
 
-This information is shown in a table. 
-
 #### Full load hours and load fraction
 
 Return the full load hours of a participating electricity generating
@@ -283,7 +287,7 @@ defined in the merit order module.
 
 #### Definition
 
-**CHAEL, please define it here**
+A load profile has 8760 datapoints.
 
 #### Current Load Profiles
 
