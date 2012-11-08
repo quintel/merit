@@ -6,7 +6,6 @@ module Merit
   # It will contain the 'global' methods for e.g. the total_profit
   # of all the load_curve_points
   #
-  # DEBT: might also be a mixin for Order class?
   class LoadCurve
 
     attr_accessor :points
@@ -14,6 +13,10 @@ module Merit
     # Public: creates an empty LoadCurve
     def initialize
       @points = []
+    end
+
+    def load
+      points.map{|p|p.load}.inject(:+)
     end
 
     def to_s

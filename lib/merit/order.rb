@@ -27,7 +27,14 @@ module Merit
     end
 
     def load_curve
-      @load_curve = LoadCurve.create(LoadProfile.load(:total_demand).values)
+      raise UnknownDemandError unless total_demand
+      @load_curve = LoadCurve.create(
+        LoadProfile.load(:total_demand).values.map{ |v| v * total_demand }
+      )
+    end
+
+    # Public: checks if a partipant is running
+    def participants_running(partipant, point_in_time)
     end
 
     # -------- Participants ------------

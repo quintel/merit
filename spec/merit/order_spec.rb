@@ -13,8 +13,21 @@ module Merit
     end
 
     describe "#load_curve" do
-      it "should contain 2190 LoadCurvePoints" do
-        expect(order.load_curve).to have(2190).points
+      context 'if demand is known' do
+        it "should contain 2190 LoadCurvePoints" do
+          order.total_demand = 1
+          expect(order.load_curve).to have(2190).points
+        end
+        it "should have scaled correctly" do
+          pending("exact definition of load profile from Chael")
+          order.total_demand = 17.0
+          expect(order.load_curve.load).to eql(17.0)
+        end
+      end
+      context 'if demand is UNknown' do
+        it "should raise an error" do
+          expect(->{ order.load_curve }).to raise_error(UnknownDemandError)
+        end
       end
     end
 
