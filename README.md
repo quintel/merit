@@ -5,7 +5,7 @@ This module is used to calculate the merit order for the
 
 The **merit order** predicts/calculates which electricity generating
 technologies are switched on or off to meet the demand/load on the electricity
-network.
+network at which **hour** in the year.
 
 ## Quick Demonstration
 
@@ -24,10 +24,10 @@ parameters as input:
 * availability (%)
 * fixed_costs (EUR/plant/year)
 
-Now the (dispatchable) participants have certain attributes, e.g.
+For example, we could add the following two:
 
 ```Ruby
-Merit::Order.add(
+merit_order.add(
   DispatchableParticipant.new(
     key:                       :ultra_supercritical_coal,
     marginal_costs:            20.02
@@ -38,7 +38,7 @@ Merit::Order.add(
   )
 )
 
-Merit::Order.add(
+merit_order.add(
   DispatchableParticipant.new(
     key:                       :combined_cycle_gas,
     marginal_costs:            23.00,
@@ -56,8 +56,10 @@ parameters:
 1. load_profile_key
 2. full_load_hours
 
+for instance:
+
 ```Ruby
-Merit::Order.add(
+merit_order.add(
   MustRunParticipant.new(
     key:                       :industry_chp_combined_cycle_gas,
     marginal_costs:            1.00,
@@ -70,7 +72,7 @@ Merit::Order.add(
   )
 )
 
-Merit::Order.add(
+merit_order.add(
   VolatileParticipant.new(
     key:                       :wind_offshore,
     marginal_costs:            0.0,
