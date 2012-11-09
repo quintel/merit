@@ -227,7 +227,7 @@ summing up the `fixed_costs` (which is input) and the `variable_costs`:
 
 #### Variable costs
 
-The `variable_costs` (EUR/plant/year) of a participant is calculated by
+The `variable_costs` (EUR/year) of a participant is calculated by
 multiplying the (input parameter) `marginal_costs` (EUR/MWh/year) by the
 `electricity production` of the participant.
 
