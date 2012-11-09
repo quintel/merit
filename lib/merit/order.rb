@@ -33,22 +33,22 @@ module Merit
       )
     end
 
-    # Public: checks if a partipant is running
-    def participants_running(partipant, point_in_time)
-    end
-
     # -------- Participants ------------
 
+    # Public: Returns all the must_run participants
     def must_runs
       @participants.select{ |p| p.is_a?(MustRunParticipant) }
     end
 
+    # Public: Returns all the volatiles participants
     def volatiles
       @participants.select{ |p| p.is_a?(VolatileParticipant) }
     end
 
+    # Public: Returns all the dispatchables participants
     def dispatchables
-      @participants.select{ |p| p.is_a?(DispatchableParticipant) }
+      @participants.select{ |p| p.is_a?(DispatchableParticipant) }. \
+        sort_by(&:marginal_costs)
     end
 
     # Public: adds a participant to this order

@@ -148,14 +148,14 @@ The marginal_costs (EUR/MWh/year) are calculated by dividing the variable costs
 MWh). The marginal costs can be queried from the ETEngine's GQL with the
 following query:
 
-    V(:converter_key, variable_costs_per(:mwh_electricity))
+    V(converter_key, variable_costs_per(:mwh_electricity))
 
 #### Fixed costs
 
 The fixed costs (EUR/plant) can be queried from the ETM with the fixed_costs
 function:
 
-    V(:converter_key, fixed_costs)
+    V(converter_key, fixed_costs)
 
 ## Output
 

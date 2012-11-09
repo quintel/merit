@@ -27,4 +27,12 @@ module Merit
     "Cannot calculate if Demand is not (yet known)"
   end
 
+  MissingLoadProfileError = error_class do |key|
+    "#{key} is not known. Please add."
+  end
+
+  IncorrectLoadProfileError = error_class do |key|
+    "#{key} is malformatted. It needs to contain 2190, 4380 or 8760 points."
+  end
+
 end # Merit

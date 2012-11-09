@@ -21,7 +21,7 @@ module Merit
     end
 
     describe '#new' do
-      it 'should remember' do
+      it 'should remember (more than basic participants)' do
         expect(must_run.key).to eql(:coal)
         expect(must_run.load_profile_key).to eql(:industry_chp)
         expect(must_run.capacity).to eql(1)
@@ -33,7 +33,12 @@ module Merit
 
     describe '#load_profile_values' do
       it 'should contain the values' do
-        expect(must_run.load_profile.values).to have(2190).values
+        expect(must_run.load_profile.values).to have(8760).values
+      end
+      it 'should raise an error is the load_profile is not known' do
+        must_run = MustRunParticipant.new(load_profile: 'weird-al')
+        expect(->{ must_run.load_profile }) \
+          .to raise_error(MissingLoadProfileError)
       end
     end
 

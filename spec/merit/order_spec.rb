@@ -14,9 +14,9 @@ module Merit
 
     describe "#load_curve" do
       context 'if demand is known' do
-        it "should contain 2190 LoadCurvePoints" do
+        it "should contain 8760 LoadCurvePoints" do
           order.total_demand = 1
-          expect(order.load_curve).to have(2190).points
+          expect(order.load_curve).to have(8760).points
         end
         it "should have scaled correctly" do
           pending("exact definition of load profile from Chael")
@@ -76,6 +76,14 @@ module Merit
       it "should contain a new must run" do
         order.add(DispatchableParticipant.new({}))
         expect(order.dispatchables).to_not be_empty
+      end
+      it "should be ordered by marginal_costs" do
+        dp1 = DispatchableParticipant.new({marginal_costs: 2})
+        dp2 = DispatchableParticipant.new({marginal_costs: 1})
+        order.add(dp1)
+        order.add(dp2)
+        expect(order.dispatchables.first).to eql(dp2)
+        expect(order.dispatchables.last).to  eql(dp1)
       end
     end
 

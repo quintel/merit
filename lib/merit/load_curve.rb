@@ -29,11 +29,12 @@ module Merit
     # point
     #
     # params [Array] point_values
+    #        [Merit::Order] reference back to this merit_order
     #
-    # Return a new LoadCurve
-    def self.create(point_values)
+    # Returns a new LoadCurve
+    def self.create(point_values, order = nil)
       self.new.tap do |new|
-        new.points = point_values.map{ |v| LoadCurvePoint.new(v) }
+        new.points = point_values.map{ |v| LoadCurvePoint.new(v,order) }
       end
     end
 

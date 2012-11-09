@@ -16,8 +16,10 @@ module Merit
       @full_load_hours  = opts[:full_load_hours]
     end
 
+    # Public: returns the LoadProfile of this participant. This basically
+    # tells you during what period in a year this technology is used/on.
     def load_profile
-      @load_profile_values ||= LoadProfile.load(@load_profile_key)
+      @load_profile_values = LoadProfile.load(@load_profile_key)
     end
 
   end
