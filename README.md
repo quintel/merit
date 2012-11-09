@@ -221,7 +221,7 @@ multiplying the (input parameter) `marginal_costs` (EUR/MWh/year) by the
 The `profit` of a participant (EUR/plant/year) is calculated by subtracting the
 `total_costs` from the `income` of the participant.
 
-    profit = total_costs - income
+    profit = income - total_costs
 
 #### Profitability
 
