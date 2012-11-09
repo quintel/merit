@@ -22,7 +22,7 @@ parameters as input:
 * effective_output_capacity (MW electric/plant)
 * number_of_units (#)
 * availability (%)
-* fixed_costs (EUR/plant/year)
+* fixed_costs (EUR/year)
 
 For example, we could add the following two:
 
@@ -99,7 +99,7 @@ for this situation, and you can start to ask for this output, e.g.
 merit_order.participant[:ultra_supercritical_coal].full_load_hours
 => 2000 # hours
 merit_order.participant[:ultra_supercritical_coal].profit
-=> 10.0 # EUR/plant/year
+=> 10.0 # EUR/year
 merit_order.participant[:ultra_supercritical_coal].profitability
 => :profitable
 ```
@@ -144,7 +144,7 @@ produce the correct demand curve.
 #### Marginal costs
 
 The marginal_costs (EUR/MWh/year) are calculated by dividing the variable costs
-(EUR/plant/year) of the participant by its (yearly) electricity production (in
+(EUR/year) of the participant by its (yearly) electricity production (in
 MWh). The marginal costs can be queried from the ETEngine's GQL with the
 following query:
 
@@ -152,7 +152,7 @@ following query:
 
 #### Fixed costs
 
-The fixed costs (EUR/plant) can be queried from the ETM with the fixed_costs
+The fixed costs (EUR/year) can be queried from the ETM with the fixed_costs
 function:
 
     V(converter_key, fixed_costs)
@@ -220,7 +220,7 @@ fraction * electricity price` for each data point.
 
 #### Total costs 
 
-The `total_costs` (EUR/plant/year) of a power participant is calculated by
+The `total_costs` (EUR/year) of a power participant is calculated by
 summing up the `fixed_costs` (which is input) and the `variable_costs`:
 
     total_costs = fixed_costs + variable_costs
@@ -235,7 +235,7 @@ multiplying the (input parameter) `marginal_costs` (EUR/MWh/year) by the
 
 #### Profit
 
-The `profit` of a participant (EUR/plant/year) is calculated by subtracting the
+The `profit` of a participant (EUR/year) is calculated by subtracting the
 `total_costs` from the `income` of the participant.
 
     profit = income - total_costs
@@ -332,12 +332,12 @@ demand).
 * effective_output_capacity: **MW electric/plant**
 * number_of_units: **#**
 * availability: **fraction** (between 0 and 1)
-* fixed_costs: **EUR** (per plant per year)**
+* fixed_costs: **EUR** (per year)**
 * total_demand: **MJ** (per year)
 * full_load_hours: **hours** (per year)
 * profitability: **:symbol**
-* income: **EUR** (per plant per year)
-* profit: **EUR** (per plant per year)
+* income: **EUR** (per year)
+* profit: **EUR** (per year)
 * electricity price: **EUR/MWh**
 
 ## Issues
