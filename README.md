@@ -175,24 +175,25 @@ order, so:
     load_fraction = capacity used / maximum capacity
 
 For the participants that are cheaper than the price setting participant, the
-load_fraction is equal to 1.  For the price setting participant this load_fraction 
-is generally lower than 1, since only a fraction of its maximum
+load_fraction is equal to 1.  For the price setting participant this
+load_fraction is generally lower than 1, since only a fraction of its maximum
 capacity is needed to meet the demand.  For the participants that are more
 expensive than the price setting participant, the load_fraction is equal to 0.
 
 ### For each LoadCurvePoint
 
 * price
-* demand
+* demand load
 
 #### Price
 
 The price is equal to the `marginal_costs` of the participant that is highest
 up the merit order + 1. This is the price of electricity at that point in time.
 
-#### Demand
+#### Demand load
 
-The demand is the value of the demand curve at this particular point in time (MW).
+The demand load is defined by the load profile for the total_demand, and is
+the number at this particular point in time. Unit: MW.
 
 ### For each Participant
 

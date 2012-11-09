@@ -557,3 +557,6 @@ module Merit
   end
 
 end
+
+# for easy console access
+@s = Merit.stub
