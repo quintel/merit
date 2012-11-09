@@ -204,7 +204,9 @@ fraction * electricity price` for each data point.
 #### Total costs 
 
 The `total_costs` (EUR/plant/year) of a power participant is calculated by
-summing up the fixed_costs (which is input) and the variable_costs.
+summing up the `fixed_costs` (which is input) and the `variable_costs`:
+
+    total_costs = fixed_costs + variable_costs
 
 #### Variable costs
 
@@ -217,18 +219,17 @@ multiplying the (input parameter) `marginal_costs` (EUR/MWh/year) by the
 #### Profit
 
 The `profit` of a participant (EUR/plant/year) is calculated by subtracting the
-`total_costs` from the income of the participant.
+`total_costs` from the `income` of the participant.
+
+    profit = total_costs - income
 
 #### Profitability
 
 Returns one of three states:
 
-1. `:profitable` (if income >= total costs)
-2. `:conditionally_profitable` (if variable costs =< income < total costs)
-3. `:unprofitable` (if income < variable costs)
-
-These three states are communicated to ETEngine with the terms **profitable**,
-**conditionally profitable** and **unprofitable**.
+1. `:profitable` (if `income >= total costs`)
+2. `:conditionally_profitable` (if `variable costs =< income < total costs`)
+3. `:unprofitable` (if `income < variable costs`)
 
 P.S. These three states are communicated to the user by coloring the
 participants **green**, **orange** and **red** respectively in the Merit Order
@@ -237,10 +238,11 @@ table.
 ## Diagnostic output
 
 Admin users of this module have the possibility to extract extra information
-from the Merit Order calculations. In particular, the following quantities are
-outputted **for every datapoint**:
+from the Merit Order calculations.
 
 #### For every LoadCurvePoint
+
+In particular, the following quantities are outputted **for every datapoint**:
 
 1. total demand
 2. price of electricity
@@ -260,7 +262,7 @@ In addition, for **each participant**, the following quantities are outputted:
 8. variable_operation_and_maintenance_costs
 9. fixed_operation_and_maintenance_costs_per_year
 10. income
-11. type (dispatchable, volatile or must_run)
+11. type (`:dispatchable`, `:volatile` or `:must_run`)
 12. total production (redundant but easy)
 
 ## Load Profile
@@ -271,9 +273,9 @@ needs to have a load profile defined.
 
 #### Definition
 
-A load profile has 8760 datapoints, one for every hour in a year. Profiles are
-normalized such that multiplying them with the total produced electricity (in
-**MJ**) yields the load at every point in time in units of **MW**.
+A load profile has **8760** datapoints, one for every hour in a year. Profiles
+are normalized such that multiplying them with the total produced electricity
+(in **MJ**) yields the load at every point in time in units of **MW**.
 
 This normalization effectively implies that the surface area under the load
 profiles is equal to 1 MJ.  This can be checked:
