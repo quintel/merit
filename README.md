@@ -159,17 +159,23 @@ function:
 
 ## Output
 
-Merit order can supply the user with the following information of the
-*participants*:
+### For each LoadCurvePoint and Participant
 
-1. full load hours
-2. load fraction
-3. income
-4. total costs
-5. fixed costs
-6. variable costs
-7. profitability
-8. profit
+* load fraction
+* fixed_costs
+
+### For each LoadCurvePoint
+
+* price
+
+### For each Participant
+
+* full load hours
+* profitability
+* profit
+* total_income
+* total_costs
+* variable costs
 
 
 ```Ruby
@@ -242,30 +248,11 @@ table.
 Admin users of this module have the possibility to extract extra information
 from the Merit Order calculations.
 
-#### For every LoadCurvePoint
+The following quantities are outputted **for every datapoint**:
 
-In particular, the following quantities are outputted **for every datapoint**:
-
-1. total demand
-2. price of electricity
-3. load of **each** participant
-
-#### For each Participant
-
-In addition, for **each participant**, the following quantities are outputted:
-
-1. key
-2. production_capacity (MWe)
-3. number_of_units
-4. full_load_hours
-5. availability
-6. fuel_costs
-7. co2_emissions_costs
-8. variable_operation_and_maintenance_costs
-9. fixed_operation_and_maintenance_costs_per_year
-10. income
-11. type (`:dispatchable`, `:volatile` or `:must_run`)
-12. total production (redundant but easy)
+* total demand
+* price of electricity
+* load of **each** participant
 
 ## Load Profile
 
@@ -331,6 +318,7 @@ demand).
 
 ## Units used
 
+* load: **MW**
 * marginal_costs: **EUR/MWh/year** 
 * effective_output_capacity: **MW electric/plant**
 * number_of_units: **#**
