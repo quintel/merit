@@ -149,27 +149,31 @@ merit_order.participant[:coal].full_load_hours
 
 #### Total demand
 
-Total demand must be supplied in **MJ**. It is the sum of all electricity consumption 
-of converters in the final demand converter group **plus** losses of the electricity network. 
+Total demand must be supplied in **MJ**. It is the sum of all electricity
+consumption of converters in the final demand converter group **plus** losses
+of the electricity network. 
 
-The total demand is used to scale up the **normalized** demand curve to it produce the correct
-demand curve.
+The total demand is used to scale up the **normalized** demand curve to it
+produce the correct demand curve.
 
 #### Marginal costs
 
-The marginal_costs (EUR/MWh/year) are calculated by dividing the variable costs (EUR/plant/year) of the participant 
-by its (yearly) electricity production (in MWh). The marginal costs can be queried from the ETM with
- variable_costs_per(:mwh_electricity).
+The marginal_costs (EUR/MWh/year) are calculated by dividing the variable costs
+(EUR/plant/year) of the participant by its (yearly) electricity production (in
+MWh). The marginal costs can be queried from the ETM with
+variable_costs_per(:mwh_electricity).
 
 #### Fixed costs
 
-The fixed costs (EUR/plant) can be queried from the ETM with the fixed_costs function.
+The fixed costs (EUR/plant) can be queried from the ETM with the fixed_costs
+function.
 
 
 
 ## Output
 
-Merit order can supply the user with the following information of the *participants*:
+Merit order can supply the user with the following information of the
+*participants*:
 
 1. full load hours 
 2. load fraction
@@ -192,44 +196,44 @@ merit_order.participants[:coal].profitability
 
 #### Full load hours and load fraction
 
-Return the full_load_hours of a participating electricity generating
-technology in **hours**. The number of full load hours is calculated by summing up the load_fraction 
-for each data point.
-Each data point represents 1 hour (so 8760 data points per year).
-The load_fraction is the fraction of capacity of a participant that is used for matching the electricity 
-demand in the merit order, so:
+Return the full_load_hours of a participating electricity generating technology
+in **hours**. The number of full load hours is calculated by summing up the
+load_fraction for each data point.  Each data point represents 1 hour (so 8760
+data points per year).  The load_fraction is the fraction of capacity of a
+participant that is used for matching the electricity demand in the merit
+order, so:
 
-```Ruby
-load_fraction = capacity used / maximum capacity
-```
+```Ruby load_fraction = capacity used / maximum capacity ```
 
-For the participants that are cheaper than the price setting participant, the load fraction is equal to 1.
-For the price setting participant this load fraction is generally lower than 1, 
-since only a fraction of its maximum capacity is needed to meet the demand.
-For the participants that are more expensive than the price setting participant, the load_fraction is equal to 0.
+For the participants that are cheaper than the price setting participant, the
+load fraction is equal to 1.  For the price setting participant this load
+fraction is generally lower than 1, since only a fraction of its maximum
+capacity is needed to meet the demand.  For the participants that are more
+expensive than the price setting participant, the load_fraction is equal to 0.
 
 #### Income
 
-The income (in EUR) of a participant is calculated by summing up the (load fraction * electricity price) 
-for each data point.
+The income (in EUR) of a participant is calculated by summing up the (load
+fraction * electricity price) for each data point.
 
 #### Total costs 
 
-The total_costs (EUR/plant/year) of a power participant is calculated by summing up the fixed_costs (which is input) and 
-the variable_costs.
+The total_costs (EUR/plant/year) of a power participant is calculated by
+summing up the fixed_costs (which is input) and the variable_costs.
 
 #### Variable costs
 
-The variable_costs (EUR/plant/year) of a participant is calculated by multiplying the (input parameter) 
-marginal_costs (EUR/MWh/year) by the electricity production of the participant.
+The variable_costs (EUR/plant/year) of a participant is calculated by
+multiplying the (input parameter) marginal_costs (EUR/MWh/year) by the
+electricity production of the participant.
 
-```Ruby
-variable_costs = marginal_costs * effective_output_capacity * number_of_units * full_load_hours
-```
+```Ruby variable_costs = marginal_costs * effective_output_capacity *
+number_of_units * full_load_hours ```
 
 #### Profit
 
-The profit of a participant (EUR/plant/year) is calculated by subtracting the total_costs from the income of the participant.
+The profit of a participant (EUR/plant/year) is calculated by subtracting the
+total_costs from the income of the participant.
 
 #### Profitability
 
@@ -239,22 +243,23 @@ Returns one of three states:
 2. Conditionally profitable (if variable costs =< income < total costs)
 3. Unprofitable (if income < variable costs)
 
-These three states are communicated to ETEngine with the terms **profitable**, 
-**conditionally profitable** and **unprofitable**.
-These three states are communicated to the user by coloring the participants **green**, 
-**orange** and **red** respectively in the Merit Order table.
+These three states are communicated to ETEngine with the terms **profitable**,
+**conditionally profitable** and **unprofitable**.  These three states are
+communicated to the user by coloring the participants **green**, **orange** and
+**red** respectively in the Merit Order table.
 
 #### Diagnostic output
 
-Developers of the ETM (not users) have the possibility to extract extra information
- from the Merit Order calculations. In particular, the following quantities are
- written to file (CSV) **for every datapoint**:
+Developers of the ETM (not users) have the possibility to extract extra
+information from the Merit Order calculations. In particular, the following
+quantities are written to file (CSV) **for every datapoint**:
 
 1. total demand
 2. price of electricity
 3. load of **each** participant
 
-In addition, for **each participant**, the following quantities are written to (CSV) file:
+In addition, for **each participant**, the following quantities are written to
+(CSV) file:
 
 1. key
 2. production_capacity (MWe)
@@ -271,17 +276,18 @@ In addition, for **each participant**, the following quantities are written to (
 
 ## Load profile
 
-For each **must_run** and **volatile** participant a **normalized** load profile has to be
-defined in the merit order module.
+For each **must_run** and **volatile** participant a **normalized** load
+profile has to be defined in the merit order module.
 
 #### Definition
 
-A load profile has 8760 datapoints, one for every hour in a year. Profiles are normalized
-such that multiplying them with the total produced electricity (in **MJ**) yields the load at every 
-point in time in units of **MW**.
+A load profile has 8760 datapoints, one for every hour in a year. Profiles are
+normalized such that multiplying them with the total produced electricity (in
+**MJ**) yields the load at every point in time in units of **MW**.
 
-This normalization effectively implies that the surface area under the load profiles is equal to 1 MJ.
-This can be checked by taking
+This normalization effectively implies that the surface area under the load
+profiles is equal to 1 MJ.  This can be checked by taking
+
 ``` Ruby
 Merit::LoadProfile.load(:total_demand).values.inject(:+) * 3600
 ```
@@ -299,17 +305,18 @@ Currently, the following load profiles are supported
 7. inland wind turbines
 
 These load profile are defined in the
-[load_profiles](https://github.com/quintel/merit/tree/master/load_profiles) directory.
-These curves are normalized such that the surface area underneath each curve equals unity.
-This means that the load of a must_run or volatile participant at every point in time can
-be found by multiplying its load profile with its **electricity production** (note that this
-is not equal to its demand). 
+[load_profiles](https://github.com/quintel/merit/tree/master/load_profiles)
+directory.  These curves are normalized such that the surface area underneath
+each curve equals unity.  This means that the load of a must_run or volatile
+participant at every point in time can be found by multiplying its load profile
+with its **electricity production** (note that this is not equal to its
+demand). 
 
 ## Assumptions
 
 * This module just calculates yearly averages. No seasons, months, or days
-* The electricity price is marginal costs of the participant that comes next to the price
-  setting participant (EUR/MWh)
+* The electricity price is marginal costs of the participant that comes next to
+  the price setting participant (EUR/MWh)
 
 ## Road Map
 
