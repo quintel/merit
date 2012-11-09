@@ -18,10 +18,9 @@ module Merit
           order.total_demand = 1
           expect(order.load_curve).to have(8760).points
         end
-        it "should have scaled correctly" do
-          pending("exact definition of load profile from Chael")
+        it "should scale correctly" do
           order.total_demand = 17.0
-          expect(order.load_curve.load).to eql(17.0)
+          expect(order.load_curve.load * 3600).to be_within(0.1).of(17)
         end
       end
       context 'if demand is UNknown' do
@@ -33,14 +32,14 @@ module Merit
 
     describe "#participants" do
       it 'should be able to add different types' do
-        order.add(MustRunParticipant.new({}))
+        order.add(MustRunParticipant.new({key: :foo}))
       end
     end
 
     describe "#inspect" do
       it "should contain the number of participants" do
         expect(order.to_s).to match("0 participant")
-        order.add(MustRunParticipant.new({}))
+        order.add(MustRunParticipant.new({key: :foo}))
         expect(order.to_s).to match("1 participant")
       end
       it "shows the total demand"  do
@@ -54,7 +53,7 @@ module Merit
         expect(order.must_runs).to be_empty
       end
       it "should contain a new must run" do
-        order.add(MustRunParticipant.new({}))
+        order.add(MustRunParticipant.new({key: :foo}))
         expect(order.must_runs).to_not be_empty
       end
     end
@@ -64,7 +63,7 @@ module Merit
         expect(order.volatiles).to be_empty
       end
       it "should contain a new must run" do
-        order.add(VolatileParticipant.new({}))
+        order.add(VolatileParticipant.new({key: :foo}))
         expect(order.volatiles).to_not be_empty
       end
     end
@@ -74,12 +73,12 @@ module Merit
         expect(order.dispatchables).to be_empty
       end
       it "should contain a new must run" do
-        order.add(DispatchableParticipant.new({}))
+        order.add(DispatchableParticipant.new({key: :foo}))
         expect(order.dispatchables).to_not be_empty
       end
       it "should be ordered by marginal_costs" do
-        dp1 = DispatchableParticipant.new({marginal_costs: 2})
-        dp2 = DispatchableParticipant.new({marginal_costs: 1})
+        dp1 = DispatchableParticipant.new({key: :foo, marginal_costs: 2})
+        dp2 = DispatchableParticipant.new({key: :bar, marginal_costs: 1})
         order.add(dp1)
         order.add(dp2)
         expect(order.dispatchables.first).to eql(dp2)

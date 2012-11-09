@@ -35,4 +35,8 @@ module Merit
     "#{key} is malformatted. It needs to contain 2190, 4380 or 8760 points."
   end
 
+  MissingAttributeError = error_class do |attribute, class_name|
+    "Missing attribute #{attribute} for this instance of class #{class_name}."
+  end
+
 end # Merit

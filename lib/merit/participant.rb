@@ -5,16 +5,20 @@ module Merit
   # or a CHP.
   class Participant
 
-    attr_reader :key, :marginal_costs, :capacity, :availability
+    attr_reader :key, :marginal_costs, :effective_output_capacity,
+                :availability, :number_of_units, :fixed_costs
 
     # Public: creates a new participant
     # params opts[Hash] set the attributes
     # returns Participant
     def initialize(opts)
-      @key            = opts[:key]
-      @marginal_costs = opts[:marginal_costs]
-      @capacity       = opts[:capacity]
-      @availability   = opts[:availability]
+      raise MissingAttributeError.new('key',self.class) unless opts[:key]
+      @key                       = opts[:key]
+      @marginal_costs            = opts[:marginal_costs]
+      @effective_output_capacity = opts[:effective_output_capacity]
+      @availability              = opts[:availability]
+      @number_of_units           = opts[:number_of_units]
+      @fixed_costs               = opts[:fixed_costs]
     end
 
   end

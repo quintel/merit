@@ -17,12 +17,11 @@ module Merit
   #
   class Order
 
-    attr_reader   :participants
     attr_accessor :total_demand
 
     # Public: created a new Order
     def initialize(total_demand = nil)
-      @participants = []
+      @participants = {}
       @total_demand = total_demand
     end
 
@@ -37,25 +36,34 @@ module Merit
 
     # Public: Returns all the must_run participants
     def must_runs
-      @participants.select{ |p| p.is_a?(MustRunParticipant) }
+      participants.select{ |p| p.is_a?(MustRunParticipant) }
     end
 
     # Public: Returns all the volatiles participants
     def volatiles
-      @participants.select{ |p| p.is_a?(VolatileParticipant) }
+      participants.select{ |p| p.is_a?(VolatileParticipant) }
     end
 
     # Public: Returns all the dispatchables participants
     def dispatchables
-      @participants.select{ |p| p.is_a?(DispatchableParticipant) }. \
+      participants.select{ |p| p.is_a?(DispatchableParticipant) }. \
         sort_by(&:marginal_costs)
+    end
+
+    # Public Returns the participant for a given key, nil if not exists
+    def participant(key)
+      @participants[key]
+    end
+
+    def participants
+      @participants.values
     end
 
     # Public: adds a participant to this order
     #
     # returns - @participants
     def add(participant)
-      @participants << participant
+      @participants[participant.key] = participant
     end
 
     def to_s
