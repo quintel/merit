@@ -215,7 +215,7 @@ module Merit
     merit_order.add(
       MustRunParticipant.new(
         key: "households_water_heater_fuel_cell_chp_network_gas",
-        marginal_costs: 13.587843764,
+        marginal_costs: 0,
         effective_output_capacity: 0,
         number_of_units: 0,
         availability: 0.97,
@@ -240,21 +240,8 @@ module Merit
 
     merit_order.add(
       MustRunParticipant.new(
-        key: "other_chp_supercritical_wood_pellets",
-        marginal_costs: 79.3927372,
-        effective_output_capacity: 0,
-        number_of_units: 0,
-        availability: 0.97,
-        fixed_costs: 27886950.9,
-        load_profile_key: "buildings_chps_profile",
-        full_load_hours: 6097.777778
-      )
-    )
-
-    merit_order.add(
-      MustRunParticipant.new(
         key: "households_space_heater_micro_chp_network_gas",
-        marginal_costs: 37.237872383,
+        marginal_costs: 0,
         effective_output_capacity: 0,
         number_of_units: 0,
         availability: 0.97,
@@ -267,7 +254,7 @@ module Merit
     merit_order.add(
       MustRunParticipant.new(
         key: "households_water_heater_micro_chp_network_gas",
-        marginal_costs: 10.0397382,
+        marginal_costs: 0,
         effective_output_capacity: 0,
         number_of_units: 0,
         availability: 0.97,
