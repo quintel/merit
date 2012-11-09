@@ -118,7 +118,7 @@ namespace :console do
   desc 'Open a pry or irb session with a stub graph on `Merit.stub`'
   task :stub do
     command = system("which pry > /dev/null 2>&1") ? 'pry' : 'irb'
-    exec "#{ command } -I./lib -r./lib/merit.rb -r./examples/family.rb -r./examples/energy.rb"
+    exec "#{ command } -I./lib -r./lib/merit.rb -r./examples/stub.rb"
   end
 end
 
