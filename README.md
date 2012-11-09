@@ -29,23 +29,23 @@ Now the (dispatchable) participants have certain attributes, e.g.
 ```Ruby
 Merit::Order.add(
   DispatchableParticipant.new(
-    key: "ultra_supercritical_coal",
-    marginal_costs: 20.02, 
-    effective_output_capacity: 792,
-    number_of_units: 3
-    availability: 0.90, 
-    fixed_costs: 3000000
+    key:                       :ultra_supercritical_coal,
+    marginal_costs:            20.02
+    effective_output_capacity: 792.0,
+    number_of_units:           3.0,
+    availability:              0.90,
+    fixed_costs:               3_000_000
   )
 )
 
 Merit::Order.add(
   DispatchableParticipant.new(
-    key: "combined_cycle_gas",
-    marginal_costs: 23.00, 
-    effective_output_capacity: 3000,
-    number_of_units: 3
-    availability: 0.85, 
-    fixed_costs: 5000000
+    key:                       :combined_cycle_gas,
+    marginal_costs:            23.00,
+    effective_output_capacity: 3_000.0,
+    number_of_units:           3.0,
+    availability:              0.85,
+    fixed_costs:               5_000_000
   )
 )
 ```
@@ -59,32 +59,32 @@ parameters:
 ```Ruby
 Merit::Order.add(
   MustRunParticipant.new(
-    key: "industry_chp_combined_cycle_gas",
-    marginal_costs: 1.00, 
-    effective_output_capacity: 1240, 
-    number_of_units: 2
-    availability: 0.95, 
-    fixed_costs: 400000,
-    load_profile_key: "industry_chps_profile", 
-    full_load_hours: 8000
+    key:                       :industry_chp_combined_cycle_gas,
+    marginal_costs:            1.00,
+    effective_output_capacity: 1240.0,
+    number_of_units:           2.0
+    availability:              0.95,
+    fixed_costs:               400_000,
+    load_profile_key:          :industry_chps_profile,
+    full_load_hours:           8_000
   )
 )
 
 Merit::Order.add(
   VolatileParticipant.new(
-    key: "wind_offshore",
-    marginal_costs: 0.0, 
-    effective_output_capacity: 1400, 
-    availability: 0.95, 
-    fixed_costs: 400000, 
-    number_of_units: 30,
-    load_profile_key: "offshore_wind_profile", 
-    full_load_hours: 7000
+    key:                       :wind_offshore,
+    marginal_costs:            0.0,
+    effective_output_capacity: 1400,
+    availability:              0.95,
+    fixed_costs:               400000,
+    number_of_units:           30,
+    load_profile_key:          :offshore_wind_profile,
+    full_load_hours:           7_000
   )
 )
 ```
 
-Specify what demand you want to calculate the merit order with
+Specify what demand you want to calculate the merit order with (in **MJ**):
 
 ```Ruby
 merit_order.total_demand = 300 * 10**9 #MJ
@@ -122,29 +122,12 @@ has to be either:
 The full load hours of a **must run** or **volatile** participant are determined
 by outside factors, and have to be supplied when this participant is added.
 
-For example, 8000 hours for the industry chps:
-
-```Ruby
-Merit::Order.add(
-  MustRunParticipant.new(
-    key: "industry_chp_combined_cycle_gas",
-    marginal_costs: 1.00, 
-    effective_output_capacity: 1240, 
-    number_of_units: 2
-    availability: 0.95, 
-    fixed_costs: 400000,
-    load_profile_key: "industry_chps_profile", 
-    full_load_hours: 8000
-  )
-)
-```
-
 The full load hours of a **dispatchable** participant are determined by this
-module.
+module (so they are 'output').
 
 ```Ruby
 merit_order.participant[:coal].full_load_hours
-=> 2000 #hours
+=> 2000.0 #hours
 ```
 
 #### Total demand
@@ -160,22 +143,24 @@ produce the correct demand curve.
 
 The marginal_costs (EUR/MWh/year) are calculated by dividing the variable costs
 (EUR/plant/year) of the participant by its (yearly) electricity production (in
-MWh). The marginal costs can be queried from the ETM with
-variable_costs_per(:mwh_electricity).
+MWh). The marginal costs can be queried from the ETEngine's GQL with the
+following query:
+
+    V(:converter_key, variable_costs_per(:mwh_electricity))
 
 #### Fixed costs
 
 The fixed costs (EUR/plant) can be queried from the ETM with the fixed_costs
-function.
+function:
 
-
+    V(:converter_key, fixed_costs)
 
 ## Output
 
 Merit order can supply the user with the following information of the
 *participants*:
 
-1. full load hours 
+1. full load hours
 2. load fraction
 3. income
 4. total costs
@@ -203,7 +188,7 @@ data points per year).  The load_fraction is the fraction of capacity of a
 participant that is used for matching the electricity demand in the merit
 order, so:
 
-```Ruby load_fraction = capacity used / maximum capacity ```
+    load_fraction = capacity used / maximum capacity
 
 For the participants that are cheaper than the price setting participant, the
 load fraction is equal to 1.  For the price setting participant this load
@@ -213,53 +198,57 @@ expensive than the price setting participant, the load_fraction is equal to 0.
 
 #### Income
 
-The income (in EUR) of a participant is calculated by summing up the (load
-fraction * electricity price) for each data point.
+The `income` (in EUR) of a participant is calculated by summing up the `load
+fraction * electricity price` for each data point.
 
 #### Total costs 
 
-The total_costs (EUR/plant/year) of a power participant is calculated by
+The `total_costs` (EUR/plant/year) of a power participant is calculated by
 summing up the fixed_costs (which is input) and the variable_costs.
 
 #### Variable costs
 
-The variable_costs (EUR/plant/year) of a participant is calculated by
-multiplying the (input parameter) marginal_costs (EUR/MWh/year) by the
-electricity production of the participant.
+The `variable_costs` (EUR/plant/year) of a participant is calculated by
+multiplying the (input parameter) `marginal_costs` (EUR/MWh/year) by the
+`electricity production` of the participant.
 
-```Ruby variable_costs = marginal_costs * effective_output_capacity *
-number_of_units * full_load_hours ```
+    variable_costs = marginal_costs * effective_output_capacity * number_of_units * full_load_hours
 
 #### Profit
 
-The profit of a participant (EUR/plant/year) is calculated by subtracting the
-total_costs from the income of the participant.
+The `profit` of a participant (EUR/plant/year) is calculated by subtracting the
+`total_costs` from the income of the participant.
 
 #### Profitability
 
 Returns one of three states:
 
-1. Profitable (if income >= total costs)
-2. Conditionally profitable (if variable costs =< income < total costs)
-3. Unprofitable (if income < variable costs)
+1. `:profitable` (if income >= total costs)
+2. `:conditionally_profitable` (if variable costs =< income < total costs)
+3. `:unprofitable` (if income < variable costs)
 
 These three states are communicated to ETEngine with the terms **profitable**,
-**conditionally profitable** and **unprofitable**.  These three states are
-communicated to the user by coloring the participants **green**, **orange** and
-**red** respectively in the Merit Order table.
+**conditionally profitable** and **unprofitable**.
 
-#### Diagnostic output
+P.S. These three states are communicated to the user by coloring the
+participants **green**, **orange** and **red** respectively in the Merit Order
+table.
 
-Developers of the ETM (not users) have the possibility to extract extra
-information from the Merit Order calculations. In particular, the following
-quantities are written to file (CSV) **for every datapoint**:
+## Diagnostic output
+
+Admin users of this module have the possibility to extract extra information
+from the Merit Order calculations. In particular, the following quantities are
+outputted **for every datapoint**:
+
+#### For every LoadCurvePoint
 
 1. total demand
 2. price of electricity
 3. load of **each** participant
 
-In addition, for **each participant**, the following quantities are written to
-(CSV) file:
+#### For each Participant
+
+In addition, for **each participant**, the following quantities are outputted:
 
 1. key
 2. production_capacity (MWe)
@@ -274,10 +263,11 @@ In addition, for **each participant**, the following quantities are written to
 11. type (dispatchable, volatile or must_run)
 12. total production (redundant but easy)
 
-## Load profile
+## Load Profile
 
 For each **must_run** and **volatile** participant a **normalized** load
-profile has to be defined in the merit order module.
+profile has to be defined in the merit order module. Also, the **total demand**
+needs to have a load profile defined.
 
 #### Definition
 
@@ -286,10 +276,11 @@ normalized such that multiplying them with the total produced electricity (in
 **MJ**) yields the load at every point in time in units of **MW**.
 
 This normalization effectively implies that the surface area under the load
-profiles is equal to 1 MJ.  This can be checked by taking
+profiles is equal to 1 MJ.  This can be checked:
 
 ``` Ruby
-Merit::LoadProfile.load(:total_demand).values.inject(:+) * 3600
+Merit::LoadProfile.load(:total_demand).valid?
+=> true #
 ```
 
 #### Current Load Profiles
@@ -310,7 +301,7 @@ directory.  These curves are normalized such that the surface area underneath
 each curve equals unity.  This means that the load of a must_run or volatile
 participant at every point in time can be found by multiplying its load profile
 with its **electricity production** (note that this is not equal to its
-demand). 
+demand).
 
 ## Assumptions
 
@@ -321,7 +312,8 @@ demand).
 ## Road Map
 
 * Currently, the load profile is expected to consist of 8_760 data points for
-  the `full_load_hours` to work correctly.
+  the `full_load_hours` to work correctly. More flexibility may be supported
+  later.
 * Additional features will (probably) be added, including:
   - number of times switched on/off
   - duration of on/off periods
@@ -335,17 +327,17 @@ demand).
 
 ## Units used
 
-* marginal_costs: (EUR/MWh/year) 
-* effective_output_capacity: (MW electric/plant)
-* number_of_units: (#)
-* availability: (fraction)
-* fixed_costs: (EUR/plant/year)
-* total_demand: MJ (per year)
-* full_load_hours: (hours per year)
-* profitability: (string)
-* income: (EUR/plant/year)
-* profit: (EUR/plant/year)
-* electricity price: (EUR/MWh)
+* marginal_costs: **EUR/MWh/year** 
+* effective_output_capacity: **MW electric/plant**
+* number_of_units: **#**
+* availability: **fraction** (between 0 and 1)
+* fixed_costs: **EUR** (per plant per year)**
+* total_demand: **MJ** (per year)
+* full_load_hours: **hours** (per year)
+* profitability: **:symbol**
+* income: **EUR** (per plant per year)
+* profit: **EUR** (per plant per year)
+* electricity price: **EUR/MWh**
 
 ## Issues
 
