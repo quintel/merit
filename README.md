@@ -161,47 +161,43 @@ function:
 
 ### For each LoadCurvePoint and Participant
 
-* load fraction
+* load_fraction
 
-#### Load fraction
+#### load_fraction
 
 Return the full_load_hours of a participating electricity generating technology
 in **hours**. The number of full load hours is calculated by summing up the
 load_fraction for each data point.  Each data point represents 1 hour (so 8760
-data points per year).  The load_fraction is the fraction of capacity of a
+data points per year). The load_fraction is the fraction of capacity of a
 participant that is used for matching the electricity demand in the merit
 order, so:
 
     load_fraction = capacity used / maximum capacity
 
 For the participants that are cheaper than the price setting participant, the
-load fraction is equal to 1.  For the price setting participant this load
-fraction is generally lower than 1, since only a fraction of its maximum
+load_fraction is equal to 1.  For the price setting participant this load_fraction 
+is generally lower than 1, since only a fraction of its maximum
 capacity is needed to meet the demand.  For the participants that are more
 expensive than the price setting participant, the load_fraction is equal to 0.
 
 ### For each LoadCurvePoint
 
 * price
-* total_load
+* demand
 
 #### Price
 
 The price is equal to the `marginal_costs` of the participant that is highest
-up the merit order + 1.
-
-#### Total Load
-
-Same as total demand.
+up the merit order + 1. This is the price of electricity at that point in time.
 
 ### For each Participant
 
-* full load hours (sum of load_fractions)
+* full_load_hours (sum of load_fractions)
 * profitability
 * profit
 * total income
 * total costs
-* total variable costs (susm
+* total variable cost
 * (all the input which is known, such as fixed_costs, key, etc.)
 
 ```Ruby
@@ -215,8 +211,8 @@ merit_order.participants[:coal].profitability
 
 #### Income
 
-The `income` (in EUR) of a participant is calculated by summing up the `load
-fraction * electricity price` for each data point.
+The `income` (in EUR) of a participant is calculated by summing up the 
+`load_fraction * electricity price` for each data point.
 
 #### Total costs 
 
@@ -252,21 +248,10 @@ P.S. These three states are communicated to the user by coloring the
 participants **green**, **orange** and **red** respectively in the Merit Order
 table.
 
-## Diagnostic output
-
-Admin users of this module have the possibility to extract extra information
-from the Merit Order calculations.
-
-The following quantities are outputted **for every datapoint**:
-
-* total demand
-* price of electricity
-* load of **each** participant
-
 ## Load Profile
 
 For each **must_run** and **volatile** participant a **normalized** load
-profile has to be defined in the merit order module. Also, the **total demand**
+profile has to be defined in the merit order module. Also, the **demand**
 needs to have a load profile defined.
 
 #### Definition
