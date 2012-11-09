@@ -162,32 +162,8 @@ function:
 ### For each LoadCurvePoint and Participant
 
 * load fraction
-* fixed_costs
 
-### For each LoadCurvePoint
-
-* price
-
-### For each Participant
-
-* full load hours
-* profitability
-* profit
-* total_income
-* total_costs
-* variable costs
-
-
-```Ruby
-merit_order.participants[:coal].full_load_hours
-=> 8_760 # it runs all the time!
-merit_order.participants[:coal].profit
-=> 1_000_000_000 EUR (annual) # it makes a billion euros!
-merit_order.participants[:coal].profitability
-=> :profitable # hurray, it is profitable!
-```
-
-#### Full load hours and load fraction
+#### Load fraction
 
 Return the full_load_hours of a participating electricity generating technology
 in **hours**. The number of full load hours is calculated by summing up the
@@ -203,6 +179,39 @@ load fraction is equal to 1.  For the price setting participant this load
 fraction is generally lower than 1, since only a fraction of its maximum
 capacity is needed to meet the demand.  For the participants that are more
 expensive than the price setting participant, the load_fraction is equal to 0.
+
+### For each LoadCurvePoint
+
+* price
+* total_load
+
+#### Price
+
+The price is equal to the `marginal_costs` of the participant that is highest
+up the merit order + 1.
+
+#### Total Load
+
+Same as total demand.
+
+### For each Participant
+
+* full load hours (sum of load_fractions)
+* profitability
+* profit
+* total income
+* total costs
+* total variable costs (susm
+* (all the input which is known, such as fixed_costs, key, etc.)
+
+```Ruby
+merit_order.participants[:coal].full_load_hours
+=> 8_760 # it runs all the time!
+merit_order.participants[:coal].profit
+=> 1_000_000_000 EUR (annual) # it makes a billion euros!
+merit_order.participants[:coal].profitability
+=> :profitable # hurray, it is profitable!
+```
 
 #### Income
 
