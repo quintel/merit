@@ -190,6 +190,10 @@ expensive than the price setting participant, the load_fraction is equal to 0.
 The price is equal to the `marginal_costs` of the participant that is highest
 up the merit order + 1. This is the price of electricity at that point in time.
 
+#### Demand
+
+The demand is the value of the demand curve at this particular point in time (MW).
+
 ### For each Participant
 
 * full_load_hours (sum of load_fractions)
