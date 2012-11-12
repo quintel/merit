@@ -25,13 +25,6 @@ module Merit
       @total_demand = total_demand
     end
 
-    def load_curve
-      raise UnknownDemandError unless total_demand
-      @load_curve = LoadCurve.create(
-        LoadProfile.load(:total_demand).values.map{ |v| v * total_demand }
-      )
-    end
-
     # -------- Participants ------------
 
     # Public: Returns all the must_run participants
@@ -55,13 +48,14 @@ module Merit
       @participants[key]
     end
 
+    # Public: Returns an array containing all the participants
     def participants
       @participants.values
     end
 
     # Public: adds a participant to this order
     #
-    # returns - @participants
+    # returns - participant
     def add(participant)
       @participants[participant.key] = participant
     end

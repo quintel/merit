@@ -43,6 +43,10 @@ module Merit
       values.inject(:+)
     end
 
+    def draw
+      BarChart.new(@values).draw
+    end
+
     #######
     private
     #######
@@ -65,7 +69,7 @@ module Merit
     #
     # returns Array
     def scale_to_8760(values)
-      raise IncorrectLoadProfileError.new(key) unless 8760 % values.size == 0
+      raise IncorrectLoadProfileError.new(key, values.size) unless 8760 % values.size == 0
 
       scaling_factor = 8760 / values.size
       values.map{|v| Array.new(scaling_factor, v)}.flatten

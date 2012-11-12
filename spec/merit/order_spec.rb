@@ -12,27 +12,20 @@ module Merit
       end
     end
 
-    describe "#load_curve" do
-      context 'if demand is known' do
-        it "should contain 8760 LoadCurvePoints" do
-          order.total_demand = 1
-          expect(order.load_curve).to have(8760).points
-        end
-        it "should scale correctly" do
-          order.total_demand = 17.0
-          expect(order.load_curve.load * 3600).to be_within(0.1).of(17)
-        end
-      end
-      context 'if demand is UNknown' do
-        it "should raise an error" do
-          expect(->{ order.load_curve }).to raise_error(UnknownDemandError)
-        end
+    describe "#add" do
+      it 'should be able to add different types, which should be returned' do
+        new_participant = MustRunParticipant.new({key: :foo})
+        expect(order.add(new_participant)).to eql new_participant
       end
     end
 
     describe "#participants" do
-      it 'should be able to add different types' do
-        order.add(MustRunParticipant.new({key: :foo}))
+      it 'should remember the added participants' do
+        p1 = MustRunParticipant.new({key: :foo})
+        p2 = MustRunParticipant.new({key: :bar})
+        order.add(p1)
+        order.add(p2)
+        expect(order.participants).to eql [p1,p2]
       end
     end
 

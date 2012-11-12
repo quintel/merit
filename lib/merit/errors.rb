@@ -31,8 +31,9 @@ module Merit
     "#{key} is not known. Please add."
   end
 
-  IncorrectLoadProfileError = error_class do |key|
-    "#{key} is malformatted. It needs to contain 2190, 4380 or 8760 points."
+  IncorrectLoadProfileError = error_class do |key, size|
+    "#{key} is malformatted. It needs to contain 8760 / n points." +
+    "It now has #{size} points."
   end
 
   MissingAttributeError = error_class do |attribute, class_name|

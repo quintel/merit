@@ -4,7 +4,7 @@ module Merit
 
   describe LoadProfile do
 
-    let(:load_profile){ LoadProfile.new((1..8760)) }
+    let(:load_profile){ LoadProfile.new(:foo, (1..8760).to_a) }
 
     describe '#new' do
       it 'should be able to create a new one' do
@@ -36,6 +36,36 @@ module Merit
       it 'should return the same values from file' do
         load_profile = LoadProfile.load(:solar_pv)
         expect(load_profile.values).to have(8760).points
+      end
+    end
+
+    describe '#to_s' do
+      it 'should contain the number of values' do
+        expect(load_profile.to_s).to match '8760 values'
+      end
+    end
+
+    describe '#surface' do
+      it 'should contain the surface below the values' do
+        load_profile = LoadProfile.new(:foo, [1])
+        expect(load_profile.surface).to eql(8760)
+      end
+    end
+
+    describe '#valid?' do
+      it 'should be true when the surface area is =~ 1/3600.0' do
+        load_profile.stub(:surface){ 1/3600.0 }
+        expect(load_profile.valid?).to be_true
+      end
+      it 'should be false when the surface area is !=~ 1/3600.0' do
+        load_profile.stub(:surface){ 1/3500.0 }
+        expect(load_profile.valid?).to be_false
+      end
+    end
+
+    describe '#draw' do
+      it 'should draw' do
+        expect(->{ load_profile.draw }).to_not raise_error
       end
     end
   end

@@ -5,8 +5,9 @@ module Merit
   # or a CHP.
   class Participant
 
-    attr_reader :key, :marginal_costs, :effective_output_capacity,
-                :availability, :number_of_units, :fixed_costs
+    attr_reader :key,
+                :effective_output_capacity, :availability, :number_of_units,
+                :marginal_costs, :fixed_costs
 
     # Public: creates a new participant
     # params opts[Hash] set the attributes
