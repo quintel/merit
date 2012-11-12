@@ -304,6 +304,25 @@ participant at every point in time can be found by multiplying its load profile
 with its **electricity production** (note that this is not equal to its
 demand).
 
+## Definitions
+
+### Capacity
+
+##### Nominal capacity
+
+What's in the brochure? (e.g. 800 MW)
+
+##### Effective capacity
+
+What's the effective output of a technology over its lifetime? (e.g. 790 MW)
+
+##### Available capacity
+
+What's available if you take maintenance, down time, and volatility into
+account? (e.g. 650 MW)
+
+     available_capacity = effective_capacity * availability
+
 ## Assumptions
 
 * This module just calculates yearly averages. No seasons, months, or days
