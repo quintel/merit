@@ -138,6 +138,11 @@ merit_order.participant[:coal].full_load_hours
 => 2000.0 #hours
 ```
 
+In full load hours, full load means that the plant uses all available capacity, in which 
+
+    available_capacity = effective_output_capacity * availability
+
+
 #### Total demand
 
 Total demand must be supplied in **MJ**. It is the sum of all electricity
@@ -178,7 +183,7 @@ data points per year). The load_fraction is the fraction of capacity of a
 participant that is used for matching the electricity demand in the merit
 order, so:
 
-    load_fraction = capacity used / maximum capacity
+    load_fraction = capacity used / available_capacity
 
 For the participants that are cheaper than the price setting participant, the
 load_fraction is equal to 1.  For the price setting participant this
