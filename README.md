@@ -56,6 +56,12 @@ parameters:
 1. load_profile_key
 2. full_load_hours
 
+** NOTE **
+
+The full loads already have the availability 'in them'. So, e.g. a nuclear
+power plant, when it has an availability of 90%, it **CONSEQUENTLY** has full load
+hours of 7884.0.
+
 for instance:
 
 ```Ruby
@@ -316,6 +322,13 @@ demand).
 * User can define his own load profile, or change an existing one
 
 ## Units used
+
+#### Principles
+
+* All *energies/demands/productions* are quoted in **MJ**
+* All *loads/capacity/powers* are quoted in **MW**
+
+#### List
 
 * load: **MW**
 * marginal_costs: **EUR/MWh/year** 
