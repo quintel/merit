@@ -12,7 +12,7 @@ module Merit
         number_of_units: 0,
         availability: 0.98,
         fixed_costs: 4236515.36,
-        load_profile_key: "solar_profile",
+        load_profile_key: :solar_pv,
         full_load_hours: 1050
       )
     )
@@ -25,7 +25,7 @@ module Merit
         number_of_units: 0,
         availability: 0.99,
         fixed_costs: 15129166.33,
-        load_profile_key: "solar_profile",
+        load_profile_key: :solar_pv,
         full_load_hours: 500
       )
     )
@@ -38,7 +38,7 @@ module Merit
         number_of_units: 360,
         availability: 0.95,
         fixed_costs: 531768.45,
-        load_profile_key: "inland_wind_profile",
+        load_profile_key: :wind_inland,
         full_load_hours: 2500
       )
     )
@@ -51,7 +51,7 @@ module Merit
         number_of_units: 66.66666667,
         availability: 0.95,
         fixed_costs: 531768.45,
-        load_profile_key: "coastal_wind_profile",
+        load_profile_key: :wind_coastal,
         full_load_hours: 3000
       )
     )
@@ -64,7 +64,7 @@ module Merit
         number_of_units: 64.76190476,
         availability: 0.92,
         fixed_costs: 1643536.011,
-        load_profile_key: "offshore_wind_profile",
+        load_profile_key: :wind_offshore,
         full_load_hours: 3500
       )
     )
@@ -77,7 +77,7 @@ module Merit
         number_of_units: 2547.332186,
         availability: 0.98,
         fixed_costs: 2545.292412,
-        load_profile_key: "solar_profile",
+        load_profile_key: :solar_pv,
         full_load_hours: 1050
       )
     )
@@ -90,7 +90,7 @@ module Merit
         number_of_units: 51023.14018,
         availability: 0.98,
         fixed_costs: 222.9245208,
-        load_profile_key: "solar_profile",
+        load_profile_key: :solar_pv,
         full_load_hours: 1050
       )
     )
@@ -103,7 +103,7 @@ module Merit
         number_of_units: 122.0877551,
         availability: 0.97,
         fixed_costs: 2543878.235,
-        load_profile_key: "industry_chp_profile",
+        load_profile_key: :industry_chp,
         full_load_hours: 5442.834138
       )
     )
@@ -116,7 +116,7 @@ module Merit
         number_of_units: 10.54725,
         availability: 0.97,
         fixed_costs: 9479267.598,
-        load_profile_key: "industry_chp_profile",
+        load_profile_key: :industry_chp,
         full_load_hours: 5247.813411
       )
     )
@@ -129,7 +129,7 @@ module Merit
         number_of_units: 0,
         availability: 0.97,
         fixed_costs: 4974342.555,
-        load_profile_key: "industry_chp_profile",
+        load_profile_key: :industry_chp,
         full_load_hours: 4204.8
       )
     )
@@ -142,7 +142,7 @@ module Merit
         number_of_units: 11.68978647,
         availability: 0.9,
         fixed_costs: 26877150,
-        load_profile_key: "industry_chp_profile",
+        load_profile_key: :industry_chp,
         full_load_hours: 6190.47619
       )
     )
@@ -168,7 +168,7 @@ module Merit
         number_of_units: 0,
         availability: 0.97,
         fixed_costs: 18359173.13,
-        load_profile_key: "buildings_chps_profile",
+        load_profile_key: :buildings_chp,
         full_load_hours: 6097.777778
       )
     )
@@ -181,7 +181,7 @@ module Merit
         number_of_units: 871.7816937,
         availability: 0.97,
         fixed_costs: 49847.77778,
-        load_profile_key: "buildings_chps_profile",
+        load_profile_key: :buildings_chp,
         full_load_hours: 3942
       )
     )
@@ -194,7 +194,7 @@ module Merit
         number_of_units: 0,
         availability: 0.97,
         fixed_costs: 18359173.13,
-        load_profile_key: "buildings_chps_profile",
+        load_profile_key: :buildings_chp,
         full_load_hours: 6097.777778
       )
     )
@@ -207,7 +207,7 @@ module Merit
         number_of_units: 0,
         availability: 0.97,
         fixed_costs: 49847.77778,
-        load_profile_key: "buildings_chps_profile",
+        load_profile_key: :buildings_chp,
         full_load_hours: 3942
       )
     )
@@ -220,7 +220,7 @@ module Merit
         number_of_units: 0,
         availability: 0.97,
         fixed_costs: 2453,
-        load_profile_key: "buildings_chps_profile",
+        load_profile_key: :buildings_chp,
         full_load_hours: 0
       )
     )
@@ -233,7 +233,7 @@ module Merit
         number_of_units: 0,
         availability: 0.97,
         fixed_costs: 54068.71357,
-        load_profile_key: "buildings_chps_profile",
+        load_profile_key: :buildings_chp,
         full_load_hours: 4000
       )
     )
@@ -246,7 +246,7 @@ module Merit
         number_of_units: 0,
         availability: 0.97,
         fixed_costs: 933,
-        load_profile_key: "buildings_chps_profile",
+        load_profile_key: :buildings_chp,
         full_load_hours: 0
       )
     )
@@ -259,7 +259,7 @@ module Merit
         number_of_units: 0,
         availability: 0.97,
         fixed_costs: 933,
-        load_profile_key: "buildings_chps_profile",
+        load_profile_key: :buildings_chp,
         full_load_hours: 0
       )
     )
