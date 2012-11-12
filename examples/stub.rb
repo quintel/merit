@@ -6,7 +6,7 @@ module Merit
     # Add 45 Converters which are examples taken from ETENgine
     merit_order.add(
       VolatileParticipant.new(
-        key: "energy_power_solar_pv_solar_radiation",
+        key: :energy_power_solar_pv_solar_radiation,
         marginal_costs: 0,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -19,7 +19,7 @@ module Merit
 
     merit_order.add(
       VolatileParticipant.new(
-        key: "energy_power_solar_csp_solar_radiation",
+        key: :energy_power_solar_csp_solar_radiation,
         marginal_costs: 1,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -32,7 +32,7 @@ module Merit
 
     merit_order.add(
       VolatileParticipant.new(
-        key: "energy_power_wind_turbine_inland",
+        key: :energy_power_wind_turbine_inland,
         marginal_costs: 0,
         effective_output_capacity: 1080,
         number_of_units: 360,
@@ -45,7 +45,7 @@ module Merit
 
     merit_order.add(
       VolatileParticipant.new(
-        key: "energy_power_wind_turbine_coastal",
+        key: :energy_power_wind_turbine_coastal,
         marginal_costs: 0,
         effective_output_capacity: 200,
         number_of_units: 66.66666667,
@@ -58,7 +58,7 @@ module Merit
 
     merit_order.add(
       VolatileParticipant.new(
-        key: "energy_power_wind_turbine_offshore",
+        key: :energy_power_wind_turbine_offshore,
         marginal_costs: 0,
         effective_output_capacity: 194.2857143,
         number_of_units: 64.76190476,
@@ -71,7 +71,7 @@ module Merit
 
     merit_order.add(
       VolatileParticipant.new(
-        key: "buildings_solar_pv_solar_radiation",
+        key: :buildings_solar_pv_solar_radiation,
         marginal_costs: 0,
         effective_output_capacity: 31.71428571,
         number_of_units: 2547.332186,
@@ -84,7 +84,7 @@ module Merit
 
     merit_order.add(
       VolatileParticipant.new(
-        key: "households_solar_pv_solar_radiation",
+        key: :households_solar_pv_solar_radiation,
         marginal_costs: 0,
         effective_output_capacity: 63.52380952,
         number_of_units: 51023.14018,
@@ -97,7 +97,7 @@ module Merit
 
     merit_order.add(
       MustRunParticipant.new(
-        key: "industry_chp_combined_cycle_gas_power_fuelmix",
+        key: :industry_chp_combined_cycle_gas_power_fuelmix,
         marginal_costs: 109.5210516,
         effective_output_capacity: 3105,
         number_of_units: 122.0877551,
@@ -110,7 +110,7 @@ module Merit
 
     merit_order.add(
       MustRunParticipant.new(
-        key: "industry_chp_supercritical_wood_pellets",
+        key: :industry_chp_supercritical_wood_pellets,
         marginal_costs: 139.7898305,
         effective_output_capacity: 343,
         number_of_units: 10.54725,
@@ -123,7 +123,7 @@ module Merit
 
     merit_order.add(
       MustRunParticipant.new(
-        key: "industry_chp_ultra_supercritical_coal",
+        key: :industry_chp_ultra_supercritical_coal,
         marginal_costs: 32.15521115,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -136,7 +136,7 @@ module Merit
 
     merit_order.add(
       MustRunParticipant.new(
-        key: "energy_power_supercritical_waste_mix",
+        key: :energy_power_supercritical_waste_mix,
         marginal_costs: 1.20608908,
         effective_output_capacity: 630,
         number_of_units: 11.68978647,
@@ -149,7 +149,7 @@ module Merit
 
     merit_order.add(
       MustRunParticipant.new(
-        key: "agriculture_chp_engine_gas_power_fuelmix",
+        key: :agriculture_chp_engine_gas_power_fuelmix,
         marginal_costs: 78.31972973,
         effective_output_capacity: 3065,
         number_of_units: 3023.581081,
@@ -162,7 +162,7 @@ module Merit
 
     merit_order.add(
       MustRunParticipant.new(
-        key: "buildings_collective_chp_wood_pellets",
+        key: :buildings_collective_chp_wood_pellets,
         marginal_costs: 154.16507,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -175,7 +175,7 @@ module Merit
 
     merit_order.add(
       MustRunParticipant.new(
-        key: "buildings_collective_chp_gas_power_fuelmix",
+        key: :buildings_collective_chp_gas_power_fuelmix,
         marginal_costs: 94.03660242,
         effective_output_capacity: 405.8853374,
         number_of_units: 871.7816937,
@@ -188,7 +188,7 @@ module Merit
 
     merit_order.add(
       MustRunParticipant.new(
-        key: "households_collective_chp_wood_pellets",
+        key: :households_collective_chp_wood_pellets,
         marginal_costs: 119.9789346,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -201,7 +201,7 @@ module Merit
 
     merit_order.add(
       MustRunParticipant.new(
-        key: "households_collective_chp_network_gas",
+        key: :households_collective_chp_network_gas,
         marginal_costs: 13.2815786,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -214,7 +214,7 @@ module Merit
 
     merit_order.add(
       MustRunParticipant.new(
-        key: "households_water_heater_fuel_cell_chp_network_gas",
+        key: :households_water_heater_fuel_cell_chp_network_gas,
         marginal_costs: 0,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -227,7 +227,7 @@ module Merit
 
     merit_order.add(
       MustRunParticipant.new(
-        key: "other_chp_engine_gas_power_fuelmix",
+        key: :other_chp_engine_gas_power_fuelmix,
         marginal_costs: 78.38201622,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -240,7 +240,7 @@ module Merit
 
     merit_order.add(
       MustRunParticipant.new(
-        key: "households_space_heater_micro_chp_network_gas",
+        key: :households_space_heater_micro_chp_network_gas,
         marginal_costs: 0,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -253,7 +253,7 @@ module Merit
 
     merit_order.add(
       MustRunParticipant.new(
-        key: "households_water_heater_micro_chp_network_gas",
+        key: :households_water_heater_micro_chp_network_gas,
         marginal_costs: 0,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -266,20 +266,20 @@ module Merit
 
     merit_order.add(
       MustRunParticipant.new(
-        key: "energy_power_geothermal",
+        key: :energy_power_geothermal,
         marginal_costs: 0,
         effective_output_capacity: 0,
         number_of_units: 0,
         availability: 0.95,
         fixed_costs: 9315783.898,
-        load_profile_key: "",
+        load_profile_key: :,
         full_load_hours: 8250
       )
     )
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_chp_combined_cycle_gas_power_fuelmix",
+        key: :energy_chp_combined_cycle_gas_power_fuelmix,
         marginal_costs: 60.33237888,
         effective_output_capacity: 3305.6,
         number_of_units: 5.749536178,
@@ -290,7 +290,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_chp_ultra_supercritical_coal",
+        key: :energy_chp_ultra_supercritical_coal,
         marginal_costs: 32.39199569,
         effective_output_capacity: 1669.982458,
         number_of_units: 2.365705626,
@@ -301,7 +301,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_chp_ultra_supercritical_crude_oil",
+        key: :energy_chp_ultra_supercritical_crude_oil,
         marginal_costs: 109.3782764,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -312,7 +312,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_chp_ultra_supercritical_lignite",
+        key: :energy_chp_ultra_supercritical_lignite,
         marginal_costs: 16.60280222,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -323,7 +323,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_chp_ultra_supercritical_wood_pellets",
+        key: :energy_chp_ultra_supercritical_wood_pellets,
         marginal_costs: 139.7898305,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -334,7 +334,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_power_combined_cycle_ccs_coal",
+        key: :energy_power_combined_cycle_ccs_coal,
         marginal_costs: 28.36859203,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -345,7 +345,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_power_combined_cycle_ccs_gas_power_fuelmix",
+        key: :energy_power_combined_cycle_ccs_gas_power_fuelmix,
         marginal_costs: 57.28270883,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -356,7 +356,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_power_combined_cycle_coal",
+        key: :energy_power_combined_cycle_coal,
         marginal_costs: 23.20617439,
         effective_output_capacity: 253,
         number_of_units: 0.322704082,
@@ -367,7 +367,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_power_combined_cycle_gas_power_fuelmix",
+        key: :energy_power_combined_cycle_gas_power_fuelmix,
         marginal_costs: 44.24374451,
         effective_output_capacity: 4002,
         number_of_units: 5.104591837,
@@ -378,7 +378,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_power_engine_diesel",
+        key: :energy_power_engine_diesel,
         marginal_costs: 160.0982801,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -389,7 +389,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_power_nuclear_gen2_uranium_oxide",
+        key: :energy_power_nuclear_gen2_uranium_oxide,
         marginal_costs: 6.133182844,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -400,7 +400,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_power_nuclear_gen3_uranium_oxide",
+        key: :energy_power_nuclear_gen3_uranium_oxide,
         marginal_costs: 5.826162528,
         effective_output_capacity: 510,
         number_of_units: 0.31875,
@@ -411,7 +411,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_power_supercritical_coal",
+        key: :energy_power_supercritical_coal,
         marginal_costs: 29.9100356,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -422,7 +422,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_power_turbine_network_gas",
+        key: :energy_power_turbine_network_gas,
         marginal_costs: 78.01340618,
         effective_output_capacity: 212,
         number_of_units: 1.442176871,
@@ -433,7 +433,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_power_ultra_supercritical_ccs_coal",
+        key: :energy_power_ultra_supercritical_ccs_coal,
         marginal_costs: 34.97148374,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -444,7 +444,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_power_ultra_supercritical_coal",
+        key: :energy_power_ultra_supercritical_coal,
         marginal_costs: 28.88180898,
         effective_output_capacity: 2686.38611,
         number_of_units: 3.391901654,
@@ -455,7 +455,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_power_ultra_supercritical_crude_oil",
+        key: :energy_power_ultra_supercritical_crude_oil,
         marginal_costs: 93.09320787,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -466,7 +466,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_power_ultra_supercritical_gas_power_fuelmix",
+        key: :energy_power_ultra_supercritical_gas_power_fuelmix,
         marginal_costs: 65.90324432,
         effective_output_capacity: 3824,
         number_of_units: 4.828282828,
@@ -477,7 +477,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_power_ultra_supercritical_lignite",
+        key: :energy_power_ultra_supercritical_lignite,
         marginal_costs: 13.999791,
         effective_output_capacity: 0,
         number_of_units: 0,
@@ -488,7 +488,7 @@ module Merit
 
     merit_order.add(
       DispatchableParticipant.new(
-        key: "energy_power_ultra_supercritical_oxyfuel_ccs_lignite",
+        key: :energy_power_ultra_supercritical_oxyfuel_ccs_lignite,
         marginal_costs: 19.58755889,
         effective_output_capacity: 0,
         number_of_units: 0,
