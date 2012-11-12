@@ -155,7 +155,7 @@ module Merit
         number_of_units: 3023.581081,
         availability: 0.97,
         fixed_costs: 116478.4738,
-        load_profile_key: "agriculture_chp_profile",
+        load_profile_key: :agriculture_chp,
         full_load_hours: 3980.424144
       )
     )
@@ -261,45 +261,6 @@ module Merit
         fixed_costs: 933,
         load_profile_key: :buildings_chp,
         full_load_hours: 0
-      )
-    )
-
-    merit_order.add(
-      MustRunParticipant.new(
-        key: "energy_power_ultra_supercritical_cofiring_wood_pellets",
-        marginal_costs: 76.54109444,
-        effective_output_capacity: 0,
-        number_of_units: 0,
-        availability: 0.89,
-        fixed_costs: 133969444.4,
-        load_profile_key: "",
-        full_load_hours: 6329.1
-      )
-    )
-
-    merit_order.add(
-      MustRunParticipant.new(
-        key: "energy_power_hydro_river",
-        marginal_costs: 0,
-        effective_output_capacity: 37,
-        number_of_units: 3.7,
-        availability: 0.98,
-        fixed_costs: 3000000,
-        load_profile_key: "",
-        full_load_hours: 2702.702703
-      )
-    )
-
-    merit_order.add(
-      MustRunParticipant.new(
-        key: "energy_power_hydro_mountain",
-        marginal_costs: 2.49208966,
-        effective_output_capacity: 0,
-        number_of_units: 0,
-        availability: 0.98,
-        fixed_costs: 51155234.43,
-        load_profile_key: "",
-        full_load_hours: 3942
       )
     )
 

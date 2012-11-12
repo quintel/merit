@@ -25,21 +25,21 @@ module Merit
       @total_demand = total_demand
     end
 
-    # -------- Participants ------------
+    # -------- Producers ------------
 
     # Public: Returns all the must_run participants
     def must_runs
-      participants.select{ |p| p.is_a?(MustRunParticipant) }
+      participants.select{ |p| p.is_a?(MustRunProducer) }
     end
 
     # Public: Returns all the volatiles participants
     def volatiles
-      participants.select{ |p| p.is_a?(VolatileParticipant) }
+      participants.select{ |p| p.is_a?(VolatileProducer) }
     end
 
     # Public: Returns all the dispatchables participants
     def dispatchables
-      participants.select{ |p| p.is_a?(DispatchableParticipant) }. \
+      participants.select{ |p| p.is_a?(DispatchableProducer) }. \
         sort_by(&:marginal_costs)
     end
 
@@ -57,6 +57,7 @@ module Merit
     #
     # returns - participant
     def add(participant)
+      # TODO: add DuplicateKeyError if collection already contains this key
       @participants[participant.key] = participant
     end
 

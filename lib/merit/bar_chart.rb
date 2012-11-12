@@ -13,10 +13,12 @@ module Merit
       @values = values
     end
 
+    # Outputs a String with line breaks that represents a Chart
     def draw
       matrix.transpose.reverse.map(&:join).join("\n")
     end
 
+    # Holds the X and Y values for the Plot...
     def matrix
       # initialize a matrix to hold x and y values, all empty to start with
       matrix = Array.new(WIDTH+1).map { Array.new(HEIGHT, EMPTY) }
@@ -33,7 +35,7 @@ module Merit
 
       # append each row with a tick value
       HEIGHT.times do |index|
-        matrix[WIDTH][index] = max_y_value / ( HEIGHT - index )
+        matrix[WIDTH][index] = " #{(max_y_value/(HEIGHT-index)).round(2)}"
       end
 
       matrix

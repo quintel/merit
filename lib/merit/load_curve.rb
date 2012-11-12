@@ -19,7 +19,7 @@ module Merit
       "<#{self.class}: #{@values.size} values>"
     end
 
-    def chart
+    def draw
       BarChart.new(@values).draw
     end
 

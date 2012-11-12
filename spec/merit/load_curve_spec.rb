@@ -19,6 +19,12 @@ module Merit
       end
     end
 
+    describe '#draw' do
+      it 'should draw' do
+        expect(->{ load_curve.draw }).to_not raise_error
+      end
+    end
+
   end
 
 end

@@ -1,9 +1,8 @@
 module Merit
 
-  # A participant is a plant or technology that participates in
-  # in the Merit Order, such as a coal power plant, a wind turbine
-  # or a CHP.
-  class MustRunParticipant < Participant
+  # A Must Run is a plant or technology that participates in
+  # in the Merit Order and is always on by definition.
+  class MustRunProducer < Producer
 
     attr_reader :full_load_hours, :load_profile_key
 
@@ -31,9 +30,9 @@ module Merit
 
     # Public: calculates how much energy is 'demanded' by this participant
     #
-    # Returns Float: energy in MWh
+    # Returns Float: energy in MJ (difference between MWh and MJ is 3600)
     def total_production
-      effective_output_capacity * full_load_hours
+      effective_output_capacity * full_load_hours * 3600
     end
 
   end

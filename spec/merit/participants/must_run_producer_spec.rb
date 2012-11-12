@@ -2,16 +2,16 @@ require 'spec_helper'
 
 module Merit
 
-  describe MustRunParticipant do
+  describe MustRunProducer do
 
     let(:must_run) do
-      must_run = MustRunParticipant.new(key: :coal,
-                                        load_profile_key: :industry_chp,
-                                        effective_output_capacity: 1,
-                                        marginal_costs: 2,
-                                        availability: 0.95,
-                                        full_load_hours: 4
-                                       )
+      must_run = MustRunProducer.new(key: :coal,
+                                     load_profile_key: :industry_chp,
+                                     effective_output_capacity: 1,
+                                     marginal_costs: 2,
+                                     availability: 0.95,
+                                     full_load_hours: 4
+                                    )
     end
 
     describe '#new' do
@@ -36,15 +36,15 @@ module Merit
         expect(must_run.load_profile.values).to have(8760).values
       end
       it 'should raise an error is the load_profile is not known' do
-        must_run = MustRunParticipant.new(key: :foo, load_profile: 'weird-al')
+        must_run = MustRunProducer.new(key: :foo, load_profile: 'weird-al')
         expect(->{ must_run.load_profile }) \
           .to raise_error(MissingLoadProfileError)
       end
     end
 
     describe '#total_production' do
-      it 'should return the correct outcome' do
-        expect(must_run.total_production).to eql 1 * 4
+      it 'should return the correct outcome in MJ' do
+        expect(must_run.total_production).to eql 1 * 4 * 3600
       end
     end
 
