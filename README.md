@@ -222,7 +222,7 @@ merit_order.participants[:coal].profitability
 
 #### Income
 
-The `income` (in EUR) of a participant is calculated by summing up the 
+The `income` (in EUR/year) of a participant is calculated by summing up the 
 `load_fraction * electricity price` for each data point.
 
 #### Total costs 
