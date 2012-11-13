@@ -171,6 +171,10 @@ For example, if the availability is 0.95, the full_load_hours can never exceed
 * load_profile_key
 * full_load_hours
 
+##### Load profile key
+
+Gives the name of the profile.
+
 ##### Full load hours
 
 The full load hours of a **must run** or **volatile** participant are determined
