@@ -262,7 +262,7 @@ is equal to 0.
 #### Total income
 
 The `income` (in EUR/year) of a participant is calculated by summing up the 
-`load_fraction * electricity price` for each data point.
+`load * electricity price` for each data point.
 
 #### Total costs 
 
