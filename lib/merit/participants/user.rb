@@ -21,7 +21,7 @@ module Merit
     # the total_production.
     def load_curve
       raise UnknownDemandError unless total_consumption
-      LoadCurve.new(load_profile.values.map{ |v| v * total_consumption })
+      @load_curve ||= LoadCurve.new(load_profile.values.map{ |v| v * total_consumption })
     end
 
     # Public: returns the LoadProfile of this participant. This basically

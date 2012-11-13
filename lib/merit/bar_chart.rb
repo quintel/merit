@@ -2,27 +2,32 @@ module Merit
 
   class BarChart
 
-    attr_reader :values
+    attr_reader :values, :height, :width
 
     WIDTH  = 72
     HEIGHT = 16
     EMPTY  = '-'
     MARKER = 'o'
+    FILLED = true  # Do you want to the area below the line filled?
 
-    def initialize(values)
+    def initialize(values, height = HEIGHT, width = WIDTH)
+      @height, @width = height, width
       @values = values
     end
 
     # Outputs a String with line breaks that represents a Chart
     def draw
-      puts matrix.transpose.reverse.map(&:join).join("\n")
-      nil
+      puts drawing; nil
+    end
+
+    def drawing
+      matrix.transpose.reverse.map(&:join).join("\n")
     end
 
     # Holds the X and Y values for the Plot...
     def matrix
       # initialize a matrix to hold x and y values, all empty to start with
-      matrix = Array.new(WIDTH+1).map { Array.new(HEIGHT, EMPTY) }
+      matrix = Array.new(width+1).map { Array.new(height, EMPTY) }
 
       # calculated max y value
       max_y_value = reduced_values.max
@@ -30,13 +35,20 @@ module Merit
       # puts a marker on the place where the value is
       reduced_values.each_with_index do |value, index|
         x_value = index
-        y_value = value / max_y_value * HEIGHT - 1
-        matrix[x_value][y_value] = MARKER unless matrix[x_value].nil?
+        max_y_value == 0 ? y_value = 0 : y_value = (value / max_y_value * height-1)
+        if FILLED
+          0.upto(y_value) do |value|
+            matrix[x_value][value] = MARKER unless matrix[x_value].nil?
+          end
+        else
+          matrix[x_value][y_value] = MARKER unless matrix[x_value].nil?
+        end
       end
 
       # append each row with a tick value
-      HEIGHT.times do |index|
-        matrix[WIDTH][index] = " #{(max_y_value/(HEIGHT-index)).round(2)}"
+      height.times do |index|
+        tick_value = max_y_value /( height - index )
+        matrix[width][index] = " #{sprintf("%8.2e", tick_value)}"
       end
 
       matrix
@@ -44,7 +56,7 @@ module Merit
 
     # how many values do I need to average over the WIDTH?
     def step_size
-      values.size / WIDTH
+      values.size / width
     end
 
     # scale values horizontally (take averages)

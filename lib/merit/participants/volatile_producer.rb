@@ -19,7 +19,7 @@ module Merit
     # is produced at what time. It is a product of the load_profile and
     # the total_production.
     def load_curve
-      LoadCurve.new(load_profile.values.map{ |v| v * total_production })
+      @load_curve ||= LoadCurve.new(load_profile.values.map{ |v| v * total_production })
     end
 
     # Public: returns the LoadProfile of this participant. This basically

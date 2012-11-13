@@ -12,6 +12,10 @@ module Merit
       super
     end
 
+    def max_load
+      effective_output_capacity * availability * number_of_units
+    end
+
   end
 
 end

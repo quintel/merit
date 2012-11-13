@@ -265,19 +265,6 @@ module Merit
     )
 
     merit_order.add(
-      MustRunProducer.new(
-        key: :energy_power_geothermal,
-        marginal_costs: 0,
-        effective_output_capacity: 0,
-        number_of_units: 0,
-        availability: 0.95,
-        fixed_costs: 9315783.898,
-        load_profile_key: :geothermal,
-        full_load_hours: 8250
-      )
-    )
-
-    merit_order.add(
       DispatchableProducer.new(
         key: :energy_chp_combined_cycle_gas_power_fuelmix,
         marginal_costs: 60.33237888,

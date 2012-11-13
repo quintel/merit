@@ -26,10 +26,29 @@ module Merit
       end
     end
 
+    # ---------- Load Queries ---------
+
     def residual_load
+      users_load - must_runs_load - volatiles_load
+    end
+
+    def users_load
+      users.map(&:load_curve).reduce(:+)
+    end
+
+    def must_runs_load
+      must_runs.map(&:load_curve).reduce(:+)
+    end
+
+    def volatiles_load
+      volatiles.map(&:load_curve).reduce(:+)
     end
 
     # -------- Queries --------------
+
+    def dispatchable_capacity
+      dispatchables.map(&:max_load).reduce(:+)
+    end
 
     # Public: Returns all the must_run participants
     def must_runs
