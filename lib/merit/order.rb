@@ -17,15 +17,19 @@ module Merit
   #
   class Order
 
-    attr_accessor :total_demand
-
     # Public: created a new Order
     def initialize(total_demand = nil)
       @participants = {}
-      @total_demand = total_demand
+      if total_demand
+        add(User.new(key: :total_demand))
+        users.first.total_consumption = total_demand
+      end
     end
 
-    # -------- Producers ------------
+    def residual_load
+    end
+
+    # -------- Queries --------------
 
     # Public: Returns all the must_run participants
     def must_runs
@@ -39,8 +43,13 @@ module Merit
 
     # Public: Returns all the dispatchables participants
     def dispatchables
-      participants.select{ |p| p.is_a?(DispatchableProducer) }. \
-        sort_by(&:marginal_costs)
+      participants.select do
+        |p| p.is_a?(DispatchableProducer)
+      end.sort_by(&:marginal_costs)
+    end
+
+    def users
+      participants.select{ |p| p.is_a?(User) }
     end
 
     # Public Returns the participant for a given key, nil if not exists
@@ -62,8 +71,9 @@ module Merit
     end
 
     def to_s
-      "<#{self.class}: #{@participants.size} participants, " \
-      "demand: #{ total_demand ? total_demand : "not set" }>"
+      "<#{self.class}" \
+      " #{participants.size - users.size} producers," \
+      " #{users.size} users >"
     end
 
   end

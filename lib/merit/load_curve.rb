@@ -16,11 +16,22 @@ module Merit
     end
 
     def to_s
-      "<#{self.class}: #{@values.size} values>"
+      "<#{self.class}: #{values.size} values>"
     end
 
+    # Public: creates a new drawing in the terminal for this LoadCurve
     def draw
-      BarChart.new(@values).draw
+      BarChart.new(values).draw
+    end
+
+    # Public: substract one load curve from the other
+    def -(other)
+      self.class.new([values,other.values].transpose.map{ |x| x.reduce(:-) })
+    end
+
+    # Public: substract one load curve from the other
+    def +(other)
+      self.class.new([values,other.values].transpose.map{ |x| x.reduce(:+) })
     end
 
   end

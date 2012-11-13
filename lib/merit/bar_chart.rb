@@ -15,7 +15,8 @@ module Merit
 
     # Outputs a String with line breaks that represents a Chart
     def draw
-      matrix.transpose.reverse.map(&:join).join("\n")
+      puts matrix.transpose.reverse.map(&:join).join("\n")
+      nil
     end
 
     # Holds the X and Y values for the Plot...

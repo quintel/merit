@@ -24,26 +24,6 @@ module Merit
       end
     end
 
-    pending "refactoring" do
-      describe "#load_curve" do
-        context 'if demand is known' do
-          it "should contain 8760 LoadCurvePoints" do
-            order.total_demand = 1
-            expect(order.load_curve).to have(8760).points
-          end
-          it "should scale correctly" do
-            order.total_demand = 17.0
-            expect(order.load_curve.load * 3600).to be_within(0.1).of(17)
-          end
-        end
-        context 'if demand is UNknown' do
-          it "should raise an error" do
-            expect(->{ order.load_curve }).to raise_error(UnknownDemandError)
-          end
-        end
-      end
-    end
-
   end
 
 end

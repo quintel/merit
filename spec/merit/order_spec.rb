@@ -31,13 +31,13 @@ module Merit
 
     describe "#inspect" do
       it "should contain the number of participants" do
-        expect(order.to_s).to match("0 participant")
+        expect(order.to_s).to match("0 producer")
         order.add(MustRunProducer.new({key: :foo}))
-        expect(order.to_s).to match("1 participant")
+        expect(order.to_s).to match("1 producer")
       end
       it "shows the total demand"  do
-        expect(order.to_s).to match("demand: not set")
-        expect(Order.new(2000).to_s).to match("demand: 2000")
+        expect(order.to_s).to match("0 user")
+        expect(Order.new(2000).to_s).to match("1 user")
       end
     end
 

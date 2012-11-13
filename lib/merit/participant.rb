@@ -22,6 +22,10 @@ module Merit
       @fixed_costs               = opts[:fixed_costs]
     end
 
+    def to_s
+      "<#{self.class} #{key}>"
+    end
+
   end
 
 end
