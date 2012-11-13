@@ -5,7 +5,7 @@ This module is used to calculate the merit order for the
 
 The **merit order** predicts/calculates which electricity generating
 technologies are switched on or off to meet the demand/load on the electricity
-network at which **hour** in the year.
+network at every **hour** in the year.
 
 ## Quick Demonstration
 
@@ -18,13 +18,14 @@ merit_order = Merit::Order.new
 
 Add the dispatchable participants to the Merit Order, by using the following 
 parameters as input:
+* key (string)
 * marginal_costs (EUR/MWh/year) 
 * effective_output_capacity (MW electric/plant)
 * number_of_units (#)
 * availability (%)
 * fixed_costs (EUR/year)
 
-For example, we could add the following two:
+For example, we could add the following participant:
 
 ```Ruby
 merit_order.add(
@@ -37,30 +38,13 @@ merit_order.add(
     fixed_costs:               3_000_000
   )
 )
-
-merit_order.add(
-  DispatchableParticipant.new(
-    key:                       :combined_cycle_gas,
-    marginal_costs:            23.00,
-    effective_output_capacity: 3_000.0,
-    number_of_units:           3.0,
-    availability:              0.85,
-    fixed_costs:               5_000_000
-  )
-)
 ```
 
 Add the `must_run` and `volatile` participants. They have two additional
 parameters: 
 
-1. load_profile_key
-2. full_load_hours
-
-** NOTE **
-
-The full loads already have the availability 'in them'. So, e.g. a nuclear
-power plant, when it has an availability of 90%, it **CONSEQUENTLY** has full load
-hours of 7884.0.
+* load_profile_key
+* full_load_hours
 
 for instance:
 
@@ -92,14 +76,14 @@ merit_order.add(
 )
 ```
 
-Specify what demand you want to calculate the merit order with (in **MJ**):
+Specify what total demand you want to calculate the merit order with (in **MJ**):
 
 ```Ruby
 merit_order.total_demand = 300 * 10**9 #MJ
 ```
 
 Now you have supplied the minimal amount of information to calculate output
-for this situation, and you can start to ask for this output, e.g.
+for this situation, and you can start to ask for output, e.g.
 
 ```Ruby
 merit_order.participant[:ultra_supercritical_coal].full_load_hours
@@ -116,6 +100,15 @@ The Merit Order needs to know about **which technologies participate** in the
 merit order, what **parameters** these participants have, 
 and about the **total energy demand**.
 
+#### Total demand
+
+Total demand must be supplied in **MJ**. It is the sum of all electricity
+consumption of converters in the final demand converter group **plus** losses
+of the electricity network. 
+
+The total demand is used to scale up the **normalized** demand curve to it
+produce the correct demand curve (which is a load profile).
+
 #### Participants
 
 This module has to be supplied with the participants of the Merit Order, which
@@ -125,10 +118,66 @@ has to be either:
 * volatile
 * dispatchable
 
-#### Full load hours
+#### Parameters for all participants (dispatchable, must-run and volatile)
+
+* key (string)
+* marginal_costs (EUR/MWh/year) 
+* effective_output_capacity (MW electric/plant)
+* number_of_units (#)
+* availability (%)
+* fixed_costs (EUR/year)
+
+
+##### Key
+
+With **key** the name of the participant is meant.
+
+##### Effective output capacity
+
+The effective output capacity prescribes how much electricity the technology produces
+when running at maximum load. 
+
+For definitions of available and nominal capacities see the **Definitions** section below.
+
+##### Marginal costs
+
+The marginal_costs (EUR/MWh/year) are calculated by dividing the variable costs
+(EUR/year) of the participant by its (yearly) electricity production (in
+MWh). The marginal costs can be queried from the ETEngine's GQL with the
+following query:
+
+    V(converter_key, variable_costs_per(:mwh_electricity))
+
+##### Fixed costs
+
+The fixed costs (EUR/year) can be queried from the ETM with the fixed_costs
+function:
+
+    V(converter_key, fixed_costs)
+
+##### Number of units
+
+A number that specifies how many of a technology are present. **This can be fractional.**
+
+##### Availability
+
+The availability describes which fraction of the time a technology is available for electricity
+ production. The full load hours of a technology cannot exceed its availability multiplied by 8760. 
+For example, if the availability is 0.95, the full_load_hours can never exceed 
+0.95 * 8760 = 8322 hours.
+
+#### Additional parameters for must_run and volatile participants
+
+* load_profile_key
+* full_load_hours
+
+##### Full load hours
 
 The full load hours of a **must run** or **volatile** participant are determined
 by outside factors, and have to be supplied when this participant is added.
+
+The full load hours of volatile and must-run technologies already take the 
+availability of these technologes into account. 
 
 The full load hours of a **dispatchable** participant are determined by this
 module (so they are 'output').
@@ -138,58 +187,18 @@ merit_order.participant[:coal].full_load_hours
 => 2000.0 #hours
 ```
 
-In full load hours, full load means that the plant uses all available capacity, in which 
-
-    available_capacity = effective_output_capacity * availability
-
-
-#### Total demand
-
-Total demand must be supplied in **MJ**. It is the sum of all electricity
-consumption of converters in the final demand converter group **plus** losses
-of the electricity network. 
-
-The total demand is used to scale up the **normalized** demand curve to it
-produce the correct demand curve.
-
-#### Marginal costs
-
-The marginal_costs (EUR/MWh/year) are calculated by dividing the variable costs
-(EUR/year) of the participant by its (yearly) electricity production (in
-MWh). The marginal costs can be queried from the ETEngine's GQL with the
-following query:
-
-    V(converter_key, variable_costs_per(:mwh_electricity))
-
-#### Fixed costs
-
-The fixed costs (EUR/year) can be queried from the ETM with the fixed_costs
-function:
-
-    V(converter_key, fixed_costs)
+In full load hours, 'full load' means that the plant runs at its **effective** 
+capacity.
 
 ## Output
 
 ### For each LoadCurvePoint and Participant
 
-* load_fraction
+* load
 
-#### load_fraction
+#### Load
 
-Return the full_load_hours of a participating electricity generating technology
-in **hours**. The number of full load hours is calculated by summing up the
-load_fraction for each data point.  Each data point represents 1 hour (so 8760
-data points per year). The load_fraction is the fraction of capacity of a
-participant that is used for matching the electricity demand in the merit
-order, so:
-
-    load_fraction = capacity used / available_capacity
-
-For the participants that are cheaper than the price setting participant, the
-load_fraction is equal to 1.  For the price setting participant this
-load_fraction is generally lower than 1, since only a fraction of its maximum
-capacity is needed to meet the demand.  For the participants that are more
-expensive than the price setting participant, the load_fraction is equal to 0.
+Return the load (in MW) of a participating electricity generating technology. 
 
 ### For each LoadCurvePoint
 
@@ -198,22 +207,26 @@ expensive than the price setting participant, the load_fraction is equal to 0.
 
 #### Price
 
-The price is equal to the `marginal_costs` of the participant that is highest
-up the merit order + 1. This is the price of electricity at that point in time.
+The price is equal to the `marginal_costs` of the participant that is **one higher** in the 
+merit order than the price-setting participant. This reflects the assumption that a producer
+will try to sell his electricity for a price that is as high as possible but still smaller 
+than the cost of the participant that is next in the merit order.
+
+This is the price of electricity at that point in time.
 
 #### Demand load
 
 The demand load is defined by the load profile for the total_demand, and is
-the number at this particular point in time. Unit: MW.
+the value of this profile at this particular point in time. Unit: MW.
 
 ### For each Participant
 
-* full_load_hours (sum of load_fractions)
-* profitability
-* profit
+* full_load_hours
 * total income
 * total costs
 * total variable cost
+* profit
+* profitability
 * (all the input which is known, such as fixed_costs, key, etc.)
 
 ```Ruby
@@ -225,7 +238,24 @@ merit_order.participants[:coal].profitability
 => :profitable # hurray, it is profitable!
 ```
 
-#### Income
+#### Full load hours
+
+The full load hours of a participant can be calculated by integrating the 
+area under the load curve and dividing the resulting total production (in MWh)
+through the effective capacity.
+In practice the integration amounts to summing up the loads for each data point. 
+Each data point represents 1 hour (so 8760 data points per year).
+
+    full_load_hours = load_profile.sum / effective_output_capacity
+
+For the participants that are cheaper than the price setting participant, the
+load is equal to the **available output capacity**.  
+For the price setting participant the load is generally lower than the available capacity, 
+since only a fraction of its available capacity is needed to meet the demand.  
+For the participants that are more expensive than the price setting participant, the load 
+is equal to 0.
+
+#### Total income
 
 The `income` (in EUR/year) of a participant is calculated by summing up the 
 `load_fraction * electricity price` for each data point.
@@ -288,6 +318,7 @@ Merit::LoadProfile.load(:total_demand).valid?
 
 Currently, the following load profiles are supported
 
+0. demand
 1. industry chps
 2. agriculural chps
 3. buildings chps
