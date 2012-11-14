@@ -20,8 +20,12 @@ module Merit
     end
 
     # Public: creates a new drawing in the terminal for this LoadCurve
-    def draw
+    def draw!
       BarChart.new(values).draw
+    end
+
+    def draw
+      BarChart.new(values).drawing
     end
 
     # Public: substract one load curve from the other

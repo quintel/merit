@@ -27,6 +27,21 @@ module Merit
       end
     end
 
+    describe '#full_load_hours' do
+      it 'should be the same as inputted, if it was input' do
+        expect(producer.full_load_hours).to eql 4
+      end
+      it 'should be 8760 * availability for a continuously on dispatchable' do
+        producer = Producer.new(key: :bar,
+                                effective_output_capacity: 1600,
+                                availability: 0.9,
+                                number_of_units: 0.31875)
+        producer.stub(:production){ 14475023999.999998 }
+
+        expect(producer.full_load_hours).to eql 8760 * 0.9
+      end
+    end
+
     describe '#load_curve' do
       it 'should be settable by the merit order' do
         merit = Merit::Order.new
@@ -66,7 +81,7 @@ module Merit
 
     describe '#max_production' do
       it 'should return the correct outcome in MJ' do
-        expect(producer.max_production).to eql 1 * 4 * 3600 * 2
+        expect(producer.max_production).to eql 1 * 4 * 3600 * 2 * 0.95
       end
     end
 
