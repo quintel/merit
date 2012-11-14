@@ -63,7 +63,12 @@ module Merit
       end
     end
 
-    # Public: returns an Array of all the producers
+    # Public: returns an Array of all the producers, ordered
+    # by:
+    #
+    # - 1. volatiles (wind, solar, etc.)
+    # - 2. must runs (chps, nuclear, etc.)
+    # - 3. dispatchables (coal, gas, etc.)
     def producers
       volatiles + must_runs + dispatchables
     end
@@ -85,6 +90,7 @@ module Merit
       end.sort_by(&:marginal_costs)
     end
 
+    # Public: returns all the users of electricity
     def users
       participants.select{ |p| p.is_a?(User) }
     end
