@@ -29,42 +29,43 @@ module Merit
     # ---------- Calculate! -----------
 
     def demand_load_at(point_in_time)
-      users.map{ |u| u.load_at(point_in_time) }.reduce(:+)
+      users.map{ |user| user.load_at(point_in_time) }.reduce(:+)
     end
 
-    def producers_running_with(load_value)
+    # Returns an Array containing the loads that are actually
+    # produced according to the Merit Order.
+    def production_loads_at(point_in_time)
+      remaining_load = demand_load_at(point_in_time)
+      production_loads = []
+      max_production_loads_at(point_in_time).each do |max_load|
+        if max_load < remaining_load
+          production_loads << max_load
+        else
+          production_loads << [remaining_load, 0.0].max
+        end
+        remaining_load -= max_load
+      end
+      production_loads
     end
 
     def max_production_load_at(point_in_time)
+      max_production_loads_at(point_in_time).reduce(:+)
     end
 
-    # ---------- Load Queries ---------
-
-    def residual_load
-      users_load - must_runs_load - volatiles_load
+    def max_production_loads_at(point_in_time)
+      producers.map{ |p| p.max_load_at(point_in_time) }
     end
 
-    def users_load
-      users.map(&:load_curve).reduce(:+)
+    def cumulative_max_production_loads_at(point_in_time)
+      sum = 0
+      max_production_loads_at(point_in_time).map do |load|
+        sum += load
+      end
     end
 
-    def must_runs_load
-      must_runs.map(&:load_curve).reduce(:+)
-    end
-
-    def volatiles_load
-      volatiles.map(&:load_curve).reduce(:+)
-    end
-
-    # -------- Queries --------------
-
-    def dispatchable_capacity
-      dispatchables.map(&:max_load).reduce(:+)
-    end
-
-    # Public: Returns all the must_run participants
-    def must_runs
-      participants.select{ |p| p.is_a?(MustRunProducer) }
+    # Public: returns an Array of all the producers
+    def producers
+      volatiles + must_runs + dispatchables
     end
 
     # Public: Returns all the volatiles participants
@@ -72,9 +73,9 @@ module Merit
       participants.select{ |p| p.is_a?(VolatileProducer) }
     end
 
-    # Public: returns an Array of all the producers
-    def producers
-      must_runs + volatiles + dispatchables
+    # Public: Returns all the must_run participants
+    def must_runs
+      participants.select{ |p| p.is_a?(MustRunProducer) }
     end
 
     # Public: Returns all the dispatchables participants

@@ -12,6 +12,17 @@ module Merit
       end
     end
 
+    describe '#all' do
+      it 'should load all keys' do
+        expect(LoadProfile.all).to have_at_least(1).load_profiles
+      end
+      LoadProfile.all.each do |load_profile|
+        it "#{load_profile.key} should be valid" do
+          expect(load_profile).to be_valid
+        end
+      end
+    end
+
     describe '#load' do
       it 'should load a profile from file' do
         load_profile = LoadProfile.load(:solar_pv)

@@ -26,6 +26,14 @@ module Merit
       new(key, read_values_from_file(key))
     end
 
+    # Public: Returns Array with all the oad profiles stored
+    def self.all
+      Dir.glob("#{Merit.root}/load_profiles/*.csv").map do |path|
+        key = File.basename(path, ".csv")
+        self.load(key)
+      end
+    end
+
     def to_s
       "<#{self.class} #{values.size} values>"
     end
