@@ -45,10 +45,12 @@ module Merit
       @load_curve
     end
 
+    # Experimental: for demo purposes
     def off_times
       load_curve.values.select{ |v| v == 0 }.size
     end
 
+    # Experimental: for demo purposes
     def ramping_curve
       LoadCurve.new(load_curve.values.each_cons(2).map{ |a,b| (b-a).abs })
     end
@@ -65,6 +67,7 @@ module Merit
       @max_load_curve ||= LoadCurve.new(values)
     end
 
+    # Experimental: for demo purposes
     def silent_load_curve
       max_load_curve - load_curve
     end
