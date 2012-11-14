@@ -46,11 +46,16 @@ module Merit
       end
     end
 
+    # Public: Returns the (actual) energy produced by this producer
+    def production
+      load_curve.values.reduce(:+) * 3600
+    end
+
     # Public: calculates how much energy is 'produced' by this participant
     #
     # Returns Float: energy in MJ (difference between MWh and MJ is 3600)
     def max_production
-      effective_output_capacity * full_load_hours * 3600 * number_of_units
+      available_output_capacity * 3600
     end
 
     def available_output_capacity
