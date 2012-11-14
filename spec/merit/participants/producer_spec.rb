@@ -48,7 +48,7 @@ module Merit
         expect(producer.max_load_curve)
       end
       it 'should be the product of energy production and the load profile' do
-        producer.stub(:total_production){ 1000 }
+        producer.stub(:max_production){ 1000 }
         expect(producer.max_load_curve.values[117]).to \
           eql(producer.load_profile.values[117] * 1000)
       end
@@ -64,9 +64,9 @@ module Merit
       end
     end
 
-    describe '#total_production' do
+    describe '#max_production' do
       it 'should return the correct outcome in MJ' do
-        expect(producer.total_production).to eql 1 * 4 * 3600 * 2
+        expect(producer.max_production).to eql 1 * 4 * 3600 * 2
       end
     end
 
@@ -75,7 +75,7 @@ module Merit
         it 'should return the load_profile\'s value' do
           ones = Array.new(8760,1)
           producer.stub_chain(:load_profile, :values).and_return(ones)
-          expect(producer.max_load_at(117)).to eql producer.total_production
+          expect(producer.max_load_at(117)).to eql producer.max_production
         end
       end
       context 'given NO load profile' do

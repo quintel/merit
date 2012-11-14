@@ -1,5 +1,7 @@
 module Merit
 
+  # The Producer within the Merit Order is reponsible for producing electricity
+  # to meet demand
   class Producer < Participant
 
     attr_reader   :full_load_hours, :effective_output_capacity, :availability,
@@ -7,7 +9,7 @@ module Merit
 
     attr_accessor :load_curve
 
-    # Public: creates a new participant
+    # Public: creates a new producer
     # params opts[Hash] set the attributes
     # returns Participant
     def initialize(opts)
@@ -26,7 +28,8 @@ module Merit
     # is produced at what time. It is a product of the load_profile and
     # the total_production.
     def max_load_curve
-      @max_load_curve ||= LoadCurve.new(load_profile.values.map{ |v| v * total_production })
+      values = load_profile.values.map { |v| v * max_production }
+      @max_load_curve ||= LoadCurve.new(values)
     end
 
     # Public: returns the LoadProfile of this participant. This basically
@@ -40,7 +43,7 @@ module Merit
     # Public: calculates how much energy is 'produced' by this participant
     #
     # Returns Float: energy in MJ (difference between MWh and MJ is 3600)
-    def total_production
+    def max_production
       effective_output_capacity * full_load_hours * 3600 * number_of_units
     end
 
@@ -51,7 +54,7 @@ module Merit
     # Public: determined what the max produced load is at a point in time
     def max_load_at(point_in_time)
       if load_profile
-        load_profile.values[point_in_time] * total_production
+        load_profile.values[point_in_time] * max_production
       else
         available_output_capacity
       end
