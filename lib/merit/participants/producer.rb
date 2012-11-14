@@ -24,6 +24,12 @@ module Merit
       @load_curve                = LoadCurve.new(Array.new(8760))
     end
 
+    # Public: Returns the actual load curve, and this can be set by the
+    # merit order object
+    def load_curve
+      @load_curve
+    end
+
     # Public: the load curve of a participant, tells us how much energy
     # is produced at what time. It is a product of the load_profile and
     # the total_production.
