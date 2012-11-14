@@ -24,6 +24,13 @@ module Merit
       @load_curve                = LoadCurve.new(Array.new(8760))
     end
 
+    # The full load hours are defined as the number of hours that the
+    # producer were on AS IF it were producing at the +effective+ output
+    # capacity. For any producer with availability < 1, this number is always
+    # lower than 8760.
+    #
+    # When the full load hours were defined as input, this method then returns
+    # that number
     def full_load_hours
       if @full_load_hours
         @full_load_hours
