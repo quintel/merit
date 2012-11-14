@@ -58,7 +58,7 @@ module Merit
       path = "#{Merit.root}/load_profiles/#{key}.csv"
 
       begin
-        values = CSV.read(path, converters: :numeric).flatten
+        values = CSV.read(path).flatten.map(&:to_f)
       rescue Errno::ENOENT
         raise Merit::MissingLoadProfileError.new(key)
       end
