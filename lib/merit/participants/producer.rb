@@ -22,7 +22,7 @@ module Merit
     # Public: the load curve of a participant, tells us how much energy
     # is produced at what time. It is a product of the load_profile and
     # the total_production.
-    def load_curve
+    def max_load_curve
       @load_curve ||= LoadCurve.new(load_profile.values.map{ |v| v * total_production })
     end
 
