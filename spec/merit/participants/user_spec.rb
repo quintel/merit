@@ -31,6 +31,15 @@ module Merit
 
     end #describe #load_curve
 
+    describe '#load_at' do
+
+      it 'should return a nice number' do
+        user.total_consumption = 300 * 10**9
+        expect(user.load_at(117)).to be > 0
+      end
+
+    end
+
   end #describe User
 
 end #module Merit

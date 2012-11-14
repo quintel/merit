@@ -4,11 +4,9 @@ require 'merit/order'
 require 'merit/load_curve'
 require 'merit/load_profile'
 
-require 'merit/participant'
+require 'merit/participants/participant'
 require 'merit/participants/producer'
-require 'merit/participants/must_run_producer'
-require 'merit/participants/volatile_producer'
-require 'merit/participants/dispatchable_producer'
+require 'merit/participants/types'
 require 'merit/participants/user'
 
 require 'merit/bar_chart'

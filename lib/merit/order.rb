@@ -26,6 +26,18 @@ module Merit
       end
     end
 
+    # ---------- Calculate! -----------
+
+    def demand_load_at(point_in_time)
+      users.map{ |u| u.load_at(point_in_time) }.reduce(:+)
+    end
+
+    def producers_running_with(load_value)
+    end
+
+    def max_production_load_at(point_in_time)
+    end
+
     # ---------- Load Queries ---------
 
     def residual_load
@@ -58,6 +70,11 @@ module Merit
     # Public: Returns all the volatiles participants
     def volatiles
       participants.select{ |p| p.is_a?(VolatileProducer) }
+    end
+
+    # Public: returns an Array of all the producers
+    def producers
+      must_runs + volatiles + dispatchables
     end
 
     # Public: Returns all the dispatchables participants

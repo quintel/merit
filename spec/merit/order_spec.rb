@@ -19,6 +19,11 @@ module Merit
       end
     end
 
+    describe '#demand_at_at(point_in_time)' do
+      it 'should return the sum of the load at of users' do
+      end
+    end
+
     describe "#participants" do
       it 'should remember the added participants' do
         p1 = MustRunProducer.new({key: :foo})

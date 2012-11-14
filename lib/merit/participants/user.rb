@@ -4,7 +4,6 @@ module Merit
   # to form the 'total demand' for a particular setting of the Merit Order.
   class User < Participant
 
-    attr_reader   :load_profile_key
     attr_accessor :total_consumption
 
     # Public: creates a new participant
@@ -12,13 +11,13 @@ module Merit
     # returns Participant
     def initialize(opts)
       super
-      @load_profile_key  = opts[:key]
       @total_consumption = opts[:total_consumption]
     end
 
     # Public: the load curve of a participant, tells us how much energy
     # is produced at what time. It is a product of the load_profile and
     # the total_production.
+    # Returns the load in MW
     def load_curve
       raise UnknownDemandError unless total_consumption
       @load_curve ||= LoadCurve.new(load_profile.values.map{ |v| v * total_consumption })
@@ -27,7 +26,13 @@ module Merit
     # Public: returns the LoadProfile of this participant. This basically
     # tells you during what period in a year this technology is used/on.
     def load_profile
-      LoadProfile.load(load_profile_key)
+      @load_profile ||= LoadProfile.load(key)
+    end
+
+    # Public: returns us what the load is for a certain point in time
+    def load_at(point_in_time)
+      raise UnknownDemandError unless total_consumption
+      load_profile.values[point_in_time] * total_consumption
     end
 
   end
