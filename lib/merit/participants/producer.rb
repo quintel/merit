@@ -55,7 +55,11 @@ module Merit
     #
     # Returns Float: energy in MJ (difference between MWh and MJ is 3600)
     def max_production
-      available_output_capacity * 3600
+      if full_load_hours
+        available_output_capacity * full_load_hours * 360
+      else
+        available_output_capacity * 8760 * 3600
+      end
     end
 
     def available_output_capacity
