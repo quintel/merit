@@ -1,4 +1,6 @@
 require 'merit/root'
+require 'merit/version'
+
 require 'merit/errors'
 require 'merit/order'
 require 'merit/load_curve'

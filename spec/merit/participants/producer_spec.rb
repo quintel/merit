@@ -5,14 +5,15 @@ module Merit
   describe Producer do
 
     let(:producer) do
-      Producer.new(key: :coal,
-                   load_profile_key: :industry_chp,
-                   effective_output_capacity: 1,
-                   marginal_costs: 2,
-                   availability: 0.95,
-                   number_of_units: 2,
-                   full_load_hours: 4
-                  )
+      Producer.new(
+        key:                       :coal,
+        load_profile_key:          :industry_chp,
+        effective_output_capacity: 1,
+        marginal_costs:            2,
+        availability:              0.95,
+        number_of_units:           2,
+        full_load_hours:           4
+       )
     end
 
     describe '#new' do
@@ -27,6 +28,22 @@ module Merit
     end
 
     describe '#load_curve' do
+      it 'should be settable by the merit order' do
+        merit = Merit::Order.new
+        merit.add(producer)
+        merit.participant(:coal).load_curve = LoadCurve.new((1..3).to_a)
+        expect(producer.load_curve.values).to eql [1,2,3]
+      end
+      it 'should be adaptable and extendable for the merit order' do
+        merit = Merit::Order.new
+        merit.add(producer)
+        merit.participant(:coal).load_curve.values[0] = 1
+        expect(producer.load_curve.values[0]).to eql 1
+        expect(producer.load_curve.values[1]).to be_nil
+      end
+    end
+
+    describe '#max_load_curve' do
       it 'should be available' do
         expect(producer.max_load_curve)
       end

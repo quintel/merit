@@ -28,6 +28,23 @@ module Merit
 
     # ---------- Calculate! -----------
 
+    # Calculates the Merit Order and makes sure it happens only once
+    #
+    # Returns true when successful
+    def calculate
+      @calculate ||= recalculate!
+    end
+
+    # Recalculates
+    # Returns true when we did them all
+    def recalculate!
+      Merit::POINTS.times do |point_in_time|
+        export_production_loads_at(point_in_time)
+      end
+      true
+    end
+
+    # Returns the total demand for electricity at a certain time
     def demand_load_at(point_in_time)
       users.map{ |user| user.load_at(point_in_time) }.reduce(:+)
     end
@@ -48,14 +65,27 @@ module Merit
       production_loads
     end
 
+    # Records the production loads in the producer's load curve
+    def export_production_loads_at(point_in_time)
+      producers.zip(production_loads_at(point_in_time)).each do |producer,load|
+        producer.load_curve.values[point_in_time] = load
+      end
+    end
+
+    # Calculates the maximal production ALL the producers can take
+    # Returns Float
     def max_production_load_at(point_in_time)
       max_production_loads_at(point_in_time).reduce(:+)
     end
 
+    # Calculates the maximal production PER producer
+    # Returns Array[Floats]
     def max_production_loads_at(point_in_time)
       producers.map{ |p| p.max_load_at(point_in_time) }
     end
 
+    # Calculates the cumulative productions for the converters
+    # TODO: remove, probably not needed
     def cumulative_max_production_loads_at(point_in_time)
       sum = 0
       max_production_loads_at(point_in_time).map do |load|
@@ -64,7 +94,7 @@ module Merit
     end
 
     # Public: returns an Array of all the producers, ordered
-    # by:
+    # with the following in mind:
     #
     # - 1. volatiles (wind, solar, etc.)
     # - 2. must runs (chps, nuclear, etc.)
@@ -83,7 +113,8 @@ module Merit
       participants.select{ |p| p.is_a?(MustRunProducer) }
     end
 
-    # Public: Returns all the dispatchables participants
+    # Public: Returns all the dispatchables participants, ordered
+    # by marginal_costs
     def dispatchables
       participants.select do
         |p| p.is_a?(DispatchableProducer)

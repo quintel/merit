@@ -2,9 +2,10 @@ module Merit
 
   class Producer < Participant
 
-    attr_reader :full_load_hours,
-                :effective_output_capacity, :availability, :number_of_units,
-                :marginal_costs, :fixed_costs
+    attr_reader   :full_load_hours, :effective_output_capacity, :availability,
+                  :number_of_units, :marginal_costs, :fixed_costs
+
+    attr_accessor :load_curve
 
     # Public: creates a new participant
     # params opts[Hash] set the attributes
@@ -17,13 +18,15 @@ module Merit
       @availability              = opts[:availability]
       @number_of_units           = opts[:number_of_units]
       @fixed_costs               = opts[:fixed_costs]
+
+      @load_curve                = LoadCurve.new(Array.new(8760))
     end
 
     # Public: the load curve of a participant, tells us how much energy
     # is produced at what time. It is a product of the load_profile and
     # the total_production.
     def max_load_curve
-      @load_curve ||= LoadCurve.new(load_profile.values.map{ |v| v * total_production })
+      @max_load_curve ||= LoadCurve.new(load_profile.values.map{ |v| v * total_production })
     end
 
     # Public: returns the LoadProfile of this participant. This basically
