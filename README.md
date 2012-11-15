@@ -21,9 +21,9 @@ parameters as input:
 * key (string)
 * marginal_costs (EUR/MWh/year) 
 * effective_output_capacity (MW electric/plant)
-* number_of_units (#)
+* number_of_units (# FLOAT, not integer!)
 * availability (%)
-* fixed_costs (EUR/year)
+* fixed_costs (EUR/plant/year)
 
 For example, we could add the following participant:
 
@@ -68,7 +68,7 @@ merit_order.add(
     marginal_costs:            0.0,
     effective_output_capacity: 1400,
     availability:              0.95,
-    fixed_costs:               400000,
+    fixed_costs:               400_000,
     number_of_units:           30,
     load_profile_key:          :offshore_wind_profile,
     full_load_hours:           7_000
@@ -106,8 +106,9 @@ Total demand must be supplied in **MJ**. It is the sum of all electricity
 consumption of converters in the final demand converter group **plus** losses
 of the electricity network. 
 
-The total demand is used to scale up the **normalized** demand curve to it
-produce the correct demand curve (which is a load profile).
+The total demand is used to scale up the **normalized** demand curve 
+(i.e. the demand profile) to
+produce the correct demand curve (which is a load curve).
 
 #### Participants
 
@@ -123,9 +124,9 @@ has to be either:
 * key (string)
 * marginal_costs (EUR/MWh/year) 
 * effective_output_capacity (MW electric/plant)
-* number_of_units (#)
+* number_of_units (# float)
 * availability (%)
-* fixed_costs (EUR/year)
+* fixed_costs (EUR/plant/year)
 
 
 ##### Key
@@ -134,7 +135,8 @@ With **key** the name of the participant is meant.
 
 ##### Effective output capacity
 
-The effective output capacity prescribes how much electricity the technology produces
+The effective output capacity is the maximum output capacity of a single plant.
+That means it describes how much electricity the technology produces per second
 when running at maximum load. 
 
 For definitions of available and nominal capacities see the **Definitions** section below.
@@ -142,15 +144,15 @@ For definitions of available and nominal capacities see the **Definitions** sect
 ##### Marginal costs
 
 The marginal_costs (EUR/MWh/year) are calculated by dividing the variable costs
-(EUR/year) of the participant by its (yearly) electricity production (in
-MWh). The marginal costs can be queried from the ETEngine's GQL with the
+(EUR/plant/year) of the participant by one plant's annual electricity production (in
+MWh/plant). The marginal costs can be queried from the ETEngine's GQL with the
 following query:
 
     V(converter_key, variable_costs_per(:mwh_electricity))
 
 ##### Fixed costs
 
-The fixed costs (EUR/year) can be queried from the ETM with the fixed_costs
+The fixed costs (EUR/plant/year) can be queried from the ETM with the fixed_costs
 function:
 
     V(converter_key, fixed_costs)
@@ -177,11 +179,14 @@ Gives the name of the profile.
 
 ##### Full load hours
 
+The full load hours are defined as:
+participant production / (effective_output_capacity * number_of_units * 3600 )
+
 The full load hours of a **must run** or **volatile** participant are determined
 by outside factors, and have to be supplied when this participant is added.
 
 The full load hours of volatile and must-run technologies already take the 
-availability of these technologes into account. 
+availability of these technologies into account. 
 
 The full load hours of a **dispatchable** participant are determined by this
 module (so they are 'output').
@@ -192,7 +197,8 @@ merit_order.participant[:coal].full_load_hours
 ```
 
 In full load hours, 'full load' means that the plant runs at its **effective** 
-capacity.
+capacity. A plant that runs every second of the year at half load, therefore has 
+full load hours = 8760 * 50% = 4380 hours (if we assume a year has exactly 8760 hours).
 
 ## Output
 
@@ -216,12 +222,15 @@ merit order than the price-setting participant. This reflects the assumption tha
 will try to sell his electricity for a price that is as high as possible but still smaller 
 than the cost of the participant that is next in the merit order.
 
-This is the price of electricity at that point in time.
+This is the price of electricity at that point in time. Unit EUR/MWh
+
+**N.B. It is to be determined what the margin is for the most expensive plant in the merit order (i.e. 
+when there is no 'one higher').**
 
 #### Demand load
 
-The demand load is defined by the load profile for the total_demand, and is
-the value of this profile at this particular point in time. Unit: MW.
+The demand load is defined by the load curve for the total_demand, and is
+the value of this curve at this particular point in time. Unit: MW.
 
 ### For each Participant
 
@@ -261,34 +270,35 @@ is equal to 0.
 
 #### Total income
 
-The `income` (in EUR/year) of a participant is calculated by summing up the 
-`load * electricity price` for each data point.
+The `income` (in EUR/plant/year) of a participant is calculated by summing up the 
+`load * electricity price` for each data point and dividing the result by the
+`number_of_units`.
 
 #### Total costs 
 
-The `total_costs` (EUR/year) of a power participant is calculated by
+The `total_costs` (EUR/plant/year) of a power participant is calculated by
 summing up the `fixed_costs` (which is input) and the `variable_costs`:
 
     total_costs = fixed_costs + variable_costs
 
 #### Variable costs
 
-The `variable_costs` (EUR/year) of a participant is calculated by
+The `variable_costs` (EUR/plant/year) of a participant is calculated by
 multiplying the (input parameter) `marginal_costs` (EUR/MWh/year) by the
-`electricity production` of the participant.
+`electricity production` per plant of the participant.
 
-    variable_costs = marginal_costs * effective_output_capacity * number_of_units * full_load_hours
+    variable_costs = marginal_costs * effective_output_capacity * number_of_units * full_load_hours / number_of_units
 
 #### Profit
 
-The `profit` of a participant (EUR/year) is calculated by subtracting the
+The `profit` of a participant (EUR/plant/year) is calculated by subtracting the
 `total_costs` from the `income` of the participant.
 
     profit = income - total_costs
 
 #### Profitability
 
-Returns one of three states:
+Returns one of three states:  ** THIS IS WRONG USE OPEX AND CAPEX **
 
 1. `:profitable` (if `income >= total costs`)
 2. `:conditionally_profitable` (if `variable costs =< income < total costs`)
@@ -394,12 +404,12 @@ account? (e.g. 650 MW)
 * effective_output_capacity: **MW electric/plant**
 * number_of_units: **#**
 * availability: **fraction** (between 0 and 1)
-* fixed_costs: **EUR** (per year)**
+* fixed_costs: **EUR** (per plant per year)**
 * total_demand: **MJ** (per year)
 * full_load_hours: **hours** (per year)
 * profitability: **:symbol**
-* income: **EUR** (per year)
-* profit: **EUR** (per year)
+* income: **EUR** (per plant per year)
+* profit: **EUR** (per plant per year)
 * electricity price: **EUR/MWh**
 
 ## Issues
