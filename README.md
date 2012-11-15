@@ -24,6 +24,7 @@ parameters as input:
 * number_of_units (# FLOAT, not integer!)
 * availability (%)
 * fixed_costs (EUR/plant/year)
+* fixed_operation_and_maintenance_costs_per_year (EUR/plant/year)
 
 For example, we could add the following participant:
 
@@ -127,6 +128,7 @@ has to be either:
 * number_of_units (# float)
 * availability (%)
 * fixed_costs (EUR/plant/year)
+* fixed_operation_and_maintenance_costs_per_year (EUR/plant/year)
 
 
 ##### Key
@@ -167,6 +169,12 @@ The availability describes which fraction of the time a technology is available 
  production. The full load hours of a technology cannot exceed its availability multiplied by 8760. 
 For example, if the availability is 0.95, the full_load_hours can never exceed 
 0.95 * 8760 = 8322 hours.
+
+##### Fixed operations & maintenance costs per year
+
+The fixed_operation_and_maintenance_costs_per_year (EUR/plant/year) are used as an input 
+for calculating the operational_expenses per participant. The operational_expenses will be used 
+as an output to indicate the extent of profitability of a participant.
 
 #### Additional parameters for must_run and volatile participants
 
@@ -237,7 +245,7 @@ the value of this curve at this particular point in time. Unit: MW.
 * full_load_hours
 * total income
 * total costs
-* total variable cost
+* total variable costs
 * profit
 * profitability
 * (all the input which is known, such as fixed_costs, key, etc.)
@@ -293,7 +301,7 @@ multiplying the (input parameter) `marginal_costs` (EUR/MWh/year) by the
 
 The `operational_expenses` (EUR/plant/year) of a participant is calculated by
 adding the (input parameter) `fixed_operation_and_maintenance_costs_per_year` (EUR/plant/year) 
-`variable costs`.
+to the `variable costs`.
 
     operational_expenses = fixed_operation_and_maintenance_costs_per_year + variable_costs
 
@@ -306,7 +314,7 @@ The `profit` of a participant (EUR/plant/year) is calculated by subtracting the
 
 #### Profitability
 
-Returns one of three states:  ** THIS IS WRONG USE OPEX AND CAPEX **
+Returns one of three states:
 
 1. `:profitable` (if `income >= total costs`)
 2. `:conditionally_profitable` (if `operational_expenses =< income < total costs`)
@@ -412,7 +420,8 @@ account? (e.g. 650 MW)
 * effective_output_capacity: **MW electric/plant**
 * number_of_units: **#**
 * availability: **fraction** (between 0 and 1)
-* fixed_costs: **EUR** (per plant per year)**
+* fixed_costs: **EUR** (per plant per year)
+* fixed_operation_and_maintenance_costs_per_year: **EUR** (per plant per year)
 * total_demand: **MJ** (per year)
 * full_load_hours: **hours** (per year)
 * profitability: **:symbol**
