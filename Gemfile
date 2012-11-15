@@ -12,6 +12,7 @@ group :extras do
   gem 'yard',        '>= 0.8',   require: false
   gem 'yard-tomdoc', '>= 0.5',   require: false
   gem 'pry',                     require: false
+  gem 'terminal-table',          require: false
 end
 
 gemspec

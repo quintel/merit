@@ -150,6 +150,31 @@ module Merit
       " #{users.size} users >"
     end
 
+    def summary
+      rows = [['key',
+               'class',
+               'full load hours',
+               'average load',
+               'available output capacity',
+      ]]
+      producers.each do |p|
+        rows << [p.key,
+                 p.class,
+                 p.full_load_hours,
+                 p.average_load,
+                 p.available_output_capacity
+        ]
+      end
+      rows
+    end
+
+    def info
+      puts Terminal::Table.new(
+        :headings => summary[0],
+        :rows     => summary[1..-1]
+      )
+    end
+
   end
 
 end

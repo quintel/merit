@@ -38,6 +38,27 @@ module Merit
       self.class.new([values,other.values].transpose.map{ |x| x.reduce(:+) })
     end
 
+    # Public: returns the sample variance
+    def variance
+      mean = values.reduce(:+)/values.length.to_f
+      sum = values.reduce(0) { |accum, i| accum +(i-mean)**2 }
+      sum/(values.length - 1).to_f
+    end
+
+    # Public: returns the standard deviation
+    def sd
+      Math.sqrt(variance)
+    end
+
+    # Public: outputs the current load_curve to a csv file
+    def to_csv(file_name = 'output.csv')
+      CSV.open(File.join(Merit.root,'output',file_name), 'w') do |csv|
+        values.each do |value|
+          csv << [value]
+        end
+      end
+    end
+
   end
 
 end

@@ -1,3 +1,5 @@
+require 'terminal-table'
+
 require 'merit/root'
 require 'merit/version'
 
