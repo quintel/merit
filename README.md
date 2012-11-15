@@ -289,6 +289,14 @@ multiplying the (input parameter) `marginal_costs` (EUR/MWh/year) by the
 
     variable_costs = marginal_costs * effective_output_capacity * number_of_units * full_load_hours / number_of_units
 
+#### Operational expenses
+
+The `operational_expenses` (EUR/plant/year) of a participant is calculated by
+adding the (input parameter) `fixed_operation_and_maintenance_costs_per_year` (EUR/plant/year) 
+`variable costs`.
+
+    operational_expenses = fixed_operation_and_maintenance_costs_per_year + variable_costs
+
 #### Profit
 
 The `profit` of a participant (EUR/plant/year) is calculated by subtracting the
@@ -301,8 +309,8 @@ The `profit` of a participant (EUR/plant/year) is calculated by subtracting the
 Returns one of three states:  ** THIS IS WRONG USE OPEX AND CAPEX **
 
 1. `:profitable` (if `income >= total costs`)
-2. `:conditionally_profitable` (if `variable costs =< income < total costs`)
-3. `:unprofitable` (if `income < variable costs`)
+2. `:conditionally_profitable` (if `operational_expenses =< income < total costs`)
+3. `:unprofitable` (if `income < operational_expenses`)
 
 P.S. These three states are communicated to the user by coloring the
 participants **green**, **orange** and **red** respectively in the Merit Order
