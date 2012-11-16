@@ -246,6 +246,7 @@ the value of this curve at this particular point in time. Unit: MW.
 * total income
 * total costs
 * total variable costs
+* operational_expenses
 * profit
 * profitability
 * (all the input which is known, such as fixed_costs, key, etc.)
