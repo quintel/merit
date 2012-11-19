@@ -496,10 +496,3 @@ module Merit
   end
 
 end
-
-# for easy console access
-@s = Merit.stub
-
-# calculate the merit order right away (use @s.recalculate! when you want to to
-# recalculate later)
-@s.calculate
