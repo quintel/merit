@@ -40,4 +40,9 @@ module Merit
     "Missing attribute #{attribute} for this instance of class #{class_name}."
   end
 
+  LockedOrderError = error_class do |participant|
+    "Cannot add #{ participant.key } participant since the order has " \
+    "already been calcualted."
+  end
+
 end # Merit

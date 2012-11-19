@@ -84,6 +84,25 @@ module Merit
       end
     end
 
+    describe '#add'do
+      context 'when the order has not been calculated' do
+        it 'adds the participant to the order' do
+          participant = Participant.new(key: :coal)
+          order.add(participant)
+          expect(order.participants).to include(participant)
+        end
+      end
+
+      context 'when the order has been calculated already' do
+        it 'raises an error' do
+          order.calculate
+
+          expect { order.add(Participant.new(key: :coal)) }.
+            to raise_error(Merit::LockedOrderError)
+        end
+      end
+    end
+
   end
 
 end

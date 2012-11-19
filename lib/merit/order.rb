@@ -32,7 +32,8 @@ module Merit
     #
     # Returns true when successful
     def calculate
-      @calculate ||= recalculate!
+      memoize_participants!
+      @calculated ||= recalculate!
     end
 
     # Recalculates
@@ -111,30 +112,30 @@ module Merit
     # - 2. must runs (chps, nuclear, etc.)
     # - 3. dispatchables (coal, gas, etc.)
     def producers
-      volatiles + must_runs + dispatchables
+      @producers || (volatiles + must_runs + dispatchables)
     end
 
     # Public: Returns all the volatiles participants
     def volatiles
-      participants.select{ |p| p.is_a?(VolatileProducer) }
+      @volatiles || select_participants(VolatileProducer)
     end
 
     # Public: Returns all the must_run participants
     def must_runs
-      participants.select{ |p| p.is_a?(MustRunProducer) }
+      @must_runs || select_participants(MustRunProducer)
     end
 
     # Public: Returns all the dispatchables participants, ordered
     # by marginal_costs
     def dispatchables
-      participants.select do
-        |p| p.is_a?(DispatchableProducer)
-      end.sort_by(&:marginal_costs)
+      @dispatchables ||
+        select_participants(DispatchableProducer).
+        sort_by(&:marginal_costs)
     end
 
     # Public: returns all the users of electricity
     def users
-      participants.select{ |p| p.is_a?(User) }
+      @users || select_participants(User)
     end
 
     # Public Returns the participant for a given key, nil if not exists
@@ -151,6 +152,8 @@ module Merit
     #
     # returns - participant
     def add(participant)
+      raise LockedOrderError.new(participant) if @calculated
+
       # TODO: add DuplicateKeyError if collection already contains this key
       @participants[participant.key] = participant
     end
@@ -188,6 +191,33 @@ module Merit
       )
     end
 
-  end
+    #######
+    private
+    #######
 
+    # Internal: Stores each participant collection (must run, volatiles, etc)
+    # for faster retrieval. This should only be done when all of the
+    # participants have been added, and you are ready to perform the
+    # calculation.
+    #
+    # Returns nothing.
+    def memoize_participants!
+      @producers     = producers.freeze
+      @volatiles     = volatiles.freeze
+      @must_runs     = must_runs.freeze
+      @dispatchables = dispatchables.freeze
+      @users         = users.freeze
+    end
+
+    # Internal: Retrieves all member participants which are descendants of the
+    # given +klass+.
+    #
+    # klass - The class of participants to be included.
+    #
+    # Returns an enumerable containing Participants.
+    def select_participants(klass)
+      participants.select { |participant| participant.is_a?(klass) }
+    end
+
+  end
 end
