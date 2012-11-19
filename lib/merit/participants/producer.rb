@@ -42,7 +42,11 @@ module Merit
     # Public: Returns the actual load curve, and this can be set by the
     # merit order object
     def load_curve
-      @load_curve
+      if always_on?
+        max_load_curve
+      else
+        @load_curve
+      end
     end
 
     # Experimental: for demo purposes
