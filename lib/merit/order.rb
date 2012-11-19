@@ -165,13 +165,15 @@ module Merit
       rows = [['key',
                'class',
                'full load hours',
+               'marginal costs',
                'average load',
-               'available output capacity',
+               'available output capacity'
       ]]
       producers.each do |p|
         rows << [p.key,
                  p.class,
                  p.full_load_hours,
+                 p.marginal_costs,
                  p.average_load,
                  p.available_output_capacity
         ]
