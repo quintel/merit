@@ -1,246 +1,297 @@
-# Merit Order
+# Merit
 
-This module is used to calculate the merit order for the
-[Energy Transition Model](http://et-model.com).
+The Merit module is used to calculate the merit order for the [Energy
+Transition Model](http://et-model.com).
 
 The **merit order** predicts/calculates which electricity generating
-technologies are switched on or off to meet the demand/load on the electricity
-network at every **hour** in the year.
+**producers** are producing the power to meet the demand/load of the
+different **users** of electricity.
 
 ## Quick Demonstration
 
-First, you have to initialize a new Merit Order 'session'
+Load the library from the command line along with the example stub:
 
-```Ruby
-merit_order = Merit::Order.new
-=> "<Merit::Order, 0 participants, demand: not set>"
+    $>rake console:stub
+
+This will load the examples, calculate them and take you into an irb or pry
+session (that is an interactive Ruby session).
+
+Then you can start to request output, e.g. a summary of the 'Merit Order':
+
+```
+>mo.info
++------------------------------------------------------+-----------------------------+----------------+--------------------+
+| key                                                  | class                       | marginal costs | full load hours    |
++------------------------------------------------------+-----------------------------+----------------+--------------------+
+| energy_power_solar_pv_solar_radiation                | Merit::VolatileProducer     | 0.0            | 1050               |
+| energy_power_solar_csp_solar_radiation               | Merit::VolatileProducer     | 1.0            | 500                |
+| energy_power_wind_turbine_inland                     | Merit::VolatileProducer     | 0.0            | 2500               |
+| energy_power_wind_turbine_coastal                    | Merit::VolatileProducer     | 0.0            | 3000               |
+| energy_power_wind_turbine_offshore                   | Merit::VolatileProducer     | 0.0            | 3500               |
+| buildings_solar_pv_solar_radiation                   | Merit::VolatileProducer     | 0.0            | 1050               |
+| households_solar_pv_solar_radiation                  | Merit::VolatileProducer     | 0.0            | 1050               |
+| industry_chp_combined_cycle_gas_power_fuelmix        | Merit::MustRunProducer      | 109.5210516    | 5442.834138        |
+| industry_chp_supercritical_wood_pellets              | Merit::MustRunProducer      | 139.7898305    | 5247.813411        |
+| industry_chp_ultra_supercritical_coal                | Merit::MustRunProducer      | 32.15521115    | 4204.8             |
+| energy_power_supercritical_waste_mix                 | Merit::MustRunProducer      | 1.20608908     | 6190.47619         |
+| agriculture_chp_engine_gas_power_fuelmix             | Merit::MustRunProducer      | 78.31972973    | 3980.424144        |
+| buildings_collective_chp_wood_pellets                | Merit::MustRunProducer      | 154.16507      | 6097.777778        |
+| buildings_collective_chp_gas_power_fuelmix           | Merit::MustRunProducer      | 94.03660242    | 3942               |
+| households_collective_chp_wood_pellets               | Merit::MustRunProducer      | 119.9789346    | 6097.777778        |
+| households_collective_chp_network_gas                | Merit::MustRunProducer      | 13.2815786     | 3942               |
+| households_water_heater_fuel_cell_chp_network_gas    | Merit::MustRunProducer      | 0.0            | 0                  |
+| other_chp_engine_gas_power_fuelmix                   | Merit::MustRunProducer      | 78.38201622    | 4000               |
+| households_space_heater_micro_chp_network_gas        | Merit::MustRunProducer      | 0.0            | 0                  |
+| households_water_heater_micro_chp_network_gas        | Merit::MustRunProducer      | 0.0            | 0                  |
+| energy_power_nuclear_gen3_uranium_oxide              | Merit::DispatchableProducer | 5.826162528    | 7884.0             |
+| energy_power_nuclear_gen2_uranium_oxide              | Merit::DispatchableProducer | 6.133182844    | NaN                |
+| energy_power_ultra_supercritical_lignite             | Merit::DispatchableProducer | 13.999791      | NaN                |
+| energy_chp_ultra_supercritical_lignite               | Merit::DispatchableProducer | 16.60280222    | NaN                |
+| energy_power_ultra_supercritical_oxyfuel_ccs_lignite | Merit::DispatchableProducer | 19.58755889    | NaN                |
+| energy_power_combined_cycle_coal                     | Merit::DispatchableProducer | 23.20617439    | 7883.999999998419  |
+| energy_power_combined_cycle_ccs_coal                 | Merit::DispatchableProducer | 28.36859203    | NaN                |
+| energy_power_ultra_supercritical_coal                | Merit::DispatchableProducer | 28.88180898    | 7708.800000001613  |
+| energy_power_supercritical_coal                      | Merit::DispatchableProducer | 29.9100356     | NaN                |
+| energy_chp_ultra_supercritical_coal                  | Merit::DispatchableProducer | 32.39199569    | 7695.570154910887  |
+| energy_power_ultra_supercritical_ccs_coal            | Merit::DispatchableProducer | 34.97148374    | NaN                |
+| energy_power_combined_cycle_gas_power_fuelmix        | Merit::DispatchableProducer | 44.24374451    | 6671.774693261107  |
+| energy_power_combined_cycle_ccs_gas_power_fuelmix    | Merit::DispatchableProducer | 57.28270883    | NaN                |
+| energy_chp_combined_cycle_gas_power_fuelmix          | Merit::DispatchableProducer | 60.33237888    | 2692.5290921503865 |
+| energy_power_ultra_supercritical_gas_power_fuelmix   | Merit::DispatchableProducer | 65.90324432    | 519.7911394222648  |
+| energy_power_turbine_network_gas                     | Merit::DispatchableProducer | 78.01340618    | 65.0114838600931   |
+| energy_power_ultra_supercritical_crude_oil           | Merit::DispatchableProducer | 93.09320787    | NaN                |
+| energy_chp_ultra_supercritical_crude_oil             | Merit::DispatchableProducer | 109.3782764    | NaN                |
+| energy_chp_ultra_supercritical_wood_pellets          | Merit::DispatchableProducer | 139.7898305    | NaN                |
+| energy_power_engine_diesel                           | Merit::DispatchableProducer | 160.0982801    | NaN                |
++------------------------------------------------------+-----------------------------+----------------+--------------------+
 ```
 
-Add the dispatchable participants to the Merit Order, by using the following 
-parameters as input:
-* key (string)
+This table shows the order of the *producers* for meeting electricity demand.
+'Volatile' producers come first, then 'must run' producers, and finally, the
+'dispatchable' producers can serve electricty demand. The latter producers
+are *ordered* by their marginal costs.
+
+If you want to get more detail on one of the producers, you can query it's
+details:
+
+```
+> mo.participant(:energy_chp_combined_cycle_gas_power_fuelmix).info
+=================================================================================
+Key:   energy_chp_combined_cycle_gas_power_fuelmix
+Class: Merit::DispatchableProducer
+
+-o---------------------------------------------------------------------- 2.13e+03
+-o---------------------------------------------------------------------- 1.07e+03
+-o---o---------------------------------------------------------------o-- 7.11e+02
+-o---o--o------------------------------------------------------------o-- 5.33e+02
+-o---o-oo---------------------------------------------------------o--o-- 4.26e+02
+-oo--o-ooo----------------------------------------------------o---o-ooo- 3.55e+02
+-oo-oooooo----------------------------------------------------o---o-ooo- 3.05e+02
+oooooooooo-oo-------------------------------------------------o-ooo-ooo- 2.66e+02
+oooooooooo-oo---o---------o----------------------------o--oo-oo-ooooooo- 2.37e+02
+ooooooooooooo--oo--o--o---o---o---oooo----------o-----oo--oo-oooooooooo- 2.13e+02
+ooooooooooooo-ooo-oo--oo-oo--oo-oooooo------oo-oo-oo--oo-oooooooooooooo- 1.94e+02
+ooooooooooooooooo-oooooo-oo--oo-oooooo-----oooooooooo-oo-ooooooooooooooo 1.78e+02
+ooooooooooooooooo-oooooo-oo--oo-oooooo-ooo-ooooooooooooooooooooooooooooo 1.64e+02
+oooooooooooooooooooooooooooooooooooooooooo-ooooooooooooooooooooooooooooo 1.52e+02
+oooooooooooooooooooooooooooooooooooooooooo-ooooooooooooooooooooooooooooo 1.42e+02
+oooooooooooooooooooooooooooooooooooooooooo-ooooooooooooooooooooooooooooo 1.33e+02
+                       LOAD CURVE (x = time, y = MW)
+                       Min: 0.0, Max: 2975.0399997718337
+                       SD: 1172.0370051181014
+
+Summary:
+--------
+Full load hours:           2692.5290921503865 hours
+
+Production:                32.04152699878696 PJ
+Max Production:            93.82086143280453 PJ
+
+Average load:              1016.0301559737114 MW
+Available_output_capacity: 2975.0399997718337 MW
+
+Number of units:           5.749536178 number of (typical) plants
+Effective_output_capacity: 574.9333333 (MW)
+Availability:              0.9 (fraction)
+```
+
+# Participants
+
+Producers and users of electricity are both called **participants**.
+
+## Users
+
+Users are those 'things' that use electricity. This can be one 'thing', such
+as the total demand for a particilar county, but Merit is also capable of
+adding different demand together, such as the sector demands, or certain
+demand shifting technologies, such as, or intensive electricity demands with
+load curves such as 'loading strategies' for electric cars.
+
+For each demand, a **demand profile** has to be defined, and the **total
+consumption has to be given.
+
+### Total consumption
+
+Total consumption must be supplied in **MJ**. It is the sum of all electricity
+consumption of converters in the final demand converter group **plus** losses
+of the electricity network.
+
+## Load Curve/Profile of demand
+
+The total demand is used to scale up the **load profile** for the total demand
+(i.e. the demand profile) to produce the correct demand curve (which is a load
+curve).
+
+## Producers
+
+A producer is an electricity producing technology, such as a nuclear power
+plant, or a local chp.
+
+The following input has to be supplied to Merit in order for it to calculate
+properly:
+
+* key (Symbol)
+* load_profile (Symbol)
 * marginal_costs (EUR/MWh/year) 
 * effective_output_capacity (MW electric/plant)
-* number_of_units (# FLOAT, not integer!)
+* number_of_units
 * availability (%)
 * fixed_costs (EUR/plant/year)
 * fixed_operation_and_maintenance_costs_per_year (EUR/plant/year)
 
-For example, we could add the following participant:
+Have a look at [the stub](/blob/master/examples/stub.rb) for some examples.
 
-```Ruby
-merit_order.add(
-  DispatchableParticipant.new(
-    key:                       :ultra_supercritical_coal,
-    marginal_costs:            20.02
-    effective_output_capacity: 792.0,
-    number_of_units:           3.0,
-    availability:              0.90,
-    fixed_costs:               3_000_000
-  )
-)
-```
-
-Add the `must_run` and `volatile` participants. They have two additional
-parameters: 
-
-* load_profile_key
-* full_load_hours
-
-for instance:
-
-```Ruby
-merit_order.add(
-  MustRunParticipant.new(
-    key:                       :industry_chp_combined_cycle_gas,
-    marginal_costs:            1.00,
-    effective_output_capacity: 1240.0,
-    number_of_units:           2.0
-    availability:              0.95,
-    fixed_costs:               400_000,
-    load_profile_key:          :industry_chps_profile,
-    full_load_hours:           8_000
-  )
-)
-
-merit_order.add(
-  VolatileParticipant.new(
-    key:                       :wind_offshore,
-    marginal_costs:            0.0,
-    effective_output_capacity: 1400,
-    availability:              0.95,
-    fixed_costs:               400_000,
-    number_of_units:           30,
-    load_profile_key:          :offshore_wind_profile,
-    full_load_hours:           7_000
-  )
-)
-```
-
-Specify what total demand you want to calculate the merit order with (in **MJ**):
-
-```Ruby
-merit_order.total_demand = 300 * 10**9 #MJ
-```
-
-Now you have supplied the minimal amount of information to calculate output
-for this situation, and you can start to ask for output, e.g.
-
-```Ruby
-merit_order.participant[:ultra_supercritical_coal].full_load_hours
-=> 2000 # hours
-merit_order.participant[:ultra_supercritical_coal].profit
-=> 10.0 # EUR/year
-merit_order.participant[:ultra_supercritical_coal].profitability
-=> :profitable
-```
-
-## Input
-
-The Merit Order needs to know about **which technologies participate** in the
-merit order, what **parameters** these participants have, 
-and about the **total energy demand**.
-
-#### Total demand
-
-Total demand must be supplied in **MJ**. It is the sum of all electricity
-consumption of converters in the final demand converter group **plus** losses
-of the electricity network. 
-
-The total demand is used to scale up the **normalized** demand curve 
-(i.e. the demand profile) to
-produce the correct demand curve (which is a load curve).
-
-#### Participants
+### Different types of Producers:
 
 This module has to be supplied with the participants of the Merit Order, which
-has to be either:
+has to be of one of the following three classes:
 
-* must run
-* volatile
-* dispatchable
+* Volatile
+* MustRun
+* Dispatchable
 
-#### Parameters for all participants (dispatchable, must-run and volatile)
+#### Key
 
-* key (string)
-* marginal_costs (EUR/MWh/year) 
-* effective_output_capacity (MW electric/plant)
-* number_of_units (# float)
-* availability (%)
-* fixed_costs (EUR/plant/year)
-* fixed_operation_and_maintenance_costs_per_year (EUR/plant/year)
+The **key** is used to identify the participant.
 
+#### Effective output capacity [Float]
 
-##### Key
+The *effective output capacity* is the maximum output capacity of a single
+plant. That means it describes how much electricity the technology produces
+per second when running at maximum load.
 
-With **key** the name of the participant is meant.
+For definitions of available and nominal capacities see the **definitions**
+section below.
 
-##### Effective output capacity
-
-The effective output capacity is the maximum output capacity of a single plant.
-That means it describes how much electricity the technology produces per second
-when running at maximum load. 
-
-For definitions of available and nominal capacities see the **Definitions** section below.
-
-##### Marginal costs
+#### Marginal costs
 
 The marginal_costs (EUR/MWh/year) are calculated by dividing the variable costs
-(EUR/plant/year) of the participant by one plant's annual electricity production (in
-MWh/plant). The marginal costs can be queried from the ETEngine's GQL with the
-following query:
+(EUR/plant/year) of the participant by one plant's annual electricity
+production (in MWh/plant). The marginal costs can be queried from the
+ETEngine's GQL with the following query:
+
+TODO: Adjust to concrete Query to get the marginal costs (divide by...)
 
     V(converter_key, variable_costs_per(:mwh_electricity))
 
-##### Fixed costs
+#### Fixed costs [Float]
 
-The fixed costs (EUR/plant/year) can be queried from the ETM with the fixed_costs
-function:
+TODO: insert definition...
+
+The fixed costs (EUR/plant/year) can be queried from the ETM with the
+fixed_costs function:
 
     V(converter_key, fixed_costs)
 
-##### Number of units
+#### Number of units [Float]
 
-A number that specifies how many of a technology are present. **This can be fractional.**
+A number that specifies how many of a technology are present. **This can be
+fractional.**
 
-##### Availability
+TODO: Insert Query!
 
-The availability describes which fraction of the time a technology is available for electricity
- production. The full load hours of a technology cannot exceed its availability multiplied by 8760. 
-For example, if the availability is 0.95, the full_load_hours can never exceed 
-0.95 * 8760 = 8322 hours.
+##### Availability [Float]
+
+The availability describes which fraction of the time a technology is available
+for electricity production. The full load hours of a technology cannot exceed
+its availability multiplied by 8760.  For example, if the availability is 0.95,
+the full_load_hours can never exceed 0.95 * 8760 = 8322 hours.
+
+TODO: Insert Query!
 
 ##### Fixed operations & maintenance costs per year
 
-The fixed_operation_and_maintenance_costs_per_year (EUR/plant/year) are used as an input 
-for calculating the operational_expenses per participant. The operational_expenses will be used 
-as an output to indicate the extent of profitability of a participant.
+The fixed_operation_and_maintenance_costs_per_year (EUR/plant/year) are used as
+an input for calculating the operational_expenses per participant. The
+operational_expenses will be used as an output to indicate the extent of
+profitability of a participant.
+
+TODO: Insert Query!
 
 #### Additional parameters for must_run and volatile participants
 
 * load_profile_key
 * full_load_hours
 
-##### Load profile key
+#### Load profile key
 
 Gives the name of the profile.
 
-##### Full load hours
+#### Full load hours
 
 The full load hours are defined as:
-participant production / (effective_output_capacity * number_of_units * 3600 )
 
-The full load hours of a **must run** or **volatile** participant are determined
-by outside factors, and have to be supplied when this participant is added.
+    production / (effective_output_capacity * number_of_units * 3600 )
 
-The full load hours of volatile and must-run technologies already take the 
-availability of these technologies into account. 
+##### Must Runs and Volatiles
+
+The full load hours of a **must run** or **volatile** participant are
+determined by outside factors, and have to be supplied when this participant is
+added.
+
+The full load hours of **volatile** and **must-run** technologies already take
+the availability of these technologies into account.
+
+##### Dispatchables
 
 The full load hours of a **dispatchable** participant are determined by this
 module (so they are 'output').
 
-```Ruby
-merit_order.participant[:coal].full_load_hours
-=> 2000.0 #hours
-```
+```Ruby merit_order.participant[:coal].full_load_hours => 2000.0 #hours ```
 
-In full load hours, 'full load' means that the plant runs at its **effective** 
-capacity. A plant that runs every second of the year at half load, therefore has 
-full load hours = 8760 * 50% = 4380 hours (if we assume a year has exactly 8760 hours).
+In full load hours, 'full load' means that the plant runs at its **effective**
+capacity. A plant that runs every second of the year at half load, therefore
+has full load hours = 8760 * 50% = 4380 hours.
 
 ## Output
 
-### For each LoadCurvePoint and Participant
+### For each participant
 
-* load
+For each participant, one can
 
-#### Load
+### For each Hour per year:
 
-Return the load (in MW) of a participating electricity generating technology. 
+#### Electricity price [Unit EUR/MWh]
 
-### For each LoadCurvePoint
+For **each hour in a year**, the price is equal to the `marginal_costs` of the
+participant that is **one higher** in the merit order than the price-setting
+participant. This reflects the assumption that a producer will try to sell his
+electricity for a price that is as high as possible but still smaller than the
+cost of the participant that is next in the merit order.
 
-* price
-* demand load
+**N.B. It is to be determined what the margin is for the most expensive plant
+in the merit order (i.e.  when there is no 'one higher').**
 
-#### Price
-
-The price is equal to the `marginal_costs` of the participant that is **one higher** in the 
-merit order than the price-setting participant. This reflects the assumption that a producer
-will try to sell his electricity for a price that is as high as possible but still smaller 
-than the cost of the participant that is next in the merit order.
-
-This is the price of electricity at that point in time. Unit EUR/MWh
-
-**N.B. It is to be determined what the margin is for the most expensive plant in the merit order (i.e. 
-when there is no 'one higher').**
-
-#### Demand load
-
-The demand load is defined by the load curve for the total_demand, and is
-the value of this curve at this particular point in time. Unit: MW.
 
 ### For each Participant
+
+You can get a summary of the participant, but
+
+```Ruby
+mo.dispatchables.first.info
+```
+
+Furthermore, you can get the following details from a participant:
 
 * full_load_hours
 * total income
@@ -249,39 +300,32 @@ the value of this curve at this particular point in time. Unit: MW.
 * operational_expenses
 * profit
 * profitability
-* (all the input which is known, such as fixed_costs, key, etc.)
 
-```Ruby
-merit_order.participants[:coal].full_load_hours
-=> 8_760 # it runs all the time!
-merit_order.participants[:coal].profit
-=> 1_000_000_000 EUR (annual) # it makes a billion euros!
-merit_order.participants[:coal].profitability
-=> :profitable # hurray, it is profitable!
-```
+Of course, you can also get the input back which is known, such as
+fixed_costs, key, etc.)
 
 #### Full load hours
 
-The full load hours of a participant can be calculated by integrating the 
-area under the load curve and dividing the resulting total production (in MWh)
-through the effective capacity.
-In practice the integration amounts to summing up the loads for each data point. 
-Each data point represents 1 hour (so 8760 data points per year).
+The full load hours of a participant can be calculated by integrating the area
+under the load curve and dividing the resulting total production (in MWh)
+through the effective capacity.  In practice the integration amounts to summing
+up the loads for each data point. Each data point represents 1 hour (so 8760
+data points per year).
 
     full_load_hours = load_profile.sum / effective_output_capacity
 
 For the participants that are cheaper than the price setting participant, the
-load is equal to the **available output capacity**.  
-For the price setting participant the load is generally lower than the available capacity, 
-since only a fraction of its available capacity is needed to meet the demand.  
-For the participants that are more expensive than the price setting participant, the load 
-is equal to 0.
+load is equal to the **available output capacity**.  For the price setting
+participant the load is generally lower than the available capacity, since only
+a fraction of its available capacity is needed to meet the demand.  For the
+participants that are more expensive than the price setting participant, the
+load is equal to 0.
 
-#### Total income
+#### Total income [EUR/plant/year]
 
-The `income` (in EUR/plant/year) of a participant is calculated by summing up the 
-`load * electricity price` for each data point and dividing the result by the
-`number_of_units`.
+The `income` (in EUR/plant/year) of a participant is calculated by summing up
+the `load * electricity price` for each data point and dividing the result by
+the `number_of_units`.
 
 #### Total costs 
 
@@ -301,8 +345,8 @@ multiplying the (input parameter) `marginal_costs` (EUR/MWh/year) by the
 #### Operational expenses
 
 The `operational_expenses` (EUR/plant/year) of a participant is calculated by
-adding the (input parameter) `fixed_operation_and_maintenance_costs_per_year` (EUR/plant/year) 
-to the `variable costs`.
+adding the (input parameter) `fixed_operation_and_maintenance_costs_per_year`
+(EUR/plant/year) to the `variable costs`.
 
     operational_expenses = fixed_operation_and_maintenance_costs_per_year + variable_costs
 
