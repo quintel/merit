@@ -9,8 +9,6 @@ module Merit
 
     attr_reader :key, :values
 
-    require 'CSV'
-
     # Public: creates a new LoadProfile, and stores the accompanying values
     #         in an Array
     def initialize(key, values)
@@ -63,13 +61,16 @@ module Merit
     #
     # returns Array
     def self.read_values_from_file(key)
-      path = "#{Merit.root}/load_profiles/#{key}.csv"
+      path   = "#{Merit.root}/load_profiles/#{key}.csv"
+      values = []
 
       begin
-        values = CSV.read(path).flatten.map(&:to_f)
+        File.foreach(path) { |line| values.push(line.to_f) }
       rescue Errno::ENOENT
         raise Merit::MissingLoadProfileError.new(key)
       end
+
+      values
     end
 
     # Private: translates an array which is a fraction of 8760 to one that

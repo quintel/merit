@@ -47,7 +47,7 @@ module Merit
 
       # append each row with a tick value
       height.times do |index|
-        tick_value = max_y_value /( height - index )
+        tick_value = max_y_value / ( height - index )
         matrix[width][index] = " #{sprintf("%8.2e", tick_value)}"
       end
 

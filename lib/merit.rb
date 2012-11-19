@@ -1,3 +1,4 @@
+require 'csv'
 require 'terminal-table'
 
 require 'merit/root'
