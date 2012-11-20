@@ -70,9 +70,11 @@ module Merit
 
     # Records the production loads in the producer's load curve
     def export_production_loads_at(point_in_time)
-      producers.zip(production_loads_at(point_in_time)).each do |producer,load|
+      production_loads = production_loads_at(point_in_time)
+
+      producers.each_with_index do |producer, index|
         unless producer.always_on?
-          producer.load_curve.values[point_in_time] = load
+          producer.load_curve.values[point_in_time] = production_loads[index]
         end
       end
     end
