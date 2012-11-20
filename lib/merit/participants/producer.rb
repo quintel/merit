@@ -106,7 +106,8 @@ module Merit
     end
 
     def available_output_capacity
-      effective_output_capacity * availability * number_of_units
+      @available_output_capacity ||=
+        effective_output_capacity * availability * number_of_units
     end
 
     # Public: determined what the max produced load is at a point in time
