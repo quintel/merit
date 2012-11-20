@@ -190,10 +190,10 @@ section below.
 
 The marginal_costs (EUR/MWh/year) are calculated by dividing the variable costs
 (EUR/plant/year) of the participant by one plant's annual electricity
-production (in MWh/plant). The marginal costs can be queried from the
-ETEngine's GQL with the following query:
+production (in MWh/plant).
 
-TODO: Adjust to concrete Query to get the marginal costs (divide by...)
+The marginal costs can be queried from the ETEngine's GQL with the following
+query:
 
     V(converter_key, variable_costs_per(:mwh_electricity))
 
