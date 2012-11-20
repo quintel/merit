@@ -270,7 +270,7 @@ The full load hours are defined as:
 
     production / (effective_output_capacity * number_of_units * 3600 )
 
-#### Must Runs and Volatiles
+##### Must Runs and Volatiles
 
 The full load hours of a **must run** or **volatile** participant are
 determined by outside factors, and have to be supplied when this participant is
@@ -283,7 +283,7 @@ The full load hours can be queried from the ETM with the following query:
 
     V(converter_key, full_load_hours)
 
-#### Dispatchables
+##### Dispatchables
 
 The full load hours of a **dispatchable** participant are determined by this
 module (so they are 'output').
