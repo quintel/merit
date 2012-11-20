@@ -13,13 +13,13 @@ Load the library from the command line along with the example stub:
 
     $>rake console:stub
 
-This will load the examples, calculate them and take you into an irb or pry
-session (that is an interactive Ruby session).
+This will load the examples in a global variable `merit_order`, calculate it
+and take you into an irb or pry session (that is an interactive Ruby session).
 
 Then you can start to request output, e.g. a summary of the 'Merit Order':
 
 ```
->mo.info
+>merit_order.info
 +------------------------------------------------------+-----------------------------+----------------+--------------------+
 | key                                                  | class                       | marginal costs | full load hours    |
 +------------------------------------------------------+-----------------------------+----------------+--------------------+
@@ -67,15 +67,16 @@ Then you can start to request output, e.g. a summary of the 'Merit Order':
 ```
 
 This table shows the order of the *producers* for meeting electricity demand.
-'Volatile' producers come first, then 'must run' producers, and finally, the
-'dispatchable' producers can serve electricty demand. The latter producers
-are *ordered* by their marginal costs.
+*Volatile* producers come first, then *must run* producers, and finally, the
+*dispatchable* producers can serve electricty demand. The *dispatchable*
+producers are **ordered** by their **marginal costs**.
 
-If you want to get more detail on one of the producers, you can query it's
-details:
+If you want to get more detail on one of the producers, you can query its
+details. You will see a summary of the information, with a chart of the *load
+curve*.
 
 ```
-> mo.participant(:energy_chp_combined_cycle_gas_power_fuelmix).info
+> merit_order.participant(:energy_chp_combined_cycle_gas_power_fuelmix).info
 =================================================================================
 Key:   energy_chp_combined_cycle_gas_power_fuelmix
 Class: Merit::DispatchableProducer
@@ -117,7 +118,8 @@ Availability:              0.9 (fraction)
 
 # Participants
 
-Producers and users of electricity are both called **participants**.
+Producers and users of electricity are both called **participants** of the
+merit order.
 
 ## Users
 
@@ -166,11 +168,11 @@ Have a look at [the stub](/blob/master/examples/stub.rb) for some examples.
 This module has to be supplied with the participants of the Merit Order, which
 has to be of one of the following three classes:
 
-* Volatile
-* MustRun
-* Dispatchable
+* Volatile (e.g. wind turbine, solar panel)
+* MustRun (e.g. heat driven CHP)
+* Dispatchable (e.g. coal or gas power plant)
 
-#### Key
+#### Key [Symbol]
 
 The **key** is used to identify the participant.
 
@@ -183,7 +185,7 @@ per second when running at maximum load.
 For definitions of available and nominal capacities see the **definitions**
 section below.
 
-#### Marginal costs
+#### Marginal costs [Float]
 
 The marginal_costs (EUR/MWh/year) are calculated by dividing the variable costs
 (EUR/plant/year) of the participant by one plant's annual electricity
@@ -210,7 +212,7 @@ fractional.**
 
 TODO: Insert Query!
 
-##### Availability [Float]
+#### Availability [Float]
 
 The availability describes which fraction of the time a technology is available
 for electricity production. The full load hours of a technology cannot exceed
@@ -219,7 +221,7 @@ the full_load_hours can never exceed 0.95 * 8760 = 8322 hours.
 
 TODO: Insert Query!
 
-##### Fixed operations & maintenance costs per year
+#### Fixed operations & maintenance costs per year [Float]
 
 The fixed_operation_and_maintenance_costs_per_year (EUR/plant/year) are used as
 an input for calculating the operational_expenses per participant. The
@@ -243,7 +245,7 @@ The full load hours are defined as:
 
     production / (effective_output_capacity * number_of_units * 3600 )
 
-##### Must Runs and Volatiles
+#### Must Runs and Volatiles
 
 The full load hours of a **must run** or **volatile** participant are
 determined by outside factors, and have to be supplied when this participant is
@@ -252,7 +254,7 @@ added.
 The full load hours of **volatile** and **must-run** technologies already take
 the availability of these technologies into account.
 
-##### Dispatchables
+#### Dispatchables
 
 The full load hours of a **dispatchable** participant are determined by this
 module (so they are 'output').
@@ -263,15 +265,14 @@ In full load hours, 'full load' means that the plant runs at its **effective**
 capacity. A plant that runs every second of the year at half load, therefore
 has full load hours = 8760 * 50% = 4380 hours.
 
-## Output
+# Output
 
-### For each participant
+There are two main areas of output for the Merit Order: *full load hours* (how
+much does a plant run?) and *profitability* (is it profitable?).
 
-For each participant, one can
+## For each hour per year:
 
-### For each Hour per year:
-
-#### Electricity price [Unit EUR/MWh]
+### Electricity price [Unit EUR/MWh]
 
 For **each hour in a year**, the price is equal to the `marginal_costs` of the
 participant that is **one higher** in the merit order than the price-setting
@@ -283,7 +284,7 @@ cost of the participant that is next in the merit order.
 in the merit order (i.e.  when there is no 'one higher').**
 
 
-### For each Participant
+## For each Participant
 
 You can get a summary of the participant, but
 
@@ -304,7 +305,7 @@ Furthermore, you can get the following details from a participant:
 Of course, you can also get the input back which is known, such as
 fixed_costs, key, etc.)
 
-#### Full load hours
+### Full load hours
 
 The full load hours of a participant can be calculated by integrating the area
 under the load curve and dividing the resulting total production (in MWh)
@@ -321,20 +322,25 @@ a fraction of its available capacity is needed to meet the demand.  For the
 participants that are more expensive than the price setting participant, the
 load is equal to 0.
 
-#### Total income [EUR/plant/year]
+### Profitability
+
+**PLEASE NOTE** The cost, revenue and profit methods are not yet implemented, 
+but will be added soon.
+
+#### Total income [Float, EUR/plant/year]
 
 The `income` (in EUR/plant/year) of a participant is calculated by summing up
 the `load * electricity price` for each data point and dividing the result by
 the `number_of_units`.
 
-#### Total costs 
+#### Total costs [Float, EUR/plant/year]
 
 The `total_costs` (EUR/plant/year) of a power participant is calculated by
 summing up the `fixed_costs` (which is input) and the `variable_costs`:
 
     total_costs = fixed_costs + variable_costs
 
-#### Variable costs
+#### Variable costs [Float, EUR/plant/year]
 
 The `variable_costs` (EUR/plant/year) of a participant is calculated by
 multiplying the (input parameter) `marginal_costs` (EUR/MWh/year) by the
@@ -342,7 +348,7 @@ multiplying the (input parameter) `marginal_costs` (EUR/MWh/year) by the
 
     variable_costs = marginal_costs * effective_output_capacity * number_of_units * full_load_hours / number_of_units
 
-#### Operational expenses
+#### Operational expenses [Float, EUR/plant/year]
 
 The `operational_expenses` (EUR/plant/year) of a participant is calculated by
 adding the (input parameter) `fixed_operation_and_maintenance_costs_per_year`
@@ -350,7 +356,7 @@ adding the (input parameter) `fixed_operation_and_maintenance_costs_per_year`
 
     operational_expenses = fixed_operation_and_maintenance_costs_per_year + variable_costs
 
-#### Profit
+#### Profit [Float
 
 The `profit` of a participant (EUR/plant/year) is calculated by subtracting the
 `total_costs` from the `income` of the participant.

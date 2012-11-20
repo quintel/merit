@@ -120,7 +120,7 @@ namespace :console do
     command = system("which pry > /dev/null 2>&1") ? 'pry' : 'irb'
     exec "#{ command } -I./lib -r./lib/merit.rb -r./examples/stub.rb" \
          " -e 'puts(\"Please hold on while running mo.calculate...\");" \
-         "mo = Merit.stub; mo.calculate'" \
+         "mo = merit_order = Merit.stub; mo.calculate'" \
   end
 end
 
