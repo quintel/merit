@@ -5,7 +5,6 @@ module Merit
   end
 
   class DispatchableProducer < Producer
-    def always_on?; false; end
   end
 
   class MustRunProducer < Producer

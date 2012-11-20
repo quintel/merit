@@ -20,6 +20,13 @@ module Merit
       "<#{self.class} #{key}>"
     end
 
-  end
+    # Public: Does the producer have to be running (creating or consuming
+    # energy all of the time)?
+    #
+    # Returns true or false.
+    def always_on?
+      false
+    end
 
-end
+  end # Participant
+end # Merit
