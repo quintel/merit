@@ -32,12 +32,12 @@ module Merit
           raise_error(MissingLoadProfileError)
       end
       it 'should raise IncorrectLoadProfileError if LoadProfile is not a valid fraction' do
-        LoadProfile.stub!(:read_values_from_file).with(:foo){ (1..7).to_a }
+        LoadProfile.reader.stub!(:read).with(:foo){ (1..7).to_a }
         expect(->{ LoadProfile.load(:foo) }).to \
           raise_error(IncorrectLoadProfileError)
       end
-      it 'should raise IncorrectLoadProfileError if LoadProfile is a valid fraction' do
-        LoadProfile.stub!(:read_values_from_file).with(:foo){ (1..2).to_a }
+      it 'should not raise IncorrectLoadProfileError if LoadProfile is a valid fraction' do
+        LoadProfile.reader.stub!(:read).with(:foo){ (1..2).to_a }
         expect(->{ LoadProfile.load(:foo) }).to_not \
           raise_error(IncorrectLoadProfileError)
       end
@@ -79,6 +79,39 @@ module Merit
         expect(->{ load_profile.draw }).to_not raise_error
       end
     end
+
+    describe '.reader' do
+      after { LoadProfile.reader = LoadProfile::Reader.new }
+
+      context 'when no reader has been set' do
+        before { LoadProfile.instance_variable_set(:@reader, nil) }
+
+        it 'returns the default Reader' do
+          expect(LoadProfile.reader).to     be_a(LoadProfile::Reader)
+          expect(LoadProfile.reader).to_not be_a(LoadProfile::CachingReader)
+        end
+      end # when no reader has been set
+
+      context 'when setting a custom reader' do
+        it 'sets the reader instance' do
+          reader = LoadProfile::CachingReader.new
+          LoadProfile.reader = reader
+
+          expect(LoadProfile.reader).to eql(reader)
+        end
+      end # when setting a custom reader
+    end
+
+    describe LoadProfile::CachingReader do
+      let(:reader) { LoadProfile::CachingReader.new }
+
+      it 'reads the source file' do
+        expect(reader.read('agriculture_chp')).to_not be_empty
+        # Second call also works?
+        expect(reader.read('agriculture_chp')).to_not be_empty
+      end
+    end
+
   end
 
 end

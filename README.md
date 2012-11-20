@@ -116,6 +116,13 @@ Effective_output_capacity: 574.9333333 (MW)
 Availability:              0.9 (fraction)
 ```
 
+In production environments, for optimal performance enable caching of the load
+profile data:
+
+```ruby
+Merit::LoadProfile.reader = Merit::LoadProfile::CachingReader.new
+```
+
 # Participants
 
 Producers and users of electricity are both called **participants** of the
