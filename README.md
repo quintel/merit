@@ -124,21 +124,26 @@ merit order.
 ## Users
 
 Users are those 'things' that use electricity. This can be one 'thing', such
-as the total demand for a particilar county, but Merit is also capable of
-adding different demand together, such as the sector demands, or certain
-demand shifting technologies, such as, or intensive electricity demands with
-load curves such as 'loading strategies' for electric cars.
+as the total demand for a particular country, but Merit is also capable of
+adding different demands together, such as the demand of the household sector 
+and the transport sector, or certain demand shifting technologies, such as 
+pumped storage, or intensive electricity demands with load curves such as 
+'loading strategies' for electric cars.
 
 For each demand, a **demand profile** has to be defined, and the **total
-consumption has to be given.
+consumption** has to be given.
 
 ### Total consumption
 
 Total consumption must be supplied in **MJ**. It is the sum of all electricity
-consumption of converters in the final demand converter group **plus** losses
-of the electricity network.
+consumption of the users **plus** losses of the electricity network. Note that
+ the losses only need to be taken into account once.
 
-## Load Curve/Profile of demand
+For the demand of **all** the converters in the ETM, the electricity consumption 
+of the final demand converter group can be used (**plus** losses of the 
+electricity network).
+
+### Load Curve/Profile of demand
 
 The total demand is used to scale up the **load profile** for the total demand
 (i.e. the demand profile) to produce the correct demand curve (which is a load
@@ -156,7 +161,7 @@ properly:
 * load_profile (Symbol)
 * marginal_costs (EUR/MWh/year) 
 * effective_output_capacity (MW electric/plant)
-* number_of_units
+* number_of_units (float)
 * availability (%)
 * fixed_costs (EUR/plant/year)
 * fixed_operation_and_maintenance_costs_per_year (EUR/plant/year)
@@ -170,18 +175,29 @@ This module has to be supplied with the participants of the Merit Order, which
 has to be of one of the following three classes:
 
 * Volatile (e.g. wind turbine, solar panel)
-* MustRun (e.g. heat driven CHP)
+* MustRun (e.g. CHPs that fulfill a heat demand)
 * Dispatchable (e.g. coal or gas power plant)
 
 #### Key [Symbol]
 
 The **key** is used to identify the participant.
 
+The key costs can be queried from the ETEngine's GQL with the following query:
+
+    V(converter_key, key)
+
+However, this is hardly useful, as the 'converter_key' is identical to the 'key'.
+
 #### Effective output capacity [Float]
 
 The *effective output capacity* is the maximum output capacity of a single
 plant. That means it describes how much electricity the technology produces
 per second when running at maximum load.
+
+The effective output capacity can be queried from the ETEngine's GQL with the following
+query:
+
+    V(converter_key, "electricity_output_conversion * effective_input_capacity")
 
 For definitions of available and nominal capacities see the **definitions**
 section below.
@@ -199,7 +215,8 @@ query:
 
 #### Fixed costs [Float]
 
-TODO: insert definition...
+The **fixed costs** of a plant are the sum of 'cost_of_capital', 'depreciation_costs'
+and 'fixed_operation_and_maintenance_costs_per_year'.
 
 The fixed costs (EUR/plant/year) can be queried from the ETM with the
 fixed_costs function:
@@ -211,7 +228,9 @@ fixed_costs function:
 A number that specifies how many of a technology are present. **This can be
 fractional.**
 
-TODO: Insert Query!
+The number of units can be queried from the ETM with the following query:
+
+    V(converter_key, number_of_units)
 
 #### Availability [Float]
 
@@ -220,7 +239,9 @@ for electricity production. The full load hours of a technology cannot exceed
 its availability multiplied by 8760.  For example, if the availability is 0.95,
 the full_load_hours can never exceed 0.95 * 8760 = 8322 hours.
 
-TODO: Insert Query!
+The availability can be queried from the ETM with the following query:
+
+    V(converter_key, availability)
 
 #### Fixed operations & maintenance costs per year [Float]
 
@@ -229,7 +250,10 @@ an input for calculating the operational_expenses per participant. The
 operational_expenses will be used as an output to indicate the extent of
 profitability of a participant.
 
-TODO: Insert Query!
+The fixed_operation_and_maintenance_costs_per_year can be queried from the 
+ETEngine's GQL with the following query:
+
+    V(converter_key, fixed_operation_and_maintenance_costs_per_year)
 
 #### Additional parameters for must_run and volatile participants
 
@@ -254,6 +278,10 @@ added.
 
 The full load hours of **volatile** and **must-run** technologies already take
 the availability of these technologies into account.
+
+The full load hours can be queried from the ETM with the following query:
+
+    V(converter_key, full_load_hours)
 
 #### Dispatchables
 
@@ -284,10 +312,13 @@ cost of the participant that is next in the merit order.
 **N.B. It is to be determined what the margin is for the most expensive plant
 in the merit order (i.e.  when there is no 'one higher').**
 
+TODO: DS, what happened to the load of each participant at each point in time?
 
 ## For each Participant
 
-You can get a summary of the participant, but
+You can get a summary of the participant
+
+TODO: what did you mean here DS?
 
 ```Ruby
 mo.dispatchables.first.info
@@ -303,8 +334,8 @@ Furthermore, you can get the following details from a participant:
 * profit
 * profitability
 
-Of course, you can also get the input back which is known, such as
-fixed_costs, key, etc.)
+Of course, you can also get the given input values, such as
+fixed_costs, key, etc., back from Merit.
 
 ### Full load hours
 
@@ -318,7 +349,7 @@ data points per year).
 
 For the participants that are cheaper than the price setting participant, the
 load is equal to the **available output capacity**.  For the price setting
-participant the load is generally lower than the available capacity, since only
+participant, the load is generally lower than the available capacity, since only
 a fraction of its available capacity is needed to meet the demand.  For the
 participants that are more expensive than the price setting participant, the
 load is equal to 0.
@@ -378,8 +409,11 @@ table.
 
 ## Load Profile
 
+TODO: DS, why is this here? Is this not imput? Load profiles are mentioned earlier
+but a thorough definition is postponed until here...
+
 For each **must_run** and **volatile** participant a **normalized** load
-profile has to be defined in the merit order module. Also, the **demand**
+profile has to be defined in the merit order module. Also, each **user**
 needs to have a load profile defined.
 
 #### Definition
