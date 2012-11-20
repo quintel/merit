@@ -166,6 +166,8 @@ module Merit
       " #{users.size} users >"
     end
 
+    # Public: Returns an Array containing a 'table' with a row for every
+    # producer and it's key, class, marginal costs,  full load hours.
     def summary
       rows = [['key',
                'class',
@@ -180,6 +182,21 @@ module Merit
         ]
       end
       rows
+    end
+
+    # Public: Returns an Array containing a 'table' with all the producers
+    # vertically, and horizontally the power per point in time.
+    def load_curves
+      columns = []
+      producers.each do |producer|
+        columns << [producer.key,
+                    producer.class,
+                    producer.effective_output_capacity,
+                    producer.number_of_units,
+                    producer.load_curve.values
+        ].flatten
+      end
+      columns.transpose
     end
 
     def info

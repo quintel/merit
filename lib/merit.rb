@@ -1,10 +1,12 @@
+# General libraries
 require 'csv'
 require 'terminal-table'
 
+# Merit order specific
 require 'merit/root'
 require 'merit/version'
-
 require 'merit/errors'
+
 require 'merit/order'
 require 'merit/load_curve'
 require 'merit/load_profile'
@@ -14,4 +16,6 @@ require 'merit/participants/producer'
 require 'merit/participants/types'
 require 'merit/participants/user'
 
+# Helpers
 require 'merit/bar_chart'
+require 'merit/csv_writer'
