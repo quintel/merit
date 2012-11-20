@@ -26,9 +26,9 @@ Gem::Specification.new do |s|
                      'paolo.zaccagnini@quintel.com',
                      'sebastian.burkhard@quintel.com' ]
 
-  s.homepage     = 'http://github.com/antw/turbine'
-  s.summary      = 'An in-memory graph database written in Ruby.'
-  s.description  = 'An experiment in graph databases, with Ruby...'
+  s.homepage     = 'http://github.com/quintel/merit'
+  s.summary      = 'A merit order calculation library written in Ruby.'
+  s.description  = ''
 
   s.require_path = 'lib'
 
@@ -42,26 +42,6 @@ Gem::Specification.new do |s|
   # directly; your changes will be wiped out when you next run the task.
 
   # = MANIFEST =
-  s.files = %w[
-    Gemfile
-    Gemfile.lock
-    Guardfile
-    LICENSE
-    README.md
-    Rakefile
-    examples/energy.rb
-    examples/family.rb
-    lib/.DS_Store
-    lib/merit.rb
-    lib/merit/.DS_Store
-    lib/merit/calculator.rb
-    lib/merit/load_curve.rb
-    lib/merit/load_curve_point.rb
-    lib/merit/plant.rb
-    lib/merit/version.rb
-    merit.gemspec
-  ]
-  # = MANIFEST =
-
+  s.files = `git ls-files`.split($/)
   s.test_files = s.files.select { |path| path =~ /^spec\/.*\.rb/ }
 end
