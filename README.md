@@ -248,7 +248,7 @@ The availability can be queried from the ETM with the following query:
 The fixed_operation_and_maintenance_costs_per_year (EUR/plant/year) are used as
 an input for calculating the operational_expenses per participant. The
 operational_expenses will be used as an output to indicate the extent of
-profitability of a participant.
+profitability of a participant (see also the list of outputs).
 
 The fixed_operation_and_maintenance_costs_per_year can be queried from the 
 ETEngine's GQL with the following query:
