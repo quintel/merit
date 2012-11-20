@@ -35,7 +35,7 @@ module Merit
     end
 
     def draw
-      BarChart.new(@values).draw
+      BarChart.new(@values).drawing
     end
 
     #######

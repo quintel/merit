@@ -76,7 +76,7 @@ module Merit
 
     describe '#draw' do
       it 'should draw' do
-        expect(->{ load_profile.draw }).to_not raise_error
+        expect(load_profile.draw).to_not be_empty
       end
     end
 

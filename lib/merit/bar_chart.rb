@@ -17,7 +17,7 @@ module Merit
 
     # Outputs a String with line breaks that represents a Chart
     def draw
-      puts drawing; nil
+      $stdout.puts drawing; nil
     end
 
     def drawing
