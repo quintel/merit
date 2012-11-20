@@ -80,3 +80,5 @@ Gem::Specification.new do |s|
     output/output.csv
   ]
   # = MANIFEST =
+
+end
