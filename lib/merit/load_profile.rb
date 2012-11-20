@@ -13,7 +13,7 @@ module Merit
     #         in an Array
     def initialize(key, values)
       @key    = key
-      @values = scale_to_8760(values)
+      @values = scale_values(values)
     end
 
 
@@ -26,7 +26,7 @@ module Merit
     #
     # Returns true or false
     def valid?
-      values.size == 8760 && surface > 1/3601.0 && surface < 1/3599.0
+      values.size == Merit::POINTS && surface > 1/3601.0 && surface < 1/3599.0
     end
 
     # Public: returns the surface below the LoadProfile.
@@ -42,15 +42,25 @@ module Merit
     private
     #######
 
-    # Private: translates an array which is a fraction of 8760 to one that
-    # is 8760 long.
+    # Internal: Translates an array whose length is a fraction of
+    # Merit::POINTS to one that is precisely POINTS length. If the given
+    # +values+ already have the correct length, no changes will be made.
     #
-    # Returns Array
-    def scale_to_8760(values)
-      raise IncorrectLoadProfileError.new(key, values.size) unless 8760 % values.size == 0
+    # values - An array of values to be scaled.
+    #
+    # Returns an array of floats.
+    def scale_values(values)
+      return values if values.length == Merit::POINTS
 
-      scaling_factor = 8760 / values.size
-      values.map{|v| Array.new(scaling_factor, v)}.flatten
+      unless Merit::POINTS % values.length == 0
+        raise IncorrectLoadProfileError.new(key, values.length)
+      end
+
+      factor = Merit::POINTS / values.length
+
+      values.each_with_object([]) do |value, scaled|
+        factor.times { scaled.push(value) }
+      end
     end
 
     class << self
