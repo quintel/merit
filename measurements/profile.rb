@@ -32,7 +32,7 @@ PerfTools::CpuProfiler.start("measurements/#{ name }") do
   iterations.times { Merit.stub.calculate }
 end
 
-puts "Finished profiling in #{ Time.now - started } seconds."
+puts "\e[32mFinished profiling in #{ Time.now - started } seconds.\e[0m"
 
 # Don't generate the profiling output if the user doesn't want it.
 exit if name == '-'
