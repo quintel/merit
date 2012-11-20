@@ -54,16 +54,18 @@ module Merit
     # produced according to the Merit Order.
     def production_loads_at(point_in_time)
       remaining_load = demand_load_at(point_in_time)
-      production_loads = []
-      max_production_loads_at(point_in_time).each do |max_load|
-        if max_load < remaining_load
-          production_loads << max_load
-        else
-          production_loads << [remaining_load, 0.0].max
-        end
+
+      max_production_loads_at(point_in_time).map do |max_load|
         remaining_load -= max_load
+
+        if max_load < remaining_load
+          max_load
+        elsif remaining_load < 0.0
+          0.0
+        else
+          remaining_load
+        end
       end
-      production_loads
     end
 
     # Records the production loads in the producer's load curve
