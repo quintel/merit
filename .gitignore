@@ -30,6 +30,7 @@ coverage
 doc
 Gemfile.lock
 measurements
+!measurements/profile.rb
 pkg
 rdoc
 tmp
