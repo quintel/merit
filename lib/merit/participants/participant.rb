@@ -28,5 +28,11 @@ module Merit
       false
     end
 
+    # Public: The inverse of #always_on?. Determines if this participant may
+    # sometimes be turned off.
+    def transient?
+      not always_on?
+    end
+
   end # Participant
 end # Merit

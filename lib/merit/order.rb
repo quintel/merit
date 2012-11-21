@@ -32,72 +32,14 @@ module Merit
     #
     # Returns true when successful
     def calculate
-      memoize_participants!
       @calculated ||= recalculate!
     end
 
     # Recalculates
     # Returns true when we did them all
     def recalculate!
-      Merit::POINTS.times do |point_in_time|
-        export_production_loads_at(point_in_time)
-      end
-      true
-    end
-
-    # Returns the total demand for electricity at a certain time
-    def demand_load_at(point_in_time)
-      users.map{ |user| user.load_at(point_in_time) }.reduce(:+)
-    end
-
-    # Returns an Array containing the loads that are actually
-    # produced according to the Merit Order.
-    def production_loads_at(point_in_time)
-      remaining_load = demand_load_at(point_in_time)
-
-      max_production_loads_at(point_in_time).map do |max_load|
-        remaining_load -= max_load
-
-        if max_load < remaining_load
-          max_load
-        elsif remaining_load < 0.0
-          0.0
-        else
-          remaining_load
-        end
-      end
-    end
-
-    # Records the production loads in the producer's load curve
-    def export_production_loads_at(point_in_time)
-      production_loads = production_loads_at(point_in_time)
-
-      producers.each_with_index do |producer, index|
-        unless producer.always_on?
-          producer.load_curve.values[point_in_time] = production_loads[index]
-        end
-      end
-    end
-
-    # Calculates the maximal production ALL the producers can take
-    # Returns Float
-    def max_production_load_at(point_in_time)
-      max_production_loads_at(point_in_time).reduce(:+)
-    end
-
-    # Calculates the maximal production PER producer
-    # Returns Array[Floats]
-    def max_production_loads_at(point_in_time)
-      producers.map{ |p| p.max_load_at(point_in_time) }
-    end
-
-    # Calculates the cumulative productions for the converters
-    # TODO: remove, probably not needed
-    def cumulative_max_production_loads_at(point_in_time)
-      sum = 0
-      max_production_loads_at(point_in_time).map do |load|
-        sum += load
-      end
+      memoize_participants!
+      Merit::Calculator.new(self).calculate!
     end
 
     # Experimental, untested
