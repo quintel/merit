@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
-$LOAD_PATH.unshift File.expand_path('../lib', __FILE__)
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |s|
   s.required_rubygems_version = '>= 1.3.6'
@@ -8,8 +9,8 @@ Gem::Specification.new do |s|
   # rake task. It it completely safe to edit them, but using the rake task
   # is easier.
   s.name              = 'merit'
-  s.version           = '0.0.2'
-  s.date              = '2012-11-20'
+  s.version           = '0.0.3'
+  s.date              = '2012-11-21'
   s.rubyforge_project = 'merit-graph'
 
   # You may safely edit the section below.
@@ -57,6 +58,7 @@ Gem::Specification.new do |s|
     examples/stub4.rb
     lib/merit.rb
     lib/merit/bar_chart.rb
+    lib/merit/csv_writer.rb
     lib/merit/errors.rb
     lib/merit/load_curve.rb
     lib/merit/load_profile.rb
@@ -75,6 +77,7 @@ Gem::Specification.new do |s|
     load_profiles/wind_coastal.csv
     load_profiles/wind_inland.csv
     load_profiles/wind_offshore.csv
+    measurements/profile.rb
     merit.gemspec
     output/chael.csv
     output/output.csv
