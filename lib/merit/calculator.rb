@@ -60,26 +60,8 @@ module Merit
     #
     # Returns nothing.
     def export_production_loads_at!(point)
-      production_loads = transient_production_loads_at(point)
-
-      # Optimisation: We use #each_with_index despite the fact that #zip would
-      # be nicer, since #zip creates a vast amount of intermediate array
-      # objects stressing the garbage collector.
-      @transient.each_with_index do |producer, index|
-        producer.load_curve.set(point, production_loads[index])
-      end
-    end
-
-    # Internal: Calculates the energy load created by each transient producer
-    # according to the merit order.
-    #
-    # point - The point in time to calculate.
-    #
-    # Returns an array containing the loads with each value corresponding to
-    # a producer in the +@transient+ collection.
-    def transient_production_loads_at(point)
       # The total demand for energy at the point in time.
-      remaining = @users.map{ |user| user.load_at(point) }.reduce(:+)
+      remaining = @users.map { |user| user.load_at(point) }.reduce(:+)
 
       # Optimisation: This is order-dependent; it requires that always-on
       # producers are before the transient producers, otherwise "remaining"
@@ -94,11 +76,11 @@ module Merit
         remaining -= producer.max_load_at(point)
       end
 
-      @transient.map do |producer|
+      @transient.each do |producer|
         max_load   = producer.max_load_at(point)
         remaining -= max_load
 
-        if max_load < remaining
+        producer.load_curve.values[point] = if max_load < remaining
           max_load
         elsif remaining > 0.0
           remaining
