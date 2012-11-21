@@ -3,9 +3,45 @@
 The Merit module is used to calculate the merit order for the [Energy
 Transition Model](http://et-model.com).
 
+## Introduction
+
 The **merit order** predicts/calculates which electricity generating
 **producers** are producing the power to meet the demand/load of the
-different **users** of electricity.
+different **users** of electricity. 
+It does this for each of the 8760 hours in a year and computes several
+yearly averaged quantities for each producer such as
+
+* merit order position
+* full_load_hours
+* total income
+* total costs
+* total variable costs
+* operational_expenses
+* profit
+* profitability
+
+The above quantities are defined and explained in the main text below.
+
+Both **users** and **producers** are participants in the Merit Order 
+calculation. Examples of users include the transport sector, the 
+household sector, electric heating devices, etc. Producers may be 
+nuclear reactors, wind turbines or solar panels.
+Producers can be one of three types 
+
+* dispatchable (can be switched on and off at will) 
+* volatile (can be switched off but not on at will)
+* must-run (produces electricity as a by-product and is insensitive
+to changes in electricity demand)
+
+Every user has a demand for electricity (which can be zero) at every 
+point in time , which we call its **load**. The description of the load of a 
+user is described by a **load profile**.
+
+Also, every must-run- or volatile producer has a load profile, but instead of
+demand it describes its production at each point in time.
+
+Let's get more familiar with the terms mentioned above by looking at a quick
+demonstration of the Merit Order moule. 
 
 ## Quick Demonstration
 
@@ -138,7 +174,7 @@ pumped storage, or intensive electricity demands with load curves such as
 'loading strategies' for electric cars.
 
 For each demand, a **demand profile** has to be defined, and the **total
-consumption** has to be given.
+consumption** has to be given to properly scale the demand profile with.
 
 ### Total consumption
 
@@ -147,14 +183,16 @@ consumption of the users **plus** losses of the electricity network. Note that
  the losses only need to be taken into account once.
 
 For the demand of **all** the converters in the ETM, the electricity consumption 
-of the final demand converter group can be used (**plus** losses of the 
+of the final demand converter group can be used ( **plus** losses of the 
 electricity network).
 
-### Load Curve/Profile of demand
+### Demand profile
 
-The total demand is used to scale up the **load profile** for the total demand
-(i.e. the demand profile) to produce the correct demand curve (which is a load
-curve).
+The **demand profile** describes the **variation** of the demand of a user as a 
+function of time. The demand profile is normalized to **1 MJ** surface area. 
+It has to be scaled to its proper dimensions of **MW** by multiplying it with
+the total conumption. The demand profile is equivalent to the load profiles 
+defined for must-run and dispatchable producers.
 
 ## Producers
 
@@ -269,7 +307,28 @@ ETEngine's GQL with the following query:
 
 #### Load profile key
 
-Gives the name of the profile.
+Gives the name of the load profile. 
+
+##### Current Load Profiles
+
+Currently, the following load profiles are supported
+
+0. demand
+1. industry chps
+2. agriculural chps
+3. buildings chps
+4. solar pv panels
+5. offshore wind turbines
+6. coastal wind turbines
+7. inland wind turbines
+
+These load profile are defined in the
+[load_profiles](https://github.com/quintel/merit/tree/master/load_profiles)
+directory.  These curves are normalized such that the surface area underneath
+each curve equals unity.  This means that the load of a must_run or volatile
+participant at every point in time can be found by multiplying its load profile
+with its **electricity production** (note that this is not equal to its
+demand).
 
 #### Full load hours
 
@@ -414,50 +473,6 @@ P.S. These three states are communicated to the user by coloring the
 participants **green**, **orange** and **red** respectively in the Merit Order
 table.
 
-## Load Profile
-
-TODO: DS, why is this here? Is this not imput? Load profiles are mentioned earlier
-but a thorough definition is postponed until here...
-
-For each **must_run** and **volatile** participant a **normalized** load
-profile has to be defined in the merit order module. Also, each **user**
-needs to have a load profile defined.
-
-#### Definition
-
-A load profile has **8760** datapoints, one for every hour in a year. Profiles
-are normalized such that multiplying them with the total produced electricity
-(in **MJ**) yields the load at every point in time in units of **MW**.
-
-This normalization effectively implies that the surface area under the load
-profiles is equal to 1 MJ.  This can be checked:
-
-``` Ruby
-Merit::LoadProfile.load(:total_demand).valid?
-=> true #
-```
-
-#### Current Load Profiles
-
-Currently, the following load profiles are supported
-
-0. demand
-1. industry chps
-2. agriculural chps
-3. buildings chps
-4. solar pv panels
-5. offshore wind turbines
-6. coastal wind turbines
-7. inland wind turbines
-
-These load profile are defined in the
-[load_profiles](https://github.com/quintel/merit/tree/master/load_profiles)
-directory.  These curves are normalized such that the surface area underneath
-each curve equals unity.  This means that the load of a must_run or volatile
-participant at every point in time can be found by multiplying its load profile
-with its **electricity production** (note that this is not equal to its
-demand).
-
 ## Definitions
 
 ### Capacity
@@ -476,6 +491,20 @@ What's available if you take maintenance, down time, and volatility into
 account? (e.g. 650 MW)
 
      available_capacity = effective_capacity * availability
+
+### Load profile
+
+A load profile has **8760** datapoints, one for every hour in a year. Profiles
+are normalized such that multiplying them with the total produced electricity
+(in **MJ**) yields the load at every point in time in units of **MW**.
+
+This normalization effectively implies that the surface area under the load
+profiles is equal to 1 MJ.  This can be checked:
+
+``` Ruby
+Merit::LoadProfile.load(:total_demand).valid?
+=> true #
+```
 
 ## Assumptions
 

@@ -37,4 +37,4 @@ tmp
 *.gem
 
 ## PROJECT::SPECIFIC
-output/
+output/*
