@@ -34,6 +34,20 @@ module Merit
       end
     end
 
+    describe '#producers' do
+      it 'returns "always on" participants first' do
+        dispatchable = Merit::DispatchableProducer.new(key: :foo)
+        volatile     = Merit::VolatileProducer.new(key: :bar)
+        must_run     = Merit::MustRunProducer.new(key: :baz)
+
+        order.add(dispatchable)
+        order.add(volatile)
+        order.add(must_run)
+
+        expect(order.producers.last).to eql(dispatchable)
+      end
+    end
+
     describe "#inspect" do
       it "should contain the number of participants" do
         expect(order.to_s).to match("0 producer")
