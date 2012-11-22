@@ -34,11 +34,12 @@ module Merit
     # When the full load hours were defined as input, this method then returns
     # that number
     def full_load_hours
-      if @full_load_hours
-        @full_load_hours
-      else
-        production / ( effective_output_capacity * number_of_units * 3600 )
-      end
+      @full_load_hours ||
+        if effective_output_capacity.zero? || number_of_units.zero?
+          0.0
+        else
+          production / (effective_output_capacity * number_of_units * 3600)
+        end
     end
 
     # Public: Returns the actual load curve, and this can be set by the

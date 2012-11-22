@@ -31,16 +31,38 @@ module Merit
       it 'should be the same as inputted, if it was input' do
         expect(producer.full_load_hours).to eql 4
       end
-      it 'should be 8760 * availability for a continuously on dispatchable' do
-        producer = Producer.new(key: :bar,
-                                effective_output_capacity: 1600,
-                                availability: 0.9,
-                                number_of_units: 0.31875)
-        producer.stub(:production){ 14475023999.999998 }
 
-        expect(producer.full_load_hours).to eql 8760 * 0.9
-      end
-    end
+      context 'when no explicit value is set' do
+        let(:producer) do
+          Producer.new(
+            key: :bar,
+            effective_output_capacity: 1600,
+            availability: 0.9,
+            number_of_units: 0.31875
+          ).tap { |p| p.stub(:production).and_return(14475023999.999998) }
+        end
+
+        it 'should be 8760 * availability for a continuously on dispatchable' do
+          expect(producer.full_load_hours).to eql 8760 * 0.9
+        end
+
+        context 'when effective output capacity is zero' do
+          before { producer.stub(:effective_output_capacity).and_return(0.0) }
+
+          it 'is zero' do
+            expect(producer.full_load_hours).to eql(0.0)
+          end
+        end
+
+        context 'when number of units is zero' do
+          before { producer.stub(:number_of_units).and_return(0.0) }
+
+          it 'is zero' do
+            expect(producer.full_load_hours).to eql(0.0)
+          end
+        end
+      end # when no explicit value is set
+    end # full_load_hours
 
     describe '#production' do
       it 'is based on the load curve' do
