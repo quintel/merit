@@ -53,12 +53,12 @@ module Merit
 
     # Experimental: for demo purposes
     def off_times
-      load_curve.values.select{ |v| v == 0 }.size
+      load_curve.select{ |v| v == 0 }.size
     end
 
     # Experimental: for demo purposes
     def ramping_curve
-      LoadCurve.new(load_curve.values.each_cons(2).map{ |a,b| (b-a).abs })
+      LoadCurve.new(load_curve.each_cons(2).map{ |a,b| (b-a).abs })
     end
 
     # Public: the load curve of a participant, tells us how much energy
@@ -68,7 +68,7 @@ module Merit
       if @load_profile
         values = @load_profile.values.map { |v| v * max_production }
       else
-        values = Array.new(8760, available_output_capacity)
+        values = Array.new(Merit::POINTS, available_output_capacity)
       end
 
       @max_load_curve ||= LoadCurve.new(values)
@@ -81,12 +81,12 @@ module Merit
 
     # Public: Returns the average load from the load curve
     def average_load
-      load_curve.values.reduce(:+) / load_curve.values.size
+      load_curve.reduce(:+) / load_curve.length
     end
 
     # Public: Returns the (actual) energy produced by this producer
     def production
-      load_curve.values.reduce(:+) * 3600
+      load_curve.reduce(:+) * 3600
     end
 
     # Public: calculates how much energy is 'produced' by this participant

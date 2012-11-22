@@ -37,6 +37,8 @@ module Merit
       @length || @values.length
     end
 
+    alias_method :size, :length
+
     def to_s
       "<#{self.class}: #{length} values>"
     end
