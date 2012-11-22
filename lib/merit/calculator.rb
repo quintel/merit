@@ -29,7 +29,7 @@ module Merit
       end
     end
 
-    # Public: Performs the calculation. This sets the load curve# values for
+    # Public: Performs the calculation. This sets the load curve values for
     # each transient producer.
     #
     # Returns true.
@@ -80,12 +80,19 @@ module Merit
         max_load   = producer.max_load_at(point)
         remaining -= max_load
 
-        producer.load_curve.values[point] = if max_load < remaining
-          max_load
+        # Optimisation: Load points default to zero, skipping to the next
+        # iteration is faster then running the comparison / load_curve#set.
+        next if max_load.zero?
+
+        if max_load < remaining
+          producer.load_curve.set(point, max_load)
         elsif remaining > 0.0
-          remaining
+          producer.load_curve.set(point, remaining)
         else
-          0.0
+          # Optimisation: If all of the demand has been accounted for, there
+          # is no need to waste time with further iterations and expensive
+          # calls to Producer#max_load_at.
+          break
         end
       end
     end
