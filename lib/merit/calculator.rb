@@ -56,7 +56,7 @@ module Merit
       # objects stressing the garbage collector.
       @producers.each_with_index do |producer, index|
         unless producer.always_on?
-          producer.load_curve.values[point] = production_loads[index]
+          producer.load_curve.set(point, production_loads[index])
         end
       end
     end

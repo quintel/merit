@@ -47,14 +47,14 @@ module Merit
         merit = Merit::Order.new
         merit.add(producer)
         merit.participant(:coal).load_curve = LoadCurve.new((1..3).to_a)
-        expect(producer.load_curve.values).to eql [1,2,3]
+        expect(producer.load_curve.to_a).to eql [1,2,3]
       end
       it 'should be adaptable and extendable for the merit order' do
         merit = Merit::Order.new
         merit.add(producer)
-        merit.participant(:coal).load_curve.values[0] = 1
-        expect(producer.load_curve.values[0]).to eql 1
-        expect(producer.load_curve.values[1]).to be_nil
+        merit.participant(:coal).load_curve.set(0, 1)
+        expect(producer.load_curve.to_a[0]).to eql(1)
+        expect(producer.load_curve.to_a[1]).to be_nil
       end
     end
 
@@ -65,7 +65,7 @@ module Merit
       it 'should be the product of energy production and the load profile' do
         producer.stub(:max_production){ 1000 }
 
-        expect(producer.max_load_curve.values[117]).to \
+        expect(producer.max_load_curve.get(117)).to \
           eql(producer.load_profile.values[117] * 1000)
       end
     end

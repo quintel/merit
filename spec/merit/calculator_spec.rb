@@ -46,21 +46,21 @@ module Merit
     # ------------------------------------------------------------------------
 
     it 'sets the load profile values of the first producer' do
-      load_value = order.participant(:dispatchable).load_curve.values.first
+      load_value = order.participant(:dispatchable).load_curve.get(0)
 
       expect(load_value).to_not be_nil
       expect(load_value).to be_within(0.1e-4).of(0.00597)
     end
 
     it 'sets the load profile values of the second producer' do
-      load_value = order.participant(:volatile).load_curve.values.first
+      load_value = order.participant(:volatile).load_curve.get(0)
 
       expect(load_value).to_not be_nil
       expect(load_value).to be_within(0.1e-4).of(0.095)
     end
 
     it 'sets the load profile values of the third producer' do
-      load_value = order.participant(:volatile_two).load_curve.values.first
+      load_value = order.participant(:volatile_two).load_curve.get(0)
 
       expect(load_value).to_not be_nil
       expect(load_value).to be_within(0.1e-4).of(0.00018)

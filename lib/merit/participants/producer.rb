@@ -22,7 +22,7 @@ module Merit
       @number_of_units           = opts[:number_of_units]
       @fixed_costs               = opts[:fixed_costs]
 
-      @load_curve   = LoadCurve.new(Array.new(8760))
+      @load_curve   = LoadCurve.new
       @load_profile = load_profile_key && LoadProfile.load(load_profile_key)
     end
 
