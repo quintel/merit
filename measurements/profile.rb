@@ -7,12 +7,29 @@
 # comparison with a previous run. No argument will just use "profile".
 #
 # The output PDF is saved to measurements/ and opened automatically.
+#
+# To run this script, first install the additional dependencies:
+#
+#   $ gem install perftools.rb term-ansicolor
+#
+# It can be run with the following arguments:
+#
+#   $ ruby measurements/profile.rb [PROFILE_NAME] [ITERATIONS]
+#
+# PROFILE_NAME is an optional name to which the profile results are saved, and
+# will also be used to name the PDF. Supply a different name with each run if
+# you want to compare results. Supplying "-" will skip creation of the PDF and
+# simply outputs the runtime information.
+#
+# ITERATIONS, which defaults to 10, controls how many times to calculate the
+# stub merit order.
 
 ROOT = File.expand_path(File.dirname(__FILE__) + '/..')
 $LOAD_PATH.push(ROOT + '/lib')
 
 require 'merit'
 require 'perftools'
+require 'term/ansicolor'
 require 'fileutils'
 require_relative '../examples/stub'
 
@@ -32,7 +49,13 @@ PerfTools::CpuProfiler.start("measurements/#{ name }") do
   iterations.times { Merit.stub.calculate }
 end
 
-puts "\e[32mFinished profiling in #{ Time.now - started } seconds.\e[0m"
+duration = Time.now - started
+
+include Term::ANSIColor
+print green, "Finished profiling #{ iterations } calculations in ",
+      underline, "#{ duration.round(4) } seconds", reset, green,
+      " (", underline, "#{ ((duration / iterations) * 1000).round(2) } ms",
+      reset, green, " per calculation).", reset, "\n"
 
 # Don't generate the profiling output if the user doesn't want it.
 exit if name == '-'
