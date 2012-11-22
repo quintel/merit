@@ -42,6 +42,15 @@ module Merit
       end
     end
 
+    describe '#production' do
+      it 'is based on the load curve' do
+        producer.load_curve.set(0, 10.0)
+        producer.load_curve.set(1, 50.0)
+
+        expect(producer.production).to eql(60.0 * 3600)
+      end
+    end
+
     describe '#load_curve' do
       it 'should be settable by the merit order' do
         merit = Merit::Order.new
@@ -58,14 +67,70 @@ module Merit
     end
 
     describe '#max_load_curve' do
-      it 'should be available' do
-        expect(producer.max_load_curve)
-      end
-      it 'should be the product of energy production and the load profile' do
-        producer.stub(:max_production){ 1000 }
+      context 'when a load profile is available' do
+        it 'should be available' do
+          expect(producer.max_load_curve)
+        end
 
-        expect(producer.max_load_curve.get(117)).to \
-          eql(producer.load_profile.values[117] * 1000)
+        it 'should be the product of max production and the load profile' do
+          producer.stub(:max_production) { 1000 }
+
+          expect(producer.max_load_curve.get(117)).
+            to eql(producer.load_profile.values[117] * 1000)
+        end
+      end # when a load profile is available
+
+      context 'when no load profile is avaiable' do
+        before { producer.load_profile = nil }
+        let(:load_curve) { producer.max_load_curve }
+
+        it 'has Merit::POINTS elements' do
+          expect(load_curve.length).to eql(Merit::POINTS)
+        end
+
+        it 'uses the output capacity at each point' do
+          expect(producer.max_load_curve.first).
+            to eql(producer.available_output_capacity)
+        end
+      end
+    end
+
+    describe '#silent_load_curve' do
+      it 'is a LoadCurve' do
+        expect(producer.silent_load_curve).to be_a(LoadCurve)
+      end
+
+      it 'describes the difference between maximum capacity and usage' do
+        producer.max_load_curve.set(0, 10.0)
+        producer.max_load_curve.set(1, 5.0)
+
+        producer.load_curve.set(0, 5.0)
+        producer.load_curve.set(1, 2.5)
+
+        expect(producer.silent_load_curve.get(0)).to eql(5.0)
+        expect(producer.silent_load_curve.get(1)).to eql(2.5)
+      end
+    end
+
+    describe '#ramping_curve' do
+      it 'is a LoadCurve' do
+        expect(producer.ramping_curve).to be_a(LoadCurve)
+      end
+    end
+
+    describe '#off_times' do
+      it 'describes the points in which the producer creates no energy' do
+        producer.load_curve.set(0, 5.0)
+        producer.load_curve.set(1, 2.5)
+
+        expect(producer.off_times).to eql(producer.load_curve.length - 2)
+      end
+    end
+
+    describe '#average_load_curve' do
+      it 'averages the points on the load curve' do
+        producer.load_curve.set(0, 8760 * 2)
+        expect(producer.average_load).to eql(2.0)
       end
     end
 
