@@ -9,10 +9,16 @@ module Merit
     # Public: Creates a LoadCurve with the given +values+.
     #
     # values - The values for each point in the curve.
+    # length - When the load curve needs to be a specific length, but the
+    #          supplied +values+ do not provide all the values, provide a
+    #          +length+ to ensure that +each+ and +to_a+ always return the
+    #          desired number of elements (empty elements will be returned as
+    #          0.0).
     #
     # Returns a LoadCurve.
-    def initialize(values = [])
+    def initialize(values = [], length = nil)
       @values = values
+      @length = length
     end
 
     def get(point)
@@ -28,7 +34,7 @@ module Merit
     end
 
     def length
-      @values.length
+      @length || @values.length
     end
 
     def to_s

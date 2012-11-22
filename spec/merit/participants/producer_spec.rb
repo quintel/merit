@@ -54,7 +54,6 @@ module Merit
         merit.add(producer)
         merit.participant(:coal).load_curve.set(0, 1)
         expect(producer.load_curve.to_a[0]).to eql(1)
-        expect(producer.load_curve.to_a[1]).to be_nil
       end
     end
 

@@ -12,6 +12,19 @@ module Merit
         expect(load_curve.to_a).to have(8760).values
         expect(load_curve.to_a).to eql (1..8760).to_a
       end
+
+      context 'with an explicit length' do
+        let(:curve) { LoadCurve.new([], 100) }
+
+        it 'iterates through the full length' do
+          expect(curve.to_a).to have(100).members
+          expect(curve.to_a.first).to eql(0.0)
+        end
+
+        it 'uses the given length' do
+          expect(curve.length).to eql(100)
+        end
+      end
     end
 
     describe '#inspect' do
