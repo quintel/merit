@@ -97,7 +97,7 @@ module Merit
       @max_production ||= if @full_load_hours
         # NOTE: effective output capacity must be used here because availability
         # has been taken into account when providing the full_load_hours
-        effective_output_capacity * full_load_hours * 3600
+        effective_output_capacity * full_load_hours * number_of_units * 3600
       else
         # Available output capacity time seconds in a year takes into account
         # that producers have some time that they are unavailable
