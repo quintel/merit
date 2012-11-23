@@ -79,12 +79,14 @@ module Merit
       end
 
       @transient.each do |producer|
-        max_load   = producer.max_load_at(point)
-        remaining -= max_load
+        max_load = producer.max_load_at(point)
 
         # Optimisation: Load points default to zero, skipping to the next
         # iteration is faster then running the comparison / load_curve#set.
         next if max_load.zero?
+
+        # Subtract the production of the producer from the demand
+        remaining -= max_load
 
         if max_load < remaining
           yield producer, max_load
