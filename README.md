@@ -378,16 +378,12 @@ cost of the participant that is next in the merit order.
 **N.B. It is to be determined what the margin is for the most expensive plant
 in the merit order (i.e.  when there is no 'one higher').**
 
-TODO: DS, what happened to the load of each participant at each point in time?
-
 ## For each Participant
 
-You can get a summary of the participant
-
-TODO: what did you mean here DS?
+You can get a summary of the participant by running:
 
 ```Ruby
-mo.dispatchables.first.info
+merit_order.dispatchables.first.info
 ```
 
 Furthermore, you can get the following details from a participant:
