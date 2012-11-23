@@ -95,8 +95,12 @@ module Merit
     # Returns Float: energy in MJ (difference between MWh and MJ is 3600)
     def max_production
       @max_production ||= if @full_load_hours
-        available_output_capacity * full_load_hours * 3600
+        # NOTE: effective output capacity must be used here because availability
+        # has been taken into account when providing the full_load_hours
+        effective_output_capacity * full_load_hours * 3600
       else
+        # Available output capacity time seconds in a year takes into account
+        # that producers have some time that they are unavailable
         available_output_capacity * 8760 * 3600
       end
     end
