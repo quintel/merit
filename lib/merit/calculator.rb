@@ -35,7 +35,9 @@ module Merit
     # Returns true.
     def calculate!
       Merit::POINTS.times do |point|
-        export_production_loads_at!(point)
+        each_production_load_at(point) do |producer, value|
+          producer.load_curve.set(point, value)
+        end
       end
 
       true
@@ -59,7 +61,7 @@ module Merit
     #         and Merit::POINTS - 1.
     #
     # Returns nothing.
-    def export_production_loads_at!(point)
+    def each_production_load_at(point)
       # The total demand for energy at the point in time.
       remaining = @users.map { |user| user.load_at(point) }.reduce(:+)
 
@@ -85,9 +87,9 @@ module Merit
         next if max_load.zero?
 
         if max_load < remaining
-          producer.load_curve.set(point, max_load)
+          yield producer, max_load
         elsif remaining > 0.0
-          producer.load_curve.set(point, remaining)
+          yield producer, remaining
         else
           # Optimisation: If all of the demand has been accounted for, there
           # is no need to waste time with further iterations and expensive
