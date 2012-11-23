@@ -118,15 +118,18 @@ module Merit
       rows = [['key',
                'class',
                'marginal costs',
-               'full load hours'
+               'full load hours',
+               'production (PJ)'
       ]]
       producers.each do |p|
         rows << [p.key,
                  p.class,
                  p.marginal_costs,
-                 p.full_load_hours
+                 p.full_load_hours,
+                 p.production / 10**9
         ]
       end
+      rows << ['TOTALS:',nil,nil,nil,producers.map(&:production).reduce(:+) / 10**9]
       rows
     end
 
