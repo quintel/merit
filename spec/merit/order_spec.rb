@@ -117,6 +117,19 @@ module Merit
       end
     end
 
-  end
+    describe '#load_curves' do
+      it 'returns an array of load curves' do
+        order.add(DispatchableProducer.new({key: :foo}))
+        expect(order.load_curves).to be_a(Array)
+      end
 
+      it 'returns one member per producer' do
+        order.add(DispatchableProducer.new({key: :foo}))
+        order.add(DispatchableProducer.new({key: :bar}))
+
+        expect(order.load_curves.first).to have(2).members
+      end
+    end
+
+  end
 end

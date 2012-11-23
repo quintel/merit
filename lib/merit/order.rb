@@ -139,7 +139,7 @@ module Merit
                     producer.class,
                     producer.effective_output_capacity,
                     producer.number_of_units,
-                    producer.load_curve.values
+                    producer.load_curve.to_a
         ].flatten
       end
       columns.transpose
