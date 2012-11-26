@@ -100,6 +100,78 @@ module Merit
         remaining -= max_load
       end
     end
-
   end # Calculator
+
+  # A calculator which skips points in order to compute the result faster.
+  #
+  # This works on the principle that days which are close to one another are
+  # expected to have very similar load characteristics; it is unlikely that
+  # wind turbines will be in high demand on January 1st, but low demand on the
+  # following day.
+  #
+  # This calculator computes only a subset of days in the year, and then
+  # copies the results for those days into the following few days. For
+  # example, with a resolution of 3, it will compute the results for January
+  # 1st, then use the same figures for January 2nd and 3rd. January 4th will
+  # then be computed, with its values being used for the 5th and 6th.
+  #
+  # The result is that we're able to skip a large number of extra calculations
+  # with only a very small loss of accuracy. "Freak occurrences" in the load
+  # curves (such as an unusually high load in one particular hour, on one day
+  # of the year) may be lost or exaggerated depending on whether they happen
+  # on a computed day, but the overall long-term trends remain.
+  class QuantizingCalculator < Calculator
+    # The number of points in each day.
+    PER_DAY = Merit::POINTS / 365
+
+    # Public: Creates a new SamplingCalculator which computes the production
+    # load for each of the transient producers in a way which is faster -- but
+    # less accurate than -- the ordinary Calculator.
+    #
+    # order      - The Merit::Order instance to be calculated.
+    # chunk_size - How many days should be in each calculated "chunk". Lower
+    #              numbers result in a more accurate calculation at the
+    #              expense of performance.
+    #
+    # Returns a Calculator.
+    def initialize(order, chunk_size = 8)
+      if chunk_size.nil? || chunk_size == 1
+        raise InvalidChunkSize.new(chunk_size)
+      end
+
+      super(order)
+      @chunk_size = chunk_size
+    end
+
+    # Public: Performs the calculation. This sets the load curve values for
+    # each transient producer.
+    #
+    # Returns true.
+    def calculate!
+      # The point being computed.
+      point = 0
+
+      # How many points in total are computed each time we compute a day.
+      each_day = @chunk_size * PER_DAY
+
+      # The number of points by which we increment when we have finished
+      # computing a full day.
+      day_incr = each_day - PER_DAY
+
+      while point < Merit::POINTS
+        each_production_load_at(point) do |producer, value|
+          @chunk_size.times do |position|
+            # Don't set values beyond Dec 24th @ 23:00.
+            if (future_point = (position * PER_DAY) + point) < Merit::POINTS
+              producer.load_curve.set(future_point, value)
+            end
+          end
+        end
+
+        # Is this the end of the day (skip fowards), or are there still points
+        # left to be calculated for the current day?
+        point += (point % each_day == (PER_DAY - 1)) ? day_incr : 1
+      end
+    end
+  end # QuantizingCalculator
 end # Merit

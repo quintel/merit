@@ -28,18 +28,25 @@ module Merit
 
     # ---------- Calculate! -----------
 
-    # Calculates the Merit Order and makes sure it happens only once
+    # Calculates the Merit Order and makes sure it happens only once.
+    # Optionally provide a Calculator instance if you want to use a faster, or
+    # more accurate, algorithm.
     #
-    # Returns true when successful
-    def calculate
-      @calculated ||= recalculate!
+    # calculator - The calculator to use to compute the merit order. If the
+    #              order has been calculated previously, this will be ignored.
+    #              By default a SamplingCalculator with a resolution of 4 will
+    #              be used.
+    #
+    # Returns true when successful.
+    def calculate(calculator = nil)
+      @calculated ||= recalculate!(calculator)
     end
 
     # Recalculates
     # Returns true when we did them all
-    def recalculate!
+    def recalculate!(calculator)
       memoize_participants!
-      Merit::Calculator.new(self).calculate!
+      (calculator || Calculator.new(self)).calculate!
     end
 
     # Experimental, untested

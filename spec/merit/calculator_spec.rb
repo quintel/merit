@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Merit
-  describe Calculator do
+  describe 'Calculations' do
     let(:order) do
       Order.new.tap do |order|
         order.add(dispatchable)
@@ -33,7 +33,7 @@ module Merit
 
     let(:dispatchable) do
       DispatchableProducer.new(
-        key: :dispatchable,
+        key:                       :dispatchable,
         marginal_costs:            13.999791,
         effective_output_capacity: 0.1,
         number_of_units:           1,
@@ -104,6 +104,31 @@ module Merit
         expect(load_value).to eql(volatile_two.max_load_at(0))
       end
     end
+
+    describe 'with QuantizingCalculator' do
+      it 'should set a value for each load point' do
+        # Set an excess of demand so that the dispatchable is running
+        # all the time.
+        order.users.first.total_consumption = 6.4e7
+
+        QuantizingCalculator.new(order).calculate!
+
+        values = order.participant(:dispatchable).load_curve.
+          instance_variable_get(:@values).compact
+
+        expect(values).to have(Merit::POINTS).members
+      end
+
+      it 'raises an error if using a chunk size of nil' do
+        expect { QuantizingCalculator.new(order, nil) }.
+          to raise_error(InvalidChunkSize)
+      end
+
+      it 'raises an error if using a chunk size of 1' do
+        expect { QuantizingCalculator.new(order, 1) }.
+          to raise_error(InvalidChunkSize)
+      end
+    end # with QuantizingCalculator
 
   end # Calculator
 end # Merit

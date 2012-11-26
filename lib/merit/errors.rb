@@ -45,4 +45,10 @@ module Merit
     "already been calcualted."
   end
 
+  InvalidChunkSize = error_class do |size|
+    "You supplied an invalid chunk size of #{ size.inspect }; please " \
+    "supply an integer greater than one. If you want to use a chunk size " \
+    "of 1, use the Calculator class instead."
+  end
+
 end # Merit
