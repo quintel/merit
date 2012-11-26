@@ -2,42 +2,29 @@ module Merit
   # Undertakes the arduous task of calculating the production load for the
   # merit order.
   #
-  #   Calculator.new(order).calculate!
+  #   Calculator.new.calculate(order)
+  #
+  # Terminology:
+  #
+  #   "always-on"  - Producers which must always be running, and therefore
+  #                  demand / load is assigned to these first.
+  #
+  #   "transients" - The opposite of an always-on producer, these may be
+  #                  turned on and off as necessary in order to fulfil any
+  #                  demand which cannot be provided by an always-on producer.
   #
   class Calculator
-
-    # Public: Creates a new Calculator which computes the production load for
-    # each of the transient producers in the merit order so that demand
-    # created by the users is satisfied.
-    #
-    # order - The Merit::Order instance to be calculated.
-    #
-    # Returns a Calculator.
-    def initialize(order)
-      @users     = order.users
-      producers  = order.producers
-
-      # Not using Enumerable#partition allows us to quickly test that all the
-      # always-on producers were before the first transient producer.
-      partition  = producers.index(&:transient?) || producers.length - 1
-
-      @always_on = producers[0...partition]
-      @transient = producers[partition..-1] || []
-
-      if @transient.any?(&:always_on?)
-        raise Merit::IncorrectProducerOrder.new
-      end
-    end
-
     # Public: Performs the calculation. This sets the load curve values for
     # each transient producer.
     #
+    # order - The Merit::Order instance to be calculated.
+    #
     # Returns true.
-    def calculate!
-      Merit::POINTS.times do |point|
-        each_production_load_at(point) do |producer, value|
-          producer.load_curve.set(point, value)
-        end
+    def calculate(order)
+      always_on, transients = split_producers(order)
+
+      each_point do |point|
+        compute_loads!(point, demand(order, point), always_on, transients)
       end
 
       true
@@ -46,6 +33,66 @@ module Merit
     #######
     private
     #######
+
+    # Internal: Yields each point for which loads should be calcualted.
+    #
+    # This can be overridden in subclass if you want to calculate only a
+    # subset of the points.
+    #
+    # Returns nothing.
+    def each_point
+      Merit::POINTS.times { |point| yield point }
+    end
+
+    # Internal: This is called with a +producer+, +point+, and +value+ each
+    # time +calculate+ computes a value for a transient producer.
+    #
+    # Combined with +each_point+, subclasses can override this to compute only
+    # a subset of the points
+    #
+    # Returns nothing.
+    def assign_load(producer, point, value)
+      producer.load_curve.set(point, value)
+    end
+
+    # Internal: Given a merit +order+, returns the always-on and transient
+    # producers.
+    #
+    # order - A merit order.
+    #
+    # Raises an IncorrectProducerOrder if an always-on producer appears after
+    # the first transient producer.
+    #
+    # Returns an array where the first element contains the always-on
+    # producers, and the second element contains the transients (those which
+    # are not always-on).
+    def split_producers(order)
+      producers = order.producers
+
+      # Not using Enumerable#partition allows us to quickly test that all the
+      # always-on producers were before the first transient producer.
+      partition = producers.index(&:transient?) || producers.length - 1
+
+      always_on = producers[0...partition]
+      transient = producers[partition..-1] || []
+
+      if transient.any?(&:always_on?)
+        raise Merit::IncorrectProducerOrder.new
+      end
+
+      return always_on, transient
+    end
+
+    # Internal: Computes the total energy demand for a given +point+.
+    #
+    # order - The merit order.
+    # point - The point in time.
+    #
+    # Returns a float.
+    def demand(order, point)
+      # The total demand for energy at the point in time.
+      order.users.map { |user| user.load_at(point) }.reduce(:+) || 0.0
+    end
 
     # Internal: For a given +point+ in time, calculates the load which should
     # be handled by transient energy producers, and assigns the calculated
@@ -59,12 +106,10 @@ module Merit
     #
     # point - The point in time, as an integer. Should be a value between zero
     #         and Merit::POINTS - 1.
+    # order
     #
     # Returns nothing.
-    def each_production_load_at(point)
-      # The total demand for energy at the point in time.
-      remaining = @users.map { |user| user.load_at(point) }.reduce(:+)
-
+    def compute_loads!(point, remaining, always_on, transients)
       # Optimisation: This is order-dependent; it requires that always-on
       # producers are before the transient producers, otherwise "remaining"
       # load will not be correct.
@@ -74,11 +119,11 @@ module Merit
       # #always_on? in every iteration. This accounts for a 20% reduction in
       # the calculation runtime.
 
-      @always_on.each do |producer|
+      always_on.each do |producer|
         remaining -= producer.max_load_at(point)
       end
 
-      @transient.each do |producer|
+      transients.each do |producer|
         max_load = producer.max_load_at(point)
 
         # Optimisation: Load points default to zero, skipping to the next
@@ -86,9 +131,9 @@ module Merit
         next if max_load.zero?
 
         if max_load < remaining
-          yield producer, max_load
+          assign_load(producer, point, max_load)
         elsif remaining > 0.0
-          yield producer, remaining
+          assign_load(producer, point, remaining)
         else
           # Optimisation: If all of the demand has been accounted for, there
           # is no need to waste time with further iterations and expensive
@@ -134,20 +179,44 @@ module Merit
     #              expense of performance.
     #
     # Returns a Calculator.
-    def initialize(order, chunk_size = 8)
+    def initialize(chunk_size = 8)
       if chunk_size.nil? || chunk_size == 1
         raise InvalidChunkSize.new(chunk_size)
       end
 
-      super(order)
+      super()
       @chunk_size = chunk_size
     end
 
-    # Public: Performs the calculation. This sets the load curve values for
-    # each transient producer.
+    #######
+    private
+    #######
+
+    # Internal: This is called with a +producer+, +point+, and +value+ each
+    # time +calculate+ computes a value for a transient producer.
     #
-    # Returns true.
-    def calculate!
+    # Since +each_point+ skips +@chunk_size+ days at the end of each computed
+    # day, this assigns the calculated value to that many days in order to
+    # set a value for each point in the year.
+    #
+    # Returns nothing.
+    def assign_load(producer, point, value)
+      @chunk_size.times do |position|
+        # Don't set values beyond Dec 24th @ 23:00.
+        if (future_point = (position * PER_DAY) + point) < Merit::POINTS
+          producer.load_curve.set(future_point, value)
+        end
+      end
+    end
+
+    # Internal: Yields each point for which loads should be calcualted.
+    #
+    # This iterates through a day's worth of points, then skips forwards by
+    # +@chunk_size+ days, before iterating through another day's worth. This
+    # continues until we have reached the end of the year.
+    #
+    # Returns nothing.
+    def each_point
       # The point being computed.
       point = 0
 
@@ -159,14 +228,7 @@ module Merit
       day_incr = each_day - PER_DAY
 
       while point < Merit::POINTS
-        each_production_load_at(point) do |producer, value|
-          @chunk_size.times do |position|
-            # Don't set values beyond Dec 24th @ 23:00.
-            if (future_point = (position * PER_DAY) + point) < Merit::POINTS
-              producer.load_curve.set(future_point, value)
-            end
-          end
-        end
+        yield point
 
         # Is this the end of the day (skip fowards), or are there still points
         # left to be calculated for the current day?

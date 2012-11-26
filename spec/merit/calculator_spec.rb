@@ -42,7 +42,7 @@ module Merit
     end
 
     context 'with an excess of demand' do
-      before { Calculator.new(order).calculate! }
+      before { Calculator.new.calculate(order) }
 
       it 'sets the load profile values of the first producer' do
         load_value = dispatchable.load_curve.get(0)
@@ -77,7 +77,7 @@ module Merit
         )
       end
 
-      before { Calculator.new(order).calculate! }
+      before { Calculator.new.calculate(order) }
 
       it 'sets the load profile values of the first producer' do
         load_value = dispatchable.load_curve.get(0)
@@ -111,7 +111,7 @@ module Merit
         # all the time.
         order.users.first.total_consumption = 6.4e7
 
-        QuantizingCalculator.new(order).calculate!
+        QuantizingCalculator.new.calculate(order)
 
         values = order.participant(:dispatchable).load_curve.
           instance_variable_get(:@values).compact
@@ -120,12 +120,12 @@ module Merit
       end
 
       it 'raises an error if using a chunk size of nil' do
-        expect { QuantizingCalculator.new(order, nil) }.
+        expect { QuantizingCalculator.new(nil) }.
           to raise_error(InvalidChunkSize)
       end
 
       it 'raises an error if using a chunk size of 1' do
-        expect { QuantizingCalculator.new(order, 1) }.
+        expect { QuantizingCalculator.new(1) }.
           to raise_error(InvalidChunkSize)
       end
     end # with QuantizingCalculator
