@@ -46,7 +46,7 @@ module Merit
     # Returns true when we did them all
     def recalculate!(calculator)
       memoize_participants!
-      (calculator || Calculator.new).calculate(self)
+      (calculator || self.class.calculator).calculate(self)
     end
 
     # Experimental, untested
@@ -190,5 +190,25 @@ module Merit
       participants.select { |participant| participant.is_a?(klass) }
     end
 
-  end
-end
+    class << self
+      # Public: Sets a calculator instance to use when calculating the loads
+      # for merit orders when the user does not explicitly supply their own.
+      #
+      # calculator - A calculator to be used for computing merit orders.
+      #
+      # Returns the calculator.
+      def calculator=(calculator)
+        @calculator = calculator
+      end
+
+      # Internal: Returns the object to be used for calculating merit orders
+      # when the user does not supply their own.
+      #
+      # Returns the calculator.
+      def calculator
+        @calculator ||= Calculator.new
+      end
+    end # class << self
+
+  end # Order
+end # Merit
