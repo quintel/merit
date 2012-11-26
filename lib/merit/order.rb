@@ -34,8 +34,6 @@ module Merit
     #
     # calculator - The calculator to use to compute the merit order. If the
     #              order has been calculated previously, this will be ignored.
-    #              By default a QuantizingCalculator with a resolution of 4 will
-    #              be used.
     #
     # Returns true when successful.
     def calculate(calculator = nil)
