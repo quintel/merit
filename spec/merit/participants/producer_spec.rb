@@ -168,8 +168,16 @@ module Merit
     end
 
     describe '#max_production' do
-      it 'should return the correct outcome in MJ' do
-        expect(producer.max_production).to eql 1 * 4 * 3600 * 2 * 0.95
+      context 'when full load hours was not inputted' do
+        it 'should return the correct outcome in MJ' do
+          producer.instance_variable_set(:@full_load_hours, nil)
+          expect(producer.max_production).to eql 1 * 3600 * 2 * 0.95 * 8760
+        end
+      end
+      context 'when full load hours have been inputted' do
+        it 'should return the correct outcome in MJ' do
+          expect(producer.max_production).to eql 1 * 4 * 3600 * 2
+        end
       end
     end
 
