@@ -104,9 +104,11 @@ module Merit
     # changes can have large effects on the time taken to run the calculation.
     # Therefore, always benchmark / profile your changes!
     #
-    # point - The point in time, as an integer. Should be a value between zero
-    #         and Merit::POINTS - 1.
-    # order
+    # point      - The point in time, as an integer. Should be a value between
+    #              zero and Merit::POINTS - 1.
+    # remaining  - How much demand has to be assigned to the producers.
+    # always_on  - The producers which should be running constantly.
+    # transients - Producers which may be turned off.
     #
     # Returns nothing.
     def compute_loads!(point, remaining, always_on, transients)
@@ -180,7 +182,7 @@ module Merit
     #
     # Returns a Calculator.
     def initialize(chunk_size = 8)
-      if chunk_size.nil? || chunk_size == 1
+      if chunk_size == 1
         raise InvalidChunkSize.new(chunk_size)
       end
 
@@ -236,4 +238,99 @@ module Merit
       end
     end
   end # QuantizingCalculator
+
+  class AveragingCalculator < Calculator
+    # Public: Creates a new AveragingCalculator which computes the production
+    # load for each of the transient producers in a way which is faster than
+    # the ordinary Calculator.
+    #
+    # The total amount of demand assigned is very accurate, however since
+    # the averaging process "smooths out" demand/load during the +@chunk_size+
+    # period the load is often assigned to transient producers differently
+    # than the ordinary Calculator.
+    #
+    # On the upside, it is 5-6 times faster than Calculator.
+    #
+    # order      - The Merit::Order instance to be calculated.
+    # chunk_size - How many days should be in each calculated "chunk". Lower
+    #              numbers result in a more accurate calculation at the
+    #              expense of performance.
+    #
+    # Returns an AveragingCalculator.
+    def initialize(chunk_size = 8)
+      if chunk_size == 1 || Merit::POINTS.remainder(chunk_size).nonzero?
+        raise InvalidChunkSize.new(chunk_size)
+      end
+
+      super()
+      @chunk_size = chunk_size
+    end
+
+    #######
+    private
+    #######
+
+    # Internal: Yields each point for which loads should be calcualted.
+    #
+    # This combines +@chunk_size+ points together into a single iteration,
+    # then jumps forwards by +@chunk_size+.
+    #
+    # Returns nothing.
+    def each_point
+      0.step(Merit::POINTS - 1, @chunk_size) { |point| yield point }
+    end
+
+    # Internal: Calcuates the total demand for the period following the given
+    # +point+.
+    #
+    # order - The merit order.
+    # point - The point in time.
+    #
+    # Returns a float.
+    def demand(order, point)
+      future = point + @chunk_size - 1
+      order.users.map { |user| user.load_between(point, future) }.reduce(:+)
+    end
+
+    # Internal: For a given +point+ in time, calculates the load which should
+    # be handled by transient energy producers, and assigns the calculated
+    # values to the producer's load curve.
+    #
+    # point      - The point in time, as an integer. Should be a value between
+    #              zero and Merit::POINTS - 1.
+    # remaining  - How much demand has to be assigned to the producers.
+    # always_on  - The producers which should be running constantly.
+    # transients - Producers which may be turned off.
+    #
+    # Returns nothing.
+    def compute_loads!(point, remaining, always_on, transients)
+      future = point + @chunk_size - 1
+
+      always_on.each do |producer|
+        remaining -= producer.load_between(point, future)
+      end
+
+      transients.each do |producer|
+        max_load = producer.load_between(point, future)
+
+        # Optimisation: Load points default to zero, skipping to the next
+        # iteration is faster then running the comparison / load_curve#set.
+        next if max_load.zero?
+
+        if max_load < remaining
+          assign_load(producer, point, max_load)
+        elsif remaining > 0.0
+          assign_load(producer, point, remaining)
+        else
+          # Optimisation: If all of the demand has been accounted for, there
+          # is no need to waste time with further iterations and expensive
+          # calls to Producer#max_load_at.
+          break
+        end
+
+        # Subtract the production of the producer from the demand
+        remaining -= max_load
+      end
+    end
+  end # AveragingCalculator
 end # Merit
