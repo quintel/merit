@@ -41,32 +41,68 @@ module Merit
       )
     end
 
-    before { Calculator.new(order).calculate! }
+    context 'with an excess of demand' do
+      before { Calculator.new(order).calculate! }
 
-    # ------------------------------------------------------------------------
+      it 'sets the load profile values of the first producer' do
+        load_value = dispatchable.load_curve.get(0)
 
-    it 'sets the load profile values of the first producer' do
-      dispatchable = order.participant(:dispatchable)
-      load_value   = dispatchable.load_curve.get(0)
+        expect(load_value).to_not be_nil
+        expect(load_value).to eql(dispatchable.max_load_at(0))
+      end
 
-      expect(load_value).to_not be_nil
-      expect(load_value).to eql(dispatchable.max_load_at(0))
+      it 'sets the load profile values of the second producer' do
+        load_value = volatile.load_curve.get(0)
+
+        expect(load_value).to_not be_nil
+        expect(load_value).to eql(volatile.max_load_at(0))
+      end
+
+      it 'sets the load profile values of the third producer' do
+        load_value = volatile_two.load_curve.get(0)
+
+        expect(load_value).to_not be_nil
+        expect(load_value).to eql(volatile_two.max_load_at(0))
+      end
     end
 
-    it 'sets the load profile values of the second producer' do
-      volatile   = order.participant(:volatile)
-      load_value = volatile.load_curve.get(0)
+    context 'with an excess of supply' do
+      let(:dispatchable) do
+        DispatchableProducer.new(
+          key: :dispatchable,
+          marginal_costs:            13.999791,
+          effective_output_capacity: 0.1,
+          number_of_units:           2,
+          availability:              0.89
+        )
+      end
 
-      expect(load_value).to_not be_nil
-      expect(load_value).to eql(volatile.max_load_at(0))
-    end
+      before { Calculator.new(order).calculate! }
 
-    it 'sets the load profile values of the third producer' do
-      volatile_two = order.participant(:volatile_two)
-      load_value   = volatile_two.load_curve.get(0)
+      it 'sets the load profile values of the first producer' do
+        load_value = dispatchable.load_curve.get(0)
 
-      expect(load_value).to_not be_nil
-      expect(load_value).to eql(volatile_two.max_load_at(0))
+        demand = order.users.first.load_at(0)
+        demand -= volatile.max_load_at(0)
+        demand -= volatile_two.max_load_at(0)
+
+        expect(load_value).to_not be_nil
+        expect(load_value).to eql(demand)
+      end
+
+      it 'sets the load profile values of the second producer' do
+        load_value = volatile.load_curve.get(0)
+
+        expect(load_value).to_not be_nil
+        expect(load_value).to eql(volatile.max_load_at(0))
+      end
+
+      it 'sets the load profile values of the third producer' do
+        load_value = volatile_two.load_curve.get(0)
+
+        expect(load_value).to_not be_nil
+        expect(load_value).to eql(volatile_two.max_load_at(0))
+      end
     end
 
   end # Calculator
