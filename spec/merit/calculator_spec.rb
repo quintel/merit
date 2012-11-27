@@ -49,7 +49,7 @@ module Merit
       load_value = order.participant(:dispatchable).load_curve.get(0)
 
       expect(load_value).to_not be_nil
-      expect(load_value).to be_within(0.1e-4).of(0.00597)
+      expect(load_value).to be_within(0.1e-4).of(0.0890)
     end
 
     it 'sets the load profile values of the second producer' do
