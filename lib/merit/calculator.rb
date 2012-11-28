@@ -14,6 +14,9 @@ module Merit
   #                  demand which cannot be provided by an always-on producer.
   #
   class Calculator
+
+    attr_reader :order
+
     # Public: Performs the calculation. This sets the load curve values for
     # each transient producer.
     #
@@ -21,6 +24,8 @@ module Merit
     #
     # Returns self.
     def calculate(order)
+      @order = order
+
       always_on, transients = split_producers(order)
 
       each_point do |point|
@@ -53,6 +58,10 @@ module Merit
     # Returns nothing.
     def assign_load(producer, point, value)
       producer.load_curve.set(point, value)
+    end
+
+    def assign_price_setting(order, producer, point)
+      order.price_setting_producers[point] = producer
     end
 
     # Internal: Given a merit +order+, returns the always-on and transient
@@ -137,6 +146,7 @@ module Merit
         elsif remaining > 0.0
           assign_load(producer, point, remaining)
         else
+          assign_price_setting(order, producer, point)
           # Optimisation: If all of the demand has been accounted for, there
           # is no need to waste time with further iterations and expensive
           # calls to Producer#max_load_at.

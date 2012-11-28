@@ -17,9 +17,12 @@ module Merit
   #
   class Order
 
+    attr_reader :price_setting_producers
+
     # Public: created a new Order
     def initialize(total_demand = nil)
-      @participants = {}
+      @participants            = {}
+      @price_setting_producers = []
       if total_demand
         add(User.new(key: :total_demand))
         users.first.total_consumption = total_demand
@@ -43,7 +46,7 @@ module Merit
 
     # Recalculates
     # Returns true when we did them all
-    def recalculate!(calculator)
+    def recalculate!(calculator = nil)
       memoize_participants!
       (calculator || self.class.calculator).calculate(self)
     end
@@ -88,6 +91,21 @@ module Merit
     # Public: Returns an array containing all the participants
     def participants
       @participants.values
+    end
+
+    # Public: Returns the price for a certain moment in time
+    def price_at(time)
+      producer = price_setting_producers[time] || dispatchables.last
+
+      producer.marginal_costs
+    end
+
+    # Public: Returns a Curve with all the (known) prices
+    # TODO: Rename LoadCurve to Curve
+    def price_curve
+      prices = LoadCurve.new
+      POINTS.times { |point| prices.set(point, price_at(point)) }
+      prices
     end
 
     # Public: adds a participant to this order
