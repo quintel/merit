@@ -117,9 +117,9 @@ module Merit
       end
     end
 
-    describe '#silent_load_curve' do
+    describe '#spare_load_curve' do
       it 'is a LoadCurve' do
-        expect(producer.silent_load_curve).to be_a(LoadCurve)
+        expect(producer.spare_load_curve).to be_a(LoadCurve)
       end
 
       it 'describes the difference between maximum capacity and usage' do
@@ -129,8 +129,8 @@ module Merit
         producer.load_curve.set(0, 5.0)
         producer.load_curve.set(1, 2.5)
 
-        expect(producer.silent_load_curve.get(0)).to eql(5.0)
-        expect(producer.silent_load_curve.get(1)).to eql(2.5)
+        expect(producer.spare_load_curve.get(0)).to eql(5.0)
+        expect(producer.spare_load_curve.get(1)).to eql(2.5)
       end
     end
 

@@ -52,12 +52,13 @@ module Merit
       end
     end
 
-    # Experimental: for demo purposes
+    # Public: Returns the number of times that the Producer is completely off
     def off_times
       load_curve.select{ |v| v == 0 }.size
     end
 
-    # Experimental: for demo purposes
+    # Public: Returns a LoadCurve with the absolute increase/decrease of power
+    # from one hour to the next
     def ramping_curve
       LoadCurve.new(load_curve.each_cons(2).map{ |a,b| (b-a).abs })
     end
@@ -75,8 +76,9 @@ module Merit
       @max_load_curve ||= LoadCurve.new(values)
     end
 
-    # Experimental: for demo purposes
-    def silent_load_curve
+    # Public: Returns a LoadCurve with the difference between the max and the
+    # actual load used.
+    def spare_load_curve
       max_load_curve - load_curve
     end
 
