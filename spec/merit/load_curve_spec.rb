@@ -207,6 +207,27 @@ module Merit
       end # with different-length left curve
     end # #+
 
+    describe '#*' do
+      context 'with same length' do
+        let(:a) { LoadCurve.new([1, 5.2, 3]) }
+        let(:b) { LoadCurve.new([2.0, 3, 2]) }
+        let(:c) { a * b }
+
+        it 'should return a LoadCurve' do
+          expect(c).to be_a(LoadCurve)
+        end
+
+        it 'has as many values as the longest original' do
+          expect(c.to_a.length).to eql(3)
+        end
+
+        it 'multiplies each value' do
+          expect(c.to_a[0]).to be_within(0.01).of(2.0)
+          expect(c.to_a[1]).to be_within(0.01).of(15.6)
+          expect(c.to_a[2]).to be_within(0.01).of(6.0)
+        end
+      end
+    end
   end
 
 end

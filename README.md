@@ -23,15 +23,14 @@ yearly averaged quantities for each producer such as
 The above quantities are defined and explained in the main text below.
 
 Both **users** and **producers** are participants in the Merit Order 
-calculation. Examples of users include the transport sector, the 
-household sector, electric heating devices, etc. Producers may be 
-nuclear reactors, wind turbines or solar panels.
-Producers can be one of three types 
+calculation. Examples of users include the transport sector, the household
+sector, electric heating devices, etc. Producers may be nuclear reactors, wind
+turbines or solar panels.  Producers can be one of three types 
 
 * dispatchable (can be switched on and off at will) 
 * volatile (can be switched off but not on at will)
-* must-run (produces electricity as a by-product and is insensitive
-to changes in electricity demand)
+* must-run (produces electricity as a by-product and is insensitive to changes
+  in electricity demand)
 
 Every user has a demand for electricity (which can be zero) at every 
 point in time , which we call its **load**. The description of the load of a 

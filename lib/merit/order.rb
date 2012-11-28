@@ -103,9 +103,11 @@ module Merit
     # Public: Returns a Curve with all the (known) prices
     # TODO: Rename LoadCurve to Curve
     def price_curve
-      prices = LoadCurve.new
-      POINTS.times { |point| prices.set(point, price_at(point)) }
-      prices
+      @price_curve ||= begin
+        prices = LoadCurve.new
+        POINTS.times { |point| prices.set(point, price_at(point)) }
+        prices
+      end
     end
 
     # Public: adds a participant to this order
@@ -195,6 +197,16 @@ module Merit
     # Returns an enumerable containing Participants.
     def select_participants(klass)
       participants.select { |participant| participant.is_a?(klass) }
+    end
+
+    # Internal: Yields each point for which loads should be calcualted.
+    #
+    # This can be overridden in subclass if you want to calculate only a
+    # subset of the points.
+    #
+    # Returns nothing.
+    def each_point
+      Merit::POINTS.times { |point| yield point }
     end
 
     class << self

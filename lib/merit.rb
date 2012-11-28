@@ -7,6 +7,9 @@ require 'merit/root'
 require 'merit/version'
 require 'merit/errors'
 
+# Mixins
+require 'merit/participants/profitable'
+
 require 'merit/calculator'
 require 'merit/order'
 require 'merit/load_curve'

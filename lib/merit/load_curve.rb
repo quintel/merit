@@ -62,6 +62,11 @@ module Merit
       self.class.new(transpose_other_curve(other.to_a, :+))
     end
 
+    # Public: multiplies one load curve with the other
+    def *(other)
+      self.class.new(transpose_other_curve(other.to_a, :*))
+    end
+
     # Public: returns the sample variance
     def variance
       as_array = self.to_a

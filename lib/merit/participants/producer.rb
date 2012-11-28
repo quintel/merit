@@ -4,6 +4,8 @@ module Merit
   # to meet demand
   class Producer < Participant
 
+    include Profitable
+
     attr_reader   :effective_output_capacity, :availability,
                   :number_of_units, :marginal_costs, :fixed_costs
 

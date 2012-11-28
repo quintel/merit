@@ -199,6 +199,6 @@ module Merit
       end
     end
 
-  end
+  end # describe Producer
 
-end
+end # module Merit
