@@ -47,12 +47,12 @@ module Merit
       (calculator || self.class.calculator).calculate(self)
     end
 
-    # Public: returns an Array of all the producers, ordered
-    # with the following in mind:
+    # Public: returns an +ordered+ Array of all the producers
     #
-    # - 1. volatiles (wind, solar, etc.)
-    # - 2. must runs (chps, nuclear, etc.)
-    # - 3. dispatchables (coal, gas, etc.)
+    # Ordering is as follows:
+    #   1. volatiles     (wind, solar, etc.)
+    #   2. must runs     (chps, nuclear, etc.)
+    #   3. dispatchables (coal, gas, etc.)
     def producers
       @producers || (volatiles + must_runs + dispatchables)
     end
@@ -71,8 +71,7 @@ module Merit
     # by marginal_costs
     def dispatchables
       @dispatchables ||
-        select_participants(DispatchableProducer).
-        sort_by(&:marginal_costs)
+        select_participants(DispatchableProducer).sort_by(&:marginal_costs)
     end
 
     # Public: returns all the users of electricity
