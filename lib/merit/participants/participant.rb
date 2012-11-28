@@ -5,7 +5,8 @@ module Merit
   # or a CHP.
   class Participant
 
-    attr_reader :key, :load_profile_key
+    attr_reader   :key, :load_profile_key
+    attr_accessor :order
 
     # Public: creates a new participant
     # params opts[Hash] set the attributes

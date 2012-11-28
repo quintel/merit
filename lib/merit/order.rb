@@ -114,6 +114,8 @@ module Merit
     def add(participant)
       raise LockedOrderError.new(participant) if @calculated
 
+      participant.order = self
+
       # TODO: add DuplicateKeyError if collection already contains this key
       @participants[participant.key] = participant
     end

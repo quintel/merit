@@ -17,6 +17,11 @@ module Merit
         new_participant = MustRunProducer.new({key: :foo})
         expect(order.add(new_participant)).to eql new_participant
       end
+
+      it 'should set a reference to the order on the participant' do
+        new_participant = MustRunProducer.new({key: :foo})
+        expect(order.add(new_participant).order).to eql order
+      end
     end
 
     describe '#demand_at_at(point_in_time)' do
