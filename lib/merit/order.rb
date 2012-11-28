@@ -47,17 +47,6 @@ module Merit
       (calculator || self.class.calculator).calculate(self)
     end
 
-    # Experimental, untested
-    def residual_load_curve
-      demand_load_curve -
-        volatiles.map(&:load_curve).reduce(:+) -
-        must_runs.map(&:load_curve).reduce(:+)
-    end
-
-    def demand_load_curve
-      users.map(&:load_curve).reduce(:+)
-    end
-
     # Public: returns an Array of all the producers, ordered
     # with the following in mind:
     #
