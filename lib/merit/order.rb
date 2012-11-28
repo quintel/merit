@@ -35,9 +35,10 @@ module Merit
     # calculator - The calculator to use to compute the merit order. If the
     #              order has been calculated previously, this will be ignored.
     #
-    # Returns true when successful.
+    # Returns self.
     def calculate(calculator = nil)
       @calculated ||= recalculate!(calculator)
+      self
     end
 
     # Recalculates

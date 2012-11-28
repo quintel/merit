@@ -19,7 +19,7 @@ module Merit
     #
     # order - The Merit::Order instance to be calculated.
     #
-    # Returns true.
+    # Returns self.
     def calculate(order)
       always_on, transients = split_producers(order)
 
@@ -27,7 +27,7 @@ module Merit
         compute_loads!(point, demand(order, point), always_on, transients)
       end
 
-      true
+      self
     end
 
     #######
