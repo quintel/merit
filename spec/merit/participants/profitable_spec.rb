@@ -38,6 +38,13 @@ module Merit
       end
     end
 
+    describe '#variable_costs' do
+      it 'should calculate correctly' do
+        producer.stub(:production) { 1000 } #MWh
+        expect(producer.variable_costs).to eql 2 * 1000
+      end
+    end
+
   end # describe Producer
 
 end # module Merit

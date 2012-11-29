@@ -16,7 +16,7 @@ yearly averaged quantities for each producer such as
 * total revenue
 * total costs
 * total variable costs
-* operational_expenses
+* operating_expenses
 * profit
 * profitability
 
@@ -248,9 +248,8 @@ section below.
 
 #### Marginal costs [Float]
 
-The marginal_costs (EUR/MWh/year) are calculated by dividing the variable costs
-(EUR/plant/year) of the participant by one plant's annual electricity
-production (in MWh/plant).
+The marginal_costs (EUR/MWh) are calculated by dividing the variable costs
+(EUR/plant/year) of the participant by the annual electricity production.
 
 The marginal costs can be queried from the ETEngine's GQL with the following
 query:
@@ -260,7 +259,9 @@ query:
 #### Fixed costs [Float]
 
 The **fixed costs** of a plant are the sum of 'cost_of_capital', 'depreciation_costs'
-and 'fixed_operation_and_maintenance_costs_per_year'.
+and 'fixed_operating_and_maintenance_costs_per_year'.
+
+    fixed_costs = cost_of_capital + depreciation_costs + fixed_operating_and_maintenance_costs
 
 The fixed costs (EUR/plant/year) can be queried from the ETM with the
 fixed_costs function:
@@ -420,38 +421,52 @@ load is equal to 0.
 
 ### Profitability
 
-#### Total revenue [Float, EUR/plant/year]
+#### Total revenue [EUR/year]
 
-The `revenue` (in EUR/plant/year) of a participant is calculated by summing up
-the `load * electricity price` for each data point and dividing the result by
-the `number_of_units`.
+The `revenue` (in EUR/year) of a participant is calculated by summing up
+the `load * electricity price` for each data point.
 
-#### Total costs [Float, EUR/plant/year]
+#### Total costs [EUR/year]
 
-The `total_costs` (EUR/plant/year) of a power participant is calculated by
+The `total_costs` (EUR/year) of a power participant is calculated by
 summing up the `fixed_costs` (which is input) and the `variable_costs`:
 
     total_costs = fixed_costs + variable_costs
 
-#### Variable costs [Float, EUR/plant/year]
+#### Fixed costs [EUR/year]
 
-The `variable_costs` (EUR/plant/year) of a participant is calculated by
-multiplying the (input parameter) `marginal_costs` (EUR/MWh/year) by the
-`electricity production` per plant of the participant.
+The fixed_costs 
 
-    variable_costs = marginal_costs * effective_output_capacity * full_load_hours
+    fixed_costs = fixed_costs_per_plant * number_of_units
 
-#### Operational expenses [Float, EUR/plant/year]
+#### Variable costs [EUR/year]
 
-The `operational_expenses` (EUR/plant/year) of a participant is calculated by
-adding the (input parameter) `fixed_operation_and_maintenance_costs_per_year`
-(EUR/plant/year) to the `variable costs`.
+The `variable_costs` (EUR/year) of a participant is calculated by
+the (input parameter) `marginal_costs` (EUR/MWh) by the `production` of the
+participant (in MWh).
 
-    operational_expenses = fixed_operation_and_maintenance_costs_per_year + variable_costs
+    variable_costs = marginal_costs * production * 3600
 
-#### Profit [Float, EUR/plant/year/]
+#### Operating costs (OPEX) [EUR/year]
 
-The `profit` of a participant (EUR/plant/year) is calculated by subtracting the
+The `operating_costs` (also called OPEX) (EUR/year) of a participant is
+calculated by:
+
+    operating_costs = fixed_operating_and_maintenance_costs + variable_costs
+
+#### Fixed Operating And Maintenance Costs [EUR/year]
+
+**TODO**: Fix misnomer fixed_operation_and_maintenance_costs_per_year
+
+The `fixed_operating_and_maintenance_costs` are calculated by taking the
+**misnomed** `fixed_operation_and_maintenance_costs_per_year` and multiply it
+with the `number_of_units`.
+
+    fixed_operating_and_maintenance_costs = fixed_operation_and_maintenance_costs_per_year * number_of_units
+
+#### Profit [EUR/year]
+
+The `profit` of a participant (EUR/year) is calculated by subtracting the
 `total_costs` from the `revenue` of the participant.
 
     profit = revenue - total_costs
@@ -461,8 +476,8 @@ The `profit` of a participant (EUR/plant/year) is calculated by subtracting the
 Returns one of three states:
 
 1. `:profitable` (if `revenue >= total costs`)
-2. `:conditionally_profitable` (if `operational_expenses =< revenue < total costs`)
-3. `:unprofitable` (if `revenue < operational_expenses`)
+2. `:conditionally_profitable` (if `operating_expenses =< revenue < total costs`)
+3. `:unprofitable` (if `revenue < operating_expenses`)
 
 P.S. These three states are communicated to the end user in the ETM by coloring
 the participants **green**, **orange** and **red** respectively.
@@ -532,7 +547,7 @@ Merit::LoadProfile.load(:total_demand).valid?
 #### List
 
 * load: **MW**
-* marginal_costs: **EUR/MWh/year** 
+* marginal_costs: **EUR/MWh** 
 * effective_output_capacity: **MW electric/plant**
 * number_of_units: **#**
 * availability: **fraction** (between 0 and 1)
