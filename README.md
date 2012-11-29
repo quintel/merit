@@ -440,7 +440,7 @@ The `variable_costs` (EUR/plant/year) of a participant is calculated by
 multiplying the (input parameter) `marginal_costs` (EUR/MWh/year) by the
 `electricity production` per plant of the participant.
 
-    variable_costs = marginal_costs * effective_output_capacity * number_of_units * full_load_hours / number_of_units
+    variable_costs = marginal_costs * effective_output_capacity * full_load_hours
 
 #### Operational expenses [Float, EUR/plant/year]
 
