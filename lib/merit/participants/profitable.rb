@@ -1,14 +1,12 @@
 # This module includes all the 
 module Merit::Profitable
 
-  # Returns the absolute amount of profit that is made
-  # for the whole period.
+  # Public: Returns the absolute amount of revenue.
   def revenue
     revenue_curve.reduce(:+)
   end
 
-  # Public: Returns the amount of profit in Euros that
-  # this plant is making.
+  # Public: Returns a Curve with the revenue per point in time.
   def revenue_curve
     load_curve * order.price_curve
   end

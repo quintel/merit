@@ -13,7 +13,7 @@ yearly averaged quantities for each producer such as
 
 * merit order position
 * full_load_hours
-* total income
+* total revenue
 * total costs
 * total variable costs
 * operational_expenses
@@ -391,7 +391,7 @@ merit_order.dispatchables.first.info
 Furthermore, you can get the following details from a participant:
 
 * full_load_hours
-* total income
+* total revenue
 * total costs
 * total variable costs
 * operational_expenses
@@ -420,12 +420,9 @@ load is equal to 0.
 
 ### Profitability
 
-**PLEASE NOTE** The cost, revenue and profit methods are not yet implemented, 
-but will be added soon.
+#### Total revenue [Float, EUR/plant/year]
 
-#### Total income [Float, EUR/plant/year]
-
-The `income` (in EUR/plant/year) of a participant is calculated by summing up
+The `revenue` (in EUR/plant/year) of a participant is calculated by summing up
 the `load * electricity price` for each data point and dividing the result by
 the `number_of_units`.
 
@@ -452,24 +449,23 @@ adding the (input parameter) `fixed_operation_and_maintenance_costs_per_year`
 
     operational_expenses = fixed_operation_and_maintenance_costs_per_year + variable_costs
 
-#### Profit [Float
+#### Profit [Float, EUR/plant/year/]
 
 The `profit` of a participant (EUR/plant/year) is calculated by subtracting the
-`total_costs` from the `income` of the participant.
+`total_costs` from the `revenue` of the participant.
 
-    profit = income - total_costs
+    profit = revenue - total_costs
 
 #### Profitability
 
 Returns one of three states:
 
-1. `:profitable` (if `income >= total costs`)
-2. `:conditionally_profitable` (if `operational_expenses =< income < total costs`)
-3. `:unprofitable` (if `income < operational_expenses`)
+1. `:profitable` (if `revenue >= total costs`)
+2. `:conditionally_profitable` (if `operational_expenses =< revenue < total costs`)
+3. `:unprofitable` (if `revenue < operational_expenses`)
 
-P.S. These three states are communicated to the user by coloring the
-participants **green**, **orange** and **red** respectively in the Merit Order
-table.
+P.S. These three states are communicated to the end user in the ETM by coloring
+the participants **green**, **orange** and **red** respectively.
 
 ## Definitions
 
@@ -545,7 +541,7 @@ Merit::LoadProfile.load(:total_demand).valid?
 * total_demand: **MJ** (per year)
 * full_load_hours: **hours** (per year)
 * profitability: **:symbol**
-* income: **EUR** (per plant per year)
+* revenue: **EUR** (per plant per year)
 * profit: **EUR** (per plant per year)
 * electricity price: **EUR/MWh**
 
