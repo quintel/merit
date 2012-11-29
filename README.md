@@ -369,13 +369,16 @@ much does a plant run?) and *profitability* (is it profitable?).
 ### Electricity price [Unit EUR/MWh]
 
 For **each hour in a year**, the price is equal to the `marginal_costs` of the
-participant that is **one higher** in the merit order than the price-setting
-participant. This reflects the assumption that a producer will try to sell his
-electricity for a price that is as high as possible but still smaller than the
-cost of the participant that is next in the merit order.
+participant that is **the first one that is not running at all**.
 
-**N.B. It is to be determined what the margin is for the most expensive plant
-in the merit order (i.e.  when there is no 'one higher').**
+This reflects the assumption that a producer will try to sell his electricity
+for a price that is as high as possible but still (infinite) smaller than the
+cost of the participant that is the first one *not* producing.
+
+If all the dispatchables are producing, and hence there is none *not-running*,
+the *highest* `:marginal_costs` are assumed to be the price in that market.
+
+**N.B.** We could multiply this value with a certain factor.**
 
 ## For each Participant
 
