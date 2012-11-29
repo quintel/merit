@@ -16,12 +16,25 @@ module Merit
        )
     end
 
+    let(:order) { Order.new }
+
     describe '#revenue' do
       it 'should return the correct number' do
         order.stub(:price_curve) { LoadCurve.new(Array.new(8760,1)) }
 
-        producer.order = Order.new
+        producer.order = order
         expect(producer.revenue).to be_within(0.1).of(1 * 2 * 4.0)
+      end
+    end
+
+    describe '#revenue_curve' do
+      it 'should return a LoadCurve' do
+        order.stub(:price_curve) { LoadCurve.new(Array.new(8760,1)) }
+
+        producer.order = order
+        expect(producer.revenue_curve).to be_a(LoadCurve)
+        expect(producer.revenue_curve.to_a.first).to \
+          be_within(0.01).of(8 / 8760.0)
       end
     end
 
