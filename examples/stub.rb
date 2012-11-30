@@ -12,7 +12,8 @@ module Merit
         number_of_units: 0.0,
         availability: 0.98,
         fixed_costs_per_unit: 4236515.36,
-        load_profile_key: :solar_pv,
+        fixed_om_costs: 477000,
+        load_profile: :solar_pv,
         full_load_hours: 1050
       )
     )
@@ -25,7 +26,8 @@ module Merit
         number_of_units: 0.0,
         availability: 0.99,
         fixed_costs_per_unit: 15129166.33,
-        load_profile_key: :solar_pv,
+        fixed_om_costs: 400000,
+        load_profile: :solar_pv,
         full_load_hours: 500
       )
     )
@@ -38,7 +40,8 @@ module Merit
         number_of_units: 360.0,
         availability: 0.95,
         fixed_costs_per_unit: 531768.45,
-        load_profile_key: :wind_inland,
+        fixed_om_costs: 147579.9,
+        load_profile: :wind_inland,
         full_load_hours: 2500
       )
     )
@@ -51,7 +54,8 @@ module Merit
         number_of_units: 66.66666667,
         availability: 0.95,
         fixed_costs_per_unit: 531768.45,
-        load_profile_key: :wind_coastal,
+        fixed_om_costs: 147579.9,
+        load_profile: :wind_coastal,
         full_load_hours: 3000
       )
     )
@@ -64,7 +68,8 @@ module Merit
         number_of_units: 64.76190476,
         availability: 0.92,
         fixed_costs_per_unit: 1643536.011,
-        load_profile_key: :wind_offshore,
+        fixed_om_costs: 428882.8856,
+        load_profile: :wind_offshore,
         full_load_hours: 3500
       )
     )
@@ -77,7 +82,8 @@ module Merit
         number_of_units: 2547.332186,
         availability: 0.98,
         fixed_costs_per_unit: 2545.292412,
-        load_profile_key: :solar_pv,
+        fixed_om_costs: 357.75,
+        load_profile: :solar_pv,
         full_load_hours: 1050
       )
     )
@@ -90,7 +96,8 @@ module Merit
         number_of_units: 51023.14018,
         availability: 0.98,
         fixed_costs_per_unit: 222.9245208,
-        load_profile_key: :solar_pv,
+        fixed_om_costs: 35.775,
+        load_profile: :solar_pv,
         full_load_hours: 1050
       )
     )
@@ -98,12 +105,13 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :industry_chp_combined_cycle_gas_power_fuelmix,
-        marginal_costs: 109.5210516,
+        marginal_costs: 109.4862237,
         output_capacity_per_unit: 25.43252595,
         number_of_units: 122.0877551,
         availability: 0.97,
         fixed_costs_per_unit: 2543878.235,
-        load_profile_key: :industry_chp,
+        fixed_om_costs: 0,
+        load_profile: :industry_chp,
         full_load_hours: 5442.834138
       )
     )
@@ -116,7 +124,8 @@ module Merit
         number_of_units: 10.54725,
         availability: 0.97,
         fixed_costs_per_unit: 9479267.598,
-        load_profile_key: :industry_chp,
+        fixed_om_costs: 2913267.598,
+        load_profile: :industry_chp,
         full_load_hours: 5247.813411
       )
     )
@@ -129,7 +138,8 @@ module Merit
         number_of_units: 0.0,
         availability: 0.97,
         fixed_costs_per_unit: 4974342.555,
-        load_profile_key: :industry_chp,
+        fixed_om_costs: 1301009.555,
+        load_profile: :industry_chp,
         full_load_hours: 4204.8
       )
     )
@@ -142,7 +152,8 @@ module Merit
         number_of_units: 11.68978647,
         availability: 0.9,
         fixed_costs_per_unit: 26877150,
-        load_profile_key: :industry_chp,
+        fixed_om_costs: 0,
+        load_profile: :industry_chp,
         full_load_hours: 6190.47619
       )
     )
@@ -150,12 +161,13 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :agriculture_chp_engine_gas_power_fuelmix,
-        marginal_costs: 78.31972973,
+        marginal_costs: 78.2912044,
         output_capacity_per_unit: 1.01369863,
         number_of_units: 3023.581081,
         availability: 0.97,
         fixed_costs_per_unit: 116478.4738,
-        load_profile_key: :agriculture_chp,
+        fixed_om_costs: 13062.47379,
+        load_profile: :agriculture_chp,
         full_load_hours: 3980.424144
       )
     )
@@ -168,7 +180,8 @@ module Merit
         number_of_units: 0.0,
         availability: 0.97,
         fixed_costs_per_unit: 18359173.13,
-        load_profile_key: :buildings_chp,
+        fixed_om_costs: 0,
+        load_profile: :buildings_chp,
         full_load_hours: 6097.777778
       )
     )
@@ -176,12 +189,13 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :buildings_collective_chp_gas_power_fuelmix,
-        marginal_costs: 94.03660242,
+        marginal_costs: 94.00461948,
         output_capacity_per_unit: 0.465581395,
         number_of_units: 871.7816937,
         availability: 0.97,
         fixed_costs_per_unit: 49847.77778,
-        load_profile_key: :buildings_chp,
+        fixed_om_costs: 0,
+        load_profile: :buildings_chp,
         full_load_hours: 3942
       )
     )
@@ -194,7 +208,8 @@ module Merit
         number_of_units: 0.0,
         availability: 0.97,
         fixed_costs_per_unit: 18359173.13,
-        load_profile_key: :buildings_chp,
+        fixed_om_costs: 0,
+        load_profile: :buildings_chp,
         full_load_hours: 6097.777778
       )
     )
@@ -202,12 +217,13 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :households_collective_chp_network_gas,
-        marginal_costs: 13.2815786,
+        marginal_costs: 85.59713755,
         output_capacity_per_unit: 0.606666667,
         number_of_units: 0.0,
         availability: 0.97,
         fixed_costs_per_unit: 49847.77778,
-        load_profile_key: :buildings_chp,
+        fixed_om_costs: 0,
+        load_profile: :buildings_chp,
         full_load_hours: 3942
       )
     )
@@ -220,7 +236,8 @@ module Merit
         number_of_units: 0.0,
         availability: 0.97,
         fixed_costs_per_unit: 2453,
-        load_profile_key: :buildings_chp,
+        fixed_om_costs: 200,
+        load_profile: :buildings_chp,
         full_load_hours: 0
       )
     )
@@ -228,12 +245,13 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :other_chp_engine_gas_power_fuelmix,
-        marginal_costs: 78.38201622,
+        marginal_costs: 78.35349089,
         output_capacity_per_unit: 0.467669373,
         number_of_units: 0.0,
         availability: 0.97,
         fixed_costs_per_unit: 54068.71357,
-        load_profile_key: :buildings_chp,
+        fixed_om_costs: 6056.838239,
+        load_profile: :buildings_chp,
         full_load_hours: 4000
       )
     )
@@ -246,7 +264,8 @@ module Merit
         number_of_units: 0.0,
         availability: 0.97,
         fixed_costs_per_unit: 933,
-        load_profile_key: :buildings_chp,
+        fixed_om_costs: 110,
+        load_profile: :buildings_chp,
         full_load_hours: 0
       )
     )
@@ -259,7 +278,8 @@ module Merit
         number_of_units: 0.0,
         availability: 0.97,
         fixed_costs_per_unit: 933,
-        load_profile_key: :buildings_chp,
+        fixed_om_costs: 110,
+        load_profile: :buildings_chp,
         full_load_hours: 0
       )
     )
@@ -267,77 +287,84 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_chp_combined_cycle_gas_power_fuelmix,
-        marginal_costs: 60.33237888,
+        marginal_costs: 60.30808917,
         output_capacity_per_unit: 574.9333333,
         number_of_units: 5.749536178,
         availability: 0.9,
         fixed_costs_per_unit: 61526416,
+        fixed_om_costs: 9066666.667,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_chp_ultra_supercritical_coal,
-        marginal_costs: 32.39199569,
+        marginal_costs: 32.3919581,
         output_capacity_per_unit: 705.9130435,
         number_of_units: 2.365705626,
         availability: 0.88,
         fixed_costs_per_unit: 111231290.8,
+        fixed_om_costs: 16000000,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_chp_ultra_supercritical_crude_oil,
-        marginal_costs: 109.3782764,
+        marginal_costs: 0.0,
         output_capacity_per_unit: 784.0,
         number_of_units: 0.0,
         availability: 0.89,
         fixed_costs_per_unit: 49359621.7,
+        fixed_om_costs: 15059622.37,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_chp_ultra_supercritical_lignite,
-        marginal_costs: 16.60280222,
+        marginal_costs: 0.0,
         output_capacity_per_unit: 613.8,
         number_of_units: 0.0,
         availability: 0.97,
         fixed_costs_per_unit: 92837254.57,
+        fixed_om_costs: 3670588.235,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_chp_ultra_supercritical_wood_pellets,
-        marginal_costs: 139.7898305,
+        marginal_costs: 0.0,
         output_capacity_per_unit: 66.96428571,
         number_of_units: 0.0,
         availability: 0.89,
         fixed_costs_per_unit: 27886950.9,
+        fixed_om_costs: 9527777.778,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_combined_cycle_ccs_coal,
-        marginal_costs: 28.36859203,
+        marginal_costs: 0.0,
         output_capacity_per_unit: 645.5452539,
         number_of_units: 0.0,
         availability: 0.87,
         fixed_costs_per_unit: 178999174,
+        fixed_om_costs: 21373442.62,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_combined_cycle_ccs_gas_power_fuelmix,
-        marginal_costs: 57.28270883,
+        marginal_costs: 0.0,
         output_capacity_per_unit: 651.1186441,
         number_of_units: 0.0,
         availability: 0.85,
         fixed_costs_per_unit: 76566794.3,
+        fixed_om_costs: 13063555.56,
       )
     )
 
@@ -349,39 +376,43 @@ module Merit
         number_of_units: 0.322704082,
         availability: 0.9,
         fixed_costs_per_unit: 157393563.3,
+        fixed_om_costs: 16000000,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_combined_cycle_gas_power_fuelmix,
-        marginal_costs: 44.24374451,
+        marginal_costs: 44.22593206,
         output_capacity_per_unit: 784.0,
         number_of_units: 5.104591837,
         availability: 0.9,
         fixed_costs_per_unit: 61526416,
+        fixed_om_costs: 9066666.667,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_engine_diesel,
-        marginal_costs: 160.0982801,
+        marginal_costs: 0.0,
         output_capacity_per_unit: 784.0,
         number_of_units: 0.0,
         availability: 0.89,
         fixed_costs_per_unit: 49359621.7,
+        fixed_om_costs: 15059622.37,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_nuclear_gen2_uranium_oxide,
-        marginal_costs: 6.133182844,
+        marginal_costs: 0.0,
         output_capacity_per_unit: 1600.0,
         number_of_units: 0.0,
         availability: 0.85,
         fixed_costs_per_unit: 317248000,
+        fixed_om_costs: 42048000,
       )
     )
 
@@ -393,94 +424,103 @@ module Merit
         number_of_units: 0.31875,
         availability: 0.9,
         fixed_costs_per_unit: 577551594.8,
+        fixed_om_costs: 80901594.77,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_supercritical_coal,
-        marginal_costs: 29.9100356,
+        marginal_costs: 0.0,
         output_capacity_per_unit: 792.0,
         number_of_units: 0.0,
         availability: 0.89,
         fixed_costs_per_unit: 79981066.11,
+        fixed_om_costs: 19414400,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_turbine_network_gas,
-        marginal_costs: 78.01340618,
+        marginal_costs: 77.98197244,
         output_capacity_per_unit: 147.0,
         number_of_units: 1.442176871,
         availability: 0.89,
         fixed_costs_per_unit: 6634766.741,
+        fixed_om_costs: 927202.5,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_ultra_supercritical_ccs_coal,
-        marginal_costs: 34.97148374,
+        marginal_costs: 0.0,
         output_capacity_per_unit: 625.0,
         number_of_units: 0.0,
         availability: 0.85,
         fixed_costs_per_unit: 137557916.7,
+        fixed_om_costs: 15872786.89,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_ultra_supercritical_coal,
-        marginal_costs: 28.88180898,
+        marginal_costs: 28.88177546,
         output_capacity_per_unit: 792.0,
         number_of_units: 3.391901654,
         availability: 0.88,
         fixed_costs_per_unit: 111231290.8,
+        fixed_om_costs: 16000000,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_ultra_supercritical_crude_oil,
-        marginal_costs: 93.09320787,
+        marginal_costs: 0.0,
         output_capacity_per_unit: 784.0,
         number_of_units: 0.0,
         availability: 0.89,
         fixed_costs_per_unit: 49359621.7,
+        fixed_om_costs: 15059622.37,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_ultra_supercritical_gas_power_fuelmix,
-        marginal_costs: 65.90324432,
+        marginal_costs: 65.87652564,
         output_capacity_per_unit: 792.0,
         number_of_units: 4.828282828,
         availability: 0.89,
         fixed_costs_per_unit: 29085600,
+        fixed_om_costs: 1365600,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_ultra_supercritical_lignite,
-        marginal_costs: 13.999791,
+        marginal_costs: 0.0,
         output_capacity_per_unit: 790.0,
         number_of_units: 0.0,
         availability: 0.89,
         fixed_costs_per_unit: 112037799.7,
+        fixed_om_costs: 19607800,
       )
     )
 
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_ultra_supercritical_oxyfuel_ccs_lignite,
-        marginal_costs: 19.58755889,
+        marginal_costs: 0.0,
         output_capacity_per_unit: 640.0,
         number_of_units: 0.0,
         availability: 0.85,
         fixed_costs_per_unit: 240498185.1,
+        fixed_om_costs: 21906185.09,
       )
     )
 
