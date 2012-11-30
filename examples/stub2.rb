@@ -11,7 +11,7 @@ module Merit
         output_capacity_per_unit: 16.6,
         number_of_units: 0.0,
         availability: 0.98,
-        fixed_costs: 4236515.36,
+        fixed_costs_per_unit: 4236515.36,
         load_profile_key: :solar_pv,
         full_load_hours: 1050
       )
@@ -24,7 +24,7 @@ module Merit
         output_capacity_per_unit: 50.0,
         number_of_units: 0.0,
         availability: 0.99,
-        fixed_costs: 15129166.33,
+        fixed_costs_per_unit: 15129166.33,
         load_profile_key: :solar_pv,
         full_load_hours: 500
       )
@@ -37,7 +37,7 @@ module Merit
         output_capacity_per_unit: 3.0,
         number_of_units: 360.0,
         availability: 0.95,
-        fixed_costs: 531768.45,
+        fixed_costs_per_unit: 531768.45,
         load_profile_key: :wind_inland,
         full_load_hours: 2500
       )
@@ -50,7 +50,7 @@ module Merit
         output_capacity_per_unit: 3.0,
         number_of_units: 66.66666667,
         availability: 0.95,
-        fixed_costs: 531768.45,
+        fixed_costs_per_unit: 531768.45,
         load_profile_key: :wind_coastal,
         full_load_hours: 3000
       )
@@ -63,7 +63,7 @@ module Merit
         output_capacity_per_unit: 3.0,
         number_of_units: 64.76190476,
         availability: 0.92,
-        fixed_costs: 1643536.011,
+        fixed_costs_per_unit: 1643536.011,
         load_profile_key: :wind_offshore,
         full_load_hours: 3500
       )
@@ -76,7 +76,7 @@ module Merit
         output_capacity_per_unit: 0.01245,
         number_of_units: 2547.332186,
         availability: 0.98,
-        fixed_costs: 2545.292412,
+        fixed_costs_per_unit: 2545.292412,
         load_profile_key: :solar_pv,
         full_load_hours: 1050
       )
@@ -89,7 +89,7 @@ module Merit
         output_capacity_per_unit: 0.001245,
         number_of_units: 51023.14018,
         availability: 0.98,
-        fixed_costs: 222.9245208,
+        fixed_costs_per_unit: 222.9245208,
         load_profile_key: :solar_pv,
         full_load_hours: 1050
       )
@@ -102,7 +102,7 @@ module Merit
         output_capacity_per_unit: 25.43252595,
         number_of_units: 122.0877551,
         availability: 0.97,
-        fixed_costs: 2543878.235,
+        fixed_costs_per_unit: 2543878.235,
         load_profile_key: :industry_chp,
         full_load_hours: 5442.834138
       )
@@ -115,7 +115,7 @@ module Merit
         output_capacity_per_unit: 32.5203252,
         number_of_units: 10.54725,
         availability: 0.97,
-        fixed_costs: 9479267.598,
+        fixed_costs_per_unit: 9479267.598,
         load_profile_key: :industry_chp,
         full_load_hours: 5247.813411
       )
@@ -128,7 +128,7 @@ module Merit
         output_capacity_per_unit: 11.57407407,
         number_of_units: 0.0,
         availability: 0.97,
-        fixed_costs: 4974342.555,
+        fixed_costs_per_unit: 4974342.555,
         load_profile_key: :industry_chp,
         full_load_hours: 4204.8
       )
@@ -141,7 +141,7 @@ module Merit
         output_capacity_per_unit: 53.8932,
         number_of_units: 11.68978647,
         availability: 0.9,
-        fixed_costs: 26877150,
+        fixed_costs_per_unit: 26877150,
         load_profile_key: :industry_chp,
         full_load_hours: 6190.47619
       )
@@ -154,7 +154,7 @@ module Merit
         output_capacity_per_unit: 1.01369863,
         number_of_units: 3023.581081,
         availability: 0.97,
-        fixed_costs: 116478.4738,
+        fixed_costs_per_unit: 116478.4738,
         load_profile_key: :agriculture_chp,
         full_load_hours: 3980.424144
       )
@@ -167,7 +167,7 @@ module Merit
         output_capacity_per_unit: 47.91666667,
         number_of_units: 0.0,
         availability: 0.97,
-        fixed_costs: 18359173.13,
+        fixed_costs_per_unit: 18359173.13,
         load_profile_key: :buildings_chp,
         full_load_hours: 6097.777778
       )
@@ -180,7 +180,7 @@ module Merit
         output_capacity_per_unit: 0.465581395,
         number_of_units: 871.7816937,
         availability: 0.97,
-        fixed_costs: 49847.77778,
+        fixed_costs_per_unit: 49847.77778,
         load_profile_key: :buildings_chp,
         full_load_hours: 3942
       )
@@ -193,7 +193,7 @@ module Merit
         output_capacity_per_unit: 58.33333333,
         number_of_units: 0.0,
         availability: 0.97,
-        fixed_costs: 18359173.13,
+        fixed_costs_per_unit: 18359173.13,
         load_profile_key: :buildings_chp,
         full_load_hours: 6097.777778
       )
@@ -206,7 +206,7 @@ module Merit
         output_capacity_per_unit: 0.606666667,
         number_of_units: 0.0,
         availability: 0.97,
-        fixed_costs: 49847.77778,
+        fixed_costs_per_unit: 49847.77778,
         load_profile_key: :buildings_chp,
         full_load_hours: 3942
       )
@@ -219,7 +219,7 @@ module Merit
         output_capacity_per_unit: 0.0015,
         number_of_units: 0.0,
         availability: 0.97,
-        fixed_costs: 2453,
+        fixed_costs_per_unit: 2453,
         load_profile_key: :buildings_chp,
         full_load_hours: 0
       )
@@ -232,7 +232,7 @@ module Merit
         output_capacity_per_unit: 0.467669373,
         number_of_units: 0.0,
         availability: 0.97,
-        fixed_costs: 54068.71357,
+        fixed_costs_per_unit: 54068.71357,
         load_profile_key: :buildings_chp,
         full_load_hours: 4000
       )
@@ -245,7 +245,7 @@ module Merit
         output_capacity_per_unit: 0.001,
         number_of_units: 0.0,
         availability: 0.97,
-        fixed_costs: 933,
+        fixed_costs_per_unit: 933,
         load_profile_key: :buildings_chp,
         full_load_hours: 0
       )
@@ -258,7 +258,7 @@ module Merit
         output_capacity_per_unit: 0.001,
         number_of_units: 0.0,
         availability: 0.97,
-        fixed_costs: 933,
+        fixed_costs_per_unit: 933,
         load_profile_key: :buildings_chp,
         full_load_hours: 0
       )
@@ -271,7 +271,7 @@ module Merit
         output_capacity_per_unit: 574.9333333,
         number_of_units: 0.0,
         availability: 0.9,
-        fixed_costs: 61526416,
+        fixed_costs_per_unit: 61526416,
       )
     )
 
@@ -282,7 +282,7 @@ module Merit
         output_capacity_per_unit: 705.9130435,
         number_of_units: 0.0,
         availability: 0.88,
-        fixed_costs: 111231290.8,
+        fixed_costs_per_unit: 111231290.8,
       )
     )
 
@@ -293,7 +293,7 @@ module Merit
         output_capacity_per_unit: 784.0,
         number_of_units: 0.0,
         availability: 0.89,
-        fixed_costs: 49359621.7,
+        fixed_costs_per_unit: 49359621.7,
       )
     )
 
@@ -304,7 +304,7 @@ module Merit
         output_capacity_per_unit: 613.8,
         number_of_units: 0.0,
         availability: 0.97,
-        fixed_costs: 92837254.57,
+        fixed_costs_per_unit: 92837254.57,
       )
     )
 
@@ -315,7 +315,7 @@ module Merit
         output_capacity_per_unit: 645.5452539,
         number_of_units: 0.0,
         availability: 0.87,
-        fixed_costs: 178999174,
+        fixed_costs_per_unit: 178999174,
       )
     )
 
@@ -326,7 +326,7 @@ module Merit
         output_capacity_per_unit: 651.1186441,
         number_of_units: 7.8,
         availability: 0.85,
-        fixed_costs: 76566794.3,
+        fixed_costs_per_unit: 76566794.3,
       )
     )
 
@@ -337,7 +337,7 @@ module Merit
         output_capacity_per_unit: 784.0,
         number_of_units: 0.0,
         availability: 0.9,
-        fixed_costs: 157393563.3,
+        fixed_costs_per_unit: 157393563.3,
       )
     )
 
@@ -348,7 +348,7 @@ module Merit
         output_capacity_per_unit: 784.0,
         number_of_units: 0.0,
         availability: 0.9,
-        fixed_costs: 61526416,
+        fixed_costs_per_unit: 61526416,
       )
     )
 
@@ -359,7 +359,7 @@ module Merit
         output_capacity_per_unit: 784.0,
         number_of_units: 0.0,
         availability: 0.89,
-        fixed_costs: 49359621.7,
+        fixed_costs_per_unit: 49359621.7,
       )
     )
 
@@ -370,7 +370,7 @@ module Merit
         output_capacity_per_unit: 1600.0,
         number_of_units: 0.0,
         availability: 0.85,
-        fixed_costs: 317248000,
+        fixed_costs_per_unit: 317248000,
       )
     )
 
@@ -381,7 +381,7 @@ module Merit
         output_capacity_per_unit: 1600.0,
         number_of_units: 0.0,
         availability: 0.9,
-        fixed_costs: 577551594.8,
+        fixed_costs_per_unit: 577551594.8,
       )
     )
 
@@ -392,7 +392,7 @@ module Merit
         output_capacity_per_unit: 792.0,
         number_of_units: 0.0,
         availability: 0.89,
-        fixed_costs: 79981066.11,
+        fixed_costs_per_unit: 79981066.11,
       )
     )
 
@@ -403,7 +403,7 @@ module Merit
         output_capacity_per_unit: 147.0,
         number_of_units: 0.0,
         availability: 0.89,
-        fixed_costs: 6634766.741,
+        fixed_costs_per_unit: 6634766.741,
       )
     )
 
@@ -414,7 +414,7 @@ module Merit
         output_capacity_per_unit: 625.0,
         number_of_units: 0.0,
         availability: 0.85,
-        fixed_costs: 137557916.7,
+        fixed_costs_per_unit: 137557916.7,
       )
     )
 
@@ -425,7 +425,7 @@ module Merit
         output_capacity_per_unit: 792.0,
         number_of_units: 0.0,
         availability: 0.88,
-        fixed_costs: 111231290.8,
+        fixed_costs_per_unit: 111231290.8,
       )
     )
 
@@ -436,7 +436,7 @@ module Merit
         output_capacity_per_unit: 784.0,
         number_of_units: 0.0,
         availability: 0.89,
-        fixed_costs: 49359621.7,
+        fixed_costs_per_unit: 49359621.7,
       )
     )
 
@@ -447,7 +447,7 @@ module Merit
         output_capacity_per_unit: 792.0,
         number_of_units: 0.0,
         availability: 0.89,
-        fixed_costs: 29085600,
+        fixed_costs_per_unit: 29085600,
       )
     )
 
@@ -458,7 +458,7 @@ module Merit
         output_capacity_per_unit: 790.0,
         number_of_units: 0.0,
         availability: 0.89,
-        fixed_costs: 112037799.7,
+        fixed_costs_per_unit: 112037799.7,
       )
     )
 
@@ -469,7 +469,7 @@ module Merit
         output_capacity_per_unit: 640.0,
         number_of_units: 0.0,
         availability: 0.85,
-        fixed_costs: 240498185.1,
+        fixed_costs_per_unit: 240498185.1,
       )
     )
 
@@ -480,7 +480,7 @@ module Merit
         output_capacity_per_unit: 640.0,
         number_of_units: 0.0,
         availability: 0.85,
-        fixed_costs: 240498185.1,
+        fixed_costs_per_unit: 240498185.1,
       )
     )
 

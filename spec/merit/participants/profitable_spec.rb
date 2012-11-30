@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Merit
 
-  describe Producer do
+  describe Profitable do
 
     let(:producer) do
       MustRunProducer.new(
@@ -19,6 +19,34 @@ module Merit
     end
 
     let(:order) { Order.new }
+
+    describe '#profitable' do
+      it 'should be :profitable if revenue > total_costs' do
+        producer.stub(:revenue) { 1000 }
+        producer.stub(:total_costs) { 500 }
+        expect(producer.profitability).to eql :profitable
+      end
+      it 'should be :conditionally_profitable if OPEX = <revenue < total_costs' do
+        producer.stub(:revenue) { 500 }
+        producer.stub(:total_costs) { 1000 }
+        producer.stub(:operating_costs) { 300 }
+        expect(producer.profitability).to eql :conditionally_profitable
+      end
+      it 'should be :unprofitable if revenue < OPEX' do
+        producer.stub(:revenue) { 500 }
+        producer.stub(:total_costs) { 1000 }
+        producer.stub(:operating_costs) { 700 }
+        expect(producer.profitability).to eql :unprofitable
+      end
+    end
+
+    describe '#profit' do
+      it 'should calculate correctly' do
+        producer.stub(:revenue) { 1000 }
+        producer.stub(:total_costs) { 500 }
+        expect(producer.profit).to eql 500
+      end
+    end
 
     describe '#revenue' do
       it 'should return the correct number' do
@@ -40,10 +68,24 @@ module Merit
       end
     end
 
+    describe '#total_costs' do
+      it 'should calculate correctly' do
+        producer.stub(:fixed_costs) { 1000 }
+        producer.stub(:variable_costs) { 500 }
+        expect(producer.total_costs).to eql 1500
+      end
+    end
+
     describe '#variable_costs' do
       it 'should calculate correctly' do
         producer.stub(:production) { 1000 } #MWh
         expect(producer.variable_costs).to eql 2 * 1000
+      end
+    end
+
+    describe '#fixed_costs' do
+      it 'should calculate correctly' do
+        expect(producer.fixed_costs).to eql 30 * 2
       end
     end
 

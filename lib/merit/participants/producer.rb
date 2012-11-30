@@ -7,7 +7,7 @@ module Merit
     include Profitable
 
     attr_reader   :output_capacity_per_unit, :availability,
-                  :number_of_units, :marginal_costs, :fixed_costs,
+                  :number_of_units, :marginal_costs, :fixed_costs_per_unit,
                   :fixed_om_costs_per_unit
 
     attr_accessor :load_curve, :load_profile
@@ -20,10 +20,10 @@ module Merit
 
       @full_load_hours           = opts[:full_load_hours]
       @marginal_costs            = opts[:marginal_costs]
-      @output_capacity_per_unit = opts[:output_capacity_per_unit]
+      @output_capacity_per_unit  = opts[:output_capacity_per_unit]
       @availability              = opts[:availability]
       @number_of_units           = opts[:number_of_units]
-      @fixed_costs               = opts[:fixed_costs]
+      @fixed_costs_per_unit      = opts[:fixed_costs_per_unit]
       @fixed_om_costs_per_unit   = opts[:fixed_om_costs_per_unit]
 
       @load_curve   = LoadCurve.new([], Merit::POINTS)
