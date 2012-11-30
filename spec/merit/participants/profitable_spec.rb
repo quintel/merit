@@ -8,11 +8,13 @@ module Merit
       MustRunProducer.new(
         key:                       :coal,
         load_profile_key:          :industry_chp,
-        effective_output_capacity: 1,
+        output_capacity_per_unit:  1,
         marginal_costs:            2,
         availability:              0.95,
         number_of_units:           2,
-        full_load_hours:           4
+        full_load_hours:           4,
+        fixed_costs_per_unit:      30,
+        fixed_om_costs_per_unit:   17
        )
     end
 
@@ -42,6 +44,19 @@ module Merit
       it 'should calculate correctly' do
         producer.stub(:production) { 1000 } #MWh
         expect(producer.variable_costs).to eql 2 * 1000
+      end
+    end
+
+    describe '#fixed_om_costs' do
+      it 'should calculate correctly' do
+        expect(producer.fixed_om_costs).to eql 17 * 2
+      end
+    end
+
+    describe '#operating_costs' do
+      it 'should calculate correctly' do
+        producer.stub(:variable_costs) { 17.4 }
+        expect(producer.operating_costs).to eql 17 * 2 + 17.4
       end
     end
 

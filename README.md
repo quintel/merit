@@ -147,7 +147,7 @@ Average load:              1016.0301559737114 MW
 Available_output_capacity: 2975.0399997718337 MW
 
 Number of units:           5.749536178 number of (typical) plants
-Effective_output_capacity: 574.9333333 (MW)
+output_capacity_per_unit: 574.9333333 (MW)
 Availability:              0.9 (fraction)
 ```
 
@@ -204,7 +204,7 @@ properly:
 * key (Symbol)
 * load_profile (Symbol)
 * marginal_costs (EUR/MWh/year) 
-* effective_output_capacity (MW electric/plant)
+* output_capacity_per_unit (MW electric/plant)
 * number_of_units (float)
 * availability (%)
 * fixed_costs (EUR/plant/year)
@@ -334,7 +334,7 @@ demand).
 
 The full load hours are defined as:
 
-    production / (effective_output_capacity * number_of_units * 3600 )
+    production / (output_capacity_per_unit * number_of_units * 3600 )
 
 ##### Must Runs and Volatiles
 
@@ -365,42 +365,44 @@ has full load hours = 8760 * 50% = 4380 hours.
 There are two main areas of output for the Merit Order: *full load hours* (how
 much does a plant run?) and *profitability* (is it profitable?).
 
-## For each hour per year:
+## For each hour per year
 
-### Electricity price [Unit EUR/MWh]
+### Electricity price Curve
 
-For **each hour in a year**, the price is equal to the `marginal_costs` of the
-participant that is **the first one that is not running at all**.
+You can get the electricity price in EUR/MWh for each hour in the year by
+running:
 
-This reflects the assumption that a producer will try to sell his electricity
-for a price that is as high as possible but still (infinite) smaller than the
-cost of the participant that is the first one *not* producing.
+    merit_order.price_curve
+
+The price is equal to the `marginal_costs` of the participant that is **the
+first one that is not running at all**. This reflects the assumption that a
+producer will try to sell his electricity for a price that is as high as
+possible but still (infinite) smaller than the cost of the participant that is
+the first one *not* producing.
 
 If all the dispatchables are producing, and hence there is none *not-running*,
 the *highest* `:marginal_costs` are assumed to be the price in that market.
 
-**N.B.** We could multiply this value with a certain factor.**
+**N.B.** We could multiply the latter value with a certain factor.**
 
 ## For each Participant
 
 You can get a summary of the participant by running:
 
-```Ruby
-merit_order.dispatchables.first.info
-```
+    participant.info
 
 Furthermore, you can get the following details from a participant:
 
-* full_load_hours
+* full load hours
 * total revenue
 * total costs
 * total variable costs
-* operational_expenses
+* operational expenses
 * profit
 * profitability
 
 Of course, you can also get the given input values, such as
-fixed_costs, key, etc., back from Merit.
+`fixed_costs`, `key`, etc.
 
 ### Full load hours
 
@@ -410,7 +412,7 @@ through the effective capacity.  In practice the integration amounts to summing
 up the loads for each data point. Each data point represents 1 hour (so 8760
 data points per year).
 
-    full_load_hours = load_profile.sum / effective_output_capacity
+    full_load_hours = load_profile.sum / output_capacity_per_unit
 
 For the participants that are cheaper than the price setting participant, the
 load is equal to the **available output capacity**.  For the price setting
@@ -419,12 +421,12 @@ a fraction of its available capacity is needed to meet the demand.  For the
 participants that are more expensive than the price setting participant, the
 load is equal to 0.
 
-### Profitability
+### Financial output
 
 #### Total revenue [EUR/year]
 
 The `revenue` (in EUR/year) of a participant is calculated by summing up
-the `load * electricity price` for each data point.
+the `load * electricity_price` for each data point.
 
 #### Total costs [EUR/year]
 
@@ -445,7 +447,7 @@ The `variable_costs` (EUR/year) of a participant is calculated by
 the (input parameter) `marginal_costs` (EUR/MWh) by the `production` of the
 participant (in MWh).
 
-    variable_costs = marginal_costs * production * 3600
+    variable_costs = marginal_costs * production(:mwh)
 
 #### Operating costs (OPEX) [EUR/year]
 
@@ -548,7 +550,7 @@ Merit::LoadProfile.load(:total_demand).valid?
 
 * load: **MW**
 * marginal_costs: **EUR/MWh** 
-* effective_output_capacity: **MW electric/plant**
+* output_capacity_per_unit: **MW electric/plant**
 * number_of_units: **#**
 * availability: **fraction** (between 0 and 1)
 * fixed_costs: **EUR** (per plant per year)

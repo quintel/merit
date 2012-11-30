@@ -6,8 +6,9 @@ module Merit
 
     include Profitable
 
-    attr_reader   :effective_output_capacity, :availability,
-                  :number_of_units, :marginal_costs, :fixed_costs
+    attr_reader   :output_capacity_per_unit, :availability,
+                  :number_of_units, :marginal_costs, :fixed_costs,
+                  :fixed_om_costs_per_unit
 
     attr_accessor :load_curve, :load_profile
 
@@ -19,10 +20,11 @@ module Merit
 
       @full_load_hours           = opts[:full_load_hours]
       @marginal_costs            = opts[:marginal_costs]
-      @effective_output_capacity = opts[:effective_output_capacity]
+      @output_capacity_per_unit = opts[:output_capacity_per_unit]
       @availability              = opts[:availability]
       @number_of_units           = opts[:number_of_units]
       @fixed_costs               = opts[:fixed_costs]
+      @fixed_om_costs_per_unit   = opts[:fixed_om_costs_per_unit]
 
       @load_curve   = LoadCurve.new([], Merit::POINTS)
       @load_profile = load_profile_key && LoadProfile.load(load_profile_key)
@@ -37,10 +39,10 @@ module Merit
     # that number
     def full_load_hours
       @full_load_hours ||
-        if effective_output_capacity.zero? || number_of_units.zero?
+        if output_capacity_per_unit.zero? || number_of_units.zero?
           0.0
         else
-          production / (effective_output_capacity * number_of_units * 3600)
+          production / (output_capacity_per_unit * number_of_units * 3600)
         end
     end
 
@@ -107,7 +109,7 @@ module Merit
       @max_production ||= if @full_load_hours
         # NOTE: effective output capacity must be used here because availability
         # has been taken into account when providing the full_load_hours
-        effective_output_capacity * full_load_hours * number_of_units * 3600
+        output_capacity_per_unit * full_load_hours * number_of_units * 3600
       else
         # Available output capacity time seconds in a year takes into account
         # that producers have some time that they are unavailable
@@ -117,7 +119,7 @@ module Merit
 
     def available_output_capacity
       @available_output_capacity ||=
-        effective_output_capacity * availability * number_of_units
+        output_capacity_per_unit * availability * number_of_units
     end
 
     # Public: determined what the max produced load is at a point in time
@@ -167,7 +169,7 @@ Average load:              #{average_load} MW
 Available_output_capacity: #{available_output_capacity} MW
 
 Number of units:           #{number_of_units} number of (typical) plants
-Effective_output_capacity: #{effective_output_capacity} (MW)
+output_capacity_per_unit: #{output_capacity_per_unit} (MW)
 Availability:              #{availability} (fraction)
 
 

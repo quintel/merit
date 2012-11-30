@@ -156,7 +156,7 @@ module Merit
       producers.each do |producer|
         columns << [producer.key,
                     producer.class,
-                    producer.effective_output_capacity,
+                    producer.output_capacity_per_unit,
                     producer.number_of_units,
                     producer.load_curve.to_a
         ].flatten

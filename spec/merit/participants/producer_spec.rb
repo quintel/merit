@@ -8,7 +8,7 @@ module Merit
       Producer.new(
         key:                       :coal,
         load_profile_key:          :industry_chp,
-        effective_output_capacity: 1,
+        output_capacity_per_unit: 1,
         marginal_costs:            2,
         availability:              0.95,
         number_of_units:           2,
@@ -20,7 +20,7 @@ module Merit
       it 'should remember (more attributes than basic participants)' do
         expect(producer.key).to eql(:coal)
         expect(producer.load_profile_key).to eql(:industry_chp)
-        expect(producer.effective_output_capacity).to eql(1)
+        expect(producer.output_capacity_per_unit).to eql(1)
         expect(producer.marginal_costs).to eql(2)
         expect(producer.availability).to eql(0.95)
         expect(producer.full_load_hours).to eql(4)
@@ -36,7 +36,7 @@ module Merit
         let(:producer) do
           Producer.new(
             key: :bar,
-            effective_output_capacity: 1600,
+            output_capacity_per_unit: 1600,
             availability: 0.9,
             number_of_units: 0.31875
           ).tap { |p| p.stub(:production).and_return(14475023999.999998) }
@@ -47,7 +47,7 @@ module Merit
         end
 
         context 'when effective output capacity is zero' do
-          before { producer.stub(:effective_output_capacity).and_return(0.0) }
+          before { producer.stub(:output_capacity_per_unit).and_return(0.0) }
 
           it 'is zero' do
             expect(producer.full_load_hours).to eql(0.0)

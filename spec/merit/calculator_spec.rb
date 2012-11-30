@@ -7,7 +7,7 @@ module Merit
         order.add(DispatchableProducer.new(
           key:                       :dispatchable,
           marginal_costs:            13.999791,
-          effective_output_capacity: 0.1,
+          output_capacity_per_unit:  0.1,
           number_of_units:           1,
           availability:              0.89
         ))
@@ -15,7 +15,7 @@ module Merit
         order.add(VolatileProducer.new(
           key:                       :volatile,
           load_profile_key:          :industry_chp,
-          effective_output_capacity: 0.1,
+          output_capacity_per_unit:  0.1,
           availability:              0.95,
           number_of_units:           1
         ))
@@ -23,7 +23,7 @@ module Merit
         order.add(VolatileProducer.new(
           key:                       :volatile_two,
           load_profile_key:          :solar_pv,
-          effective_output_capacity: 0.1,
+          output_capacity_per_unit:  0.1,
           availability:              0.95,
           number_of_units:           1
         ))
