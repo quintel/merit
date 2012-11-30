@@ -105,7 +105,15 @@ module Merit
         values = values + ([0.0] * (o_length - v_length))
       end
 
-      values.zip(other).map { |x| x.reduce(method) }
+      # Optimization: using each_with_index is 100ms faster for the complete
+      # Merit::Order.
+      new_values = []
+
+      values.each_with_index do |value, index|
+        new_values << value.send(method, other[index])
+      end
+
+      new_values
     end
 
   end # LoadCurve
