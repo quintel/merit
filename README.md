@@ -459,17 +459,15 @@ participant (in MWh).
 The `operating_costs` (also called OPEX) (EUR/year) of a participant is
 calculated by:
 
-    operating_costs = fixed_operating_and_maintenance_costs + variable_costs
+    operating_costs = fixed_om_costs + variable_costs
 
 #### Fixed Operating And Maintenance Costs [EUR/year]
 
-**TODO**: Fix misnomer fixed_operation_and_maintenance_costs_per_year
-
-The `fixed_operating_and_maintenance_costs` are calculated by taking the
-**misnomed** `fixed_operation_and_maintenance_costs_per_year` and multiply it
+The `fixed_om_costs` are calculated by taking the
+ `fixed_om_costs_per_unit` and multiplying it
 with the `number_of_units`.
 
-    fixed_operating_and_maintenance_costs = fixed_operation_and_maintenance_costs_per_year * number_of_units
+    fixed_om_costs = fixed_om_costs_per_unit * number_of_units
 
 #### Profit [EUR/year]
 
@@ -483,8 +481,8 @@ The `profit` of a participant (EUR/year) is calculated by subtracting the
 Returns one of three states:
 
 1. `:profitable` (if `revenue >= total costs`)
-2. `:conditionally_profitable` (if `operating_expenses =< revenue < total costs`)
-3. `:unprofitable` (if `revenue < operating_expenses`)
+2. `:conditionally_profitable` (if `operating_costs =< revenue < total costs`)
+3. `:unprofitable` (if `revenue < operating_costs`)
 
 P.S. These three states are communicated to the end user in the ETM by coloring
 the participants **green**, **orange** and **red** respectively.
@@ -506,7 +504,7 @@ What's the effective output of a technology over its lifetime? (e.g. 790 MW)
 What's available if you take maintenance, down time, and volatility into
 account? (e.g. 650 MW)
 
-     available_capacity = effective_capacity * availability
+     available_capacity = output_capacity_per_unit * availability
 
 ### Load profile
 
@@ -555,16 +553,16 @@ Merit::LoadProfile.load(:total_demand).valid?
 
 * load: **MW**
 * marginal_costs: **EUR/MWh** 
-* output_capacity_per_unit: **MW electric/plant**
+* output_capacity_per_unit: **MW electric/unit**
 * number_of_units: **#**
 * availability: **fraction** (between 0 and 1)
-* fixed_costs: **EUR** (per plant per year)
-* fixed_operation_and_maintenance_costs_per_year: **EUR** (per plant per year)
+* fixed_costs_per_unit: **EUR** (per unit per year)
+* fixed_om_costs_per_unit: **EUR** (per unit per year)
 * total_demand: **MJ** (per year)
 * full_load_hours: **hours** (per year)
 * profitability: **:symbol**
-* revenue: **EUR** (per plant per year)
-* profit: **EUR** (per plant per year)
+* revenue: **EUR** (per year)
+* profit: **EUR** (per year)
 * electricity price: **EUR/MWh**
 
 ## Issues
