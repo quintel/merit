@@ -128,6 +128,7 @@ module Merit
       " #{users.size} users >"
     end
 
+    # TODO: Dry up this method
     # Public: Returns an Array containing a 'table' with a row for every
     # producer and it's key, class, marginal costs,  full load hours.
     def summary
@@ -147,6 +148,42 @@ module Merit
       end
       rows << ['TOTALS:',nil,nil,nil,producers.map(&:production).reduce(:+) / 10**9]
       rows
+    end
+
+    # TODO: Dry up this method
+    # Public: Returns an Array containing a 'table' with a row for every
+    # producer and it's financial specs
+    def profit_summary
+      rows = [['key',
+               'class',
+               'profitability',
+               'flh',
+               'profit',
+               'revenue',
+               'total_costs',
+               'fixed_costs',
+               'operating_costs'
+      ]]
+      producers.each do |p|
+        rows << [p.key,
+                 p.class,
+                 p.profitability,
+                 p.full_load_hours.to_i,
+                 p.profit.to_i / 10**6,
+                 p.revenue.to_i / 10**6,
+                 p.total_costs.to_i / 10**6,
+                 p.fixed_costs.to_i / 10**6,
+                 p.operating_costs.to_i / 10**6
+        ]
+      end
+      rows
+    end
+
+    def profit_info
+      puts Terminal::Table.new(
+        :headings => profit_summary[0],
+        :rows     => profit_summary[1..-1]
+      )
     end
 
     # Public: Returns an Array containing a 'table' with all the producers
