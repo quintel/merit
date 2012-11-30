@@ -162,6 +162,7 @@ module Merit
                'revenue',
                'total_costs',
                'fixed_costs',
+               'variable_costs',
                'operating_costs'
       ]]
       producers.each do |p|
@@ -173,6 +174,7 @@ module Merit
                  p.revenue.to_i / 10**6,
                  p.total_costs.to_i / 10**6,
                  p.fixed_costs.to_i / 10**6,
+                 p.variable_costs.to_i / 10**6,
                  p.operating_costs.to_i / 10**6
         ]
       end
