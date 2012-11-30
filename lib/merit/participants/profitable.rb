@@ -22,7 +22,11 @@ module Merit::Profitable
 
   # Returns the absolute amount of revenue in EUR.
   def revenue
-    revenue_curve.reduce(:+)
+    if number_of_units == 0
+      0
+    else
+      revenue_curve.reduce(:+)
+    end
   end
 
   # Returns a Curve with the revenue in EUR per point in time.
