@@ -126,3 +126,21 @@ end
 
 desc 'Open a pry or irb session preloaded with Merit'
 task console: ['console:run']
+
+# Performance ----------------------------------------------------------------
+
+namespace :performance do
+  require 'benchmark'
+  require 'merit'
+  require './examples/stub'
+  desc 'Run performance metrics for financial calculations on producers'
+  task :loads do
+    merit_order = Merit.stub
+    puts Benchmark.realtime { merit_order.calculate }
+  end
+  task :profit do
+    merit_order = Merit.stub
+    merit_order.calculate
+    puts Benchmark.realtime { merit_order.producers.map(&:profit) }
+  end
+end
