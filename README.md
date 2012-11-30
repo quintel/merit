@@ -258,13 +258,12 @@ query:
 
 #### Fixed costs [Float]
 
-The **fixed costs** of a plant are the sum of 'cost_of_capital', 'depreciation_costs'
-and 'fixed_operating_and_maintenance_costs_per_year'.
+The *fixed costs* of a plant are costs that do not change with producting,
+and consists of its 'cost_of_capital', 'depreciation_costs' and
+'fixed_operating_and_maintenance_costs_per_year'.
 
-    fixed_costs = cost_of_capital + depreciation_costs + fixed_operating_and_maintenance_costs
-
-The fixed costs (EUR/plant/year) can be queried from the ETM with the
-fixed_costs function:
+The *fixed costs* can be queried from the ETEngine's GQL with the following
+query:
 
     V(converter_key, fixed_costs)
 
