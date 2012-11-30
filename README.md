@@ -12,11 +12,11 @@ It does this for each of the 8760 hours in a year and computes several
 yearly averaged quantities for each producer such as
 
 * merit order position
-* full_load_hours
+* full load hours
 * total revenue
 * total costs
 * total variable costs
-* operating_expenses
+* operating expenses
 * profit
 * profitability
 
@@ -203,12 +203,12 @@ properly:
 
 * key (Symbol)
 * load_profile_key (Symbol)
-* marginal_costs (EUR/MWh/year) 
-* output_capacity_per_unit (MW electric/plant)
+* marginal_costs (EUR/MWh) 
+* output_capacity_per_unit (MW electric/unit)
 * number_of_units (float)
 * availability (%)
-* fixed_costs_per_unit (EUR/plant/year)
-* fixed_om_cost_per_unit (EUR/plant/year)
+* fixed_costs_per_unit (EUR/unit/year)
+* fixed_om_costs_per_unit (EUR/unit/year)
 
 Have a look at 
 [the stub](https://github.com/quintel/merit/blob/master/examples/stub.rb) for 
@@ -257,13 +257,13 @@ query:
 
     V(converter_key, variable_costs_per(:mwh_electricity))
 
-#### Fixed costs [Float]
+#### Fixed costs per unit [Float]
 
 The *fixed costs* of a plant are costs that do not change with producting,
 and consists of its 'cost_of_capital', 'depreciation_costs' and
 'fixed_operating_and_maintenance_costs_per_year'.
 
-The *fixed costs* can be queried from the ETEngine's GQL with the following
+The *fixed costs per unit* can be queried from the ETEngine's GQL with the following
 query:
 
     V(converter_key, fixed_costs)
@@ -288,14 +288,14 @@ The availability can be queried from the ETM with the following query:
 
     V(converter_key, availability)
 
-#### Fixed operations & maintenance costs per year [Float]
+#### Fixed operations & maintenance costs per unit per year [Float]
 
-The fixed_operation_and_maintenance_costs_per_year (EUR/plant/year) are used as
+The **fixed_om_costs_per_unit** (EUR/unit/year) are used as
 an input for calculating the operational_expenses per participant. The
 operational_expenses will be used as an output to indicate the extent of
 profitability of a participant (see also the list of outputs).
 
-The fixed_operation_and_maintenance_costs_per_year can be queried from the 
+The fixed_om_costs_per_unit can be queried from the 
 ETEngine's GQL with the following query:
 
     V(converter_key, fixed_operation_and_maintenance_costs_per_year)
@@ -393,6 +393,7 @@ You can get a summary of the participant by running:
 
 Furthermore, you can get the following details from a participant:
 
+* merit order position
 * full load hours
 * total revenue
 * total costs
@@ -423,6 +424,10 @@ load is equal to 0.
 
 ### Financial output
 
+Financial ouptut is calculated **per participant**. To obtain the output **per
+ unit**, the output must be divided through the number of units of the 
+ participant.
+
 #### Total revenue [EUR/year]
 
 The `revenue` (in EUR/year) of a participant is calculated by summing up
@@ -430,7 +435,7 @@ the `load * electricity_price` for each data point.
 
 #### Total costs [EUR/year]
 
-The `total_costs` (EUR/year) of a power participant is calculated by
+The `total_costs` (EUR/year) of a participant is calculated by
 summing up the `fixed_costs` (which is input) and the `variable_costs`:
 
     total_costs = fixed_costs + variable_costs
@@ -439,7 +444,7 @@ summing up the `fixed_costs` (which is input) and the `variable_costs`:
 
 The fixed_costs 
 
-    fixed_costs = fixed_costs_per_plant * number_of_units
+    fixed_costs = fixed_costs_per_unit * number_of_units
 
 #### Variable costs [EUR/year]
 
