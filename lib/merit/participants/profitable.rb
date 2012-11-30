@@ -27,7 +27,7 @@ module Merit::Profitable
 
   # Returns a Curve with the revenue in EUR per point in time.
   def revenue_curve
-    load_curve * order.price_curve
+    @revenue_curve ||= load_curve * order.price_curve
   end
 
   # Return the absolute total costs for the participant in EUR.
