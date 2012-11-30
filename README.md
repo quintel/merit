@@ -202,13 +202,13 @@ The following input has to be supplied to Merit in order for it to calculate
 properly:
 
 * key (Symbol)
-* load_profile (Symbol)
+* load_profile_key (Symbol)
 * marginal_costs (EUR/MWh/year) 
 * output_capacity_per_unit (MW electric/plant)
 * number_of_units (float)
 * availability (%)
-* fixed_costs (EUR/plant/year)
-* fixed_operation_and_maintenance_costs_per_year (EUR/plant/year)
+* fixed_costs_per_unit (EUR/plant/year)
+* fixed_om_cost_per_unit (EUR/plant/year)
 
 Have a look at 
 [the stub](https://github.com/quintel/merit/blob/master/examples/stub.rb) for 
