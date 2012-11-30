@@ -210,8 +210,9 @@ properly:
 * fixed_costs (EUR/plant/year)
 * fixed_operation_and_maintenance_costs_per_year (EUR/plant/year)
 
-Have a look at [the stub](merit/blob/master/examples/stub.rb) for some
-examples.
+Have a look at 
+[the stub](https://github.com/quintel/merit/blob/master/examples/stub.rb) for 
+some examples.
 
 ### Different types of Producers:
 
