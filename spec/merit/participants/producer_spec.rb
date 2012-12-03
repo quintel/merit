@@ -65,11 +65,24 @@ module Merit
     end # full_load_hours
 
     describe '#production' do
-      it 'is based on the load curve' do
+      before(:all) do
         producer.load_curve.set(0, 10.0)
         producer.load_curve.set(1, 50.0)
-
+      end
+      it 'is based on the load curve' do
         expect(producer.production).to eql(60.0 * 3600)
+      end
+      it 'should return MJs if no unit given' do
+        expect(producer.production).to eql(60.0 * 3600)
+      end
+      it 'should return MJs if unit is :mj' do
+        expect(producer.production(:mj)).to eql(60.0 * 3600)
+      end
+      it 'should return MWHs if unit is :mwh' do
+        expect(producer.production(:mwh)).to eql(60.0)
+      end
+      it 'should raise an error if unit is unknown' do
+        expect(->{ producer.production(:foo) }).to raise_error
       end
     end
 
@@ -196,6 +209,12 @@ module Merit
           expect(producer.max_load_at(117)).to \
             eql producer.available_output_capacity
         end
+      end
+    end
+
+    describe '#info' do
+      it 'should produce some statistics about this producer' do
+        expect(producer.info).to_not be_nil
       end
     end
 
