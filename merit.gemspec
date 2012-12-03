@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   # rake task. It it completely safe to edit them, but using the rake task
   # is easier.
   s.name              = 'merit'
-  s.version           = '0.0.3'
+  s.version           = '0.0.5'
   s.date              = '2012-12-03'
   s.rubyforge_project = 'merit-graph'
 
