@@ -101,7 +101,6 @@ module Merit
     end
 
     # Public: Returns a Curve with all the (known) prices
-    # TODO: Rename LoadCurve to Curve
     def price_curve
       @price_curve ||= begin
         prices = LoadCurve.new

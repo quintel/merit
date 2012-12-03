@@ -39,6 +39,27 @@ module Merit
       end
     end
 
+    describe '#price_at' do
+      it 'should return the marginal cost of the price setting producer' do
+        order.stub(:price_setting_producers) do
+          Array.new(Merit::POINTS, VolatileProducer.new(key: :foo, marginal_costs: 1))
+        end
+        expect(order.price_at(118)).to eql 1
+      end
+    end
+
+    describe '#price_curve' do
+      before(:all) do
+        order.stub(:price_at) { 1 }
+      end
+      it 'should be another instance of a Curve' do
+        expect(order.price_curve).to be_a(LoadCurve)
+      end
+      it 'should have all ones' do
+        expect(order.price_curve.to_a[118]).to eql 1
+      end
+    end
+
     describe '#producers' do
       it 'returns "always on" participants first' do
         dispatchable = Merit::DispatchableProducer.new(key: :foo)
