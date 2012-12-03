@@ -49,11 +49,23 @@ module Merit
     end
 
     describe '#revenue' do
-      it 'should return the correct number' do
-        order.stub(:price_curve) { LoadCurve.new(Array.new(8760,1)) }
+      context 'when the producer has either 0 units or no capacity' do
+        it 'should return zero when it has 0 units' do
+          producer.stub(:number_of_units) { 0 }
+          expect(producer.revenue).to eql 0.0
+        end
+        it 'should return zero when capacity = 0' do
+          producer.stub(:output_capacity_per_unit) { 0 }
+          expect(producer.revenue).to eql 0.0
+        end
+      end
+      context 'when the producer has >0 number of units and >0 capacity' do
+        it 'should return the correct number' do
+          order.stub(:price_curve) { LoadCurve.new(Array.new(8760,1)) }
 
-        producer.order = order
-        expect(producer.revenue).to be_within(0.1).of(1 * 2 * 4.0)
+          producer.order = order
+          expect(producer.revenue).to be_within(0.1).of(1 * 2 * 4.0)
+        end
       end
     end
 
