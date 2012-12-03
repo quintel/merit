@@ -140,7 +140,7 @@ Class: #{self.class}
 
 #{load_curve.draw if load_curve}
                        LOAD CURVE (x = time, y = MW)
-                       Min: #{load_curve.values.min}, Max: #{load_curve.values.max}
+                       Min: #{load_curve.min}, Max: #{load_curve.max}
                        SD: #{load_curve.sd}
 
 Summary:
@@ -154,12 +154,11 @@ Average load:              #{average_load} MW
 Available_output_capacity: #{available_output_capacity} MW
 
 Number of units:           #{number_of_units} number of (typical) plants
-output_capacity_per_unit: #{output_capacity_per_unit} (MW)
+output_capacity_per_unit:  #{output_capacity_per_unit} (MW)
 Availability:              #{availability} (fraction)
 
-
-#{}
 EOF
+      true
     end
   end
 end

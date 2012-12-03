@@ -35,20 +35,6 @@ module Merit
       load_profile.values[point_in_time] * total_consumption
     end
 
-    # Public: What is the total supply between the two given points (inclusive
-    # of both points)?
-    #
-    # start  - The earlier point.
-    # finish - The later point.
-    #
-    # Returns a float.
-    def load_between(start, finish)
-      count  = 1 + (finish - start)
-      values = load_profile.values[start..finish]
-
-      values.reduce(:+) * total_consumption
-    end
-
   end
 
 end
