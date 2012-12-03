@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
   # rake task. It it completely safe to edit them, but using the rake task
   # is easier.
   s.name              = 'merit'
-  s.version           = '0.0.4'
-  s.date              = '2012-11-23'
+  s.version           = '0.0.3'
+  s.date              = '2012-12-03'
   s.rubyforge_project = 'merit-graph'
 
   # You may safely edit the section below.
@@ -58,6 +58,7 @@ Gem::Specification.new do |s|
     examples/stub4.rb
     lib/merit.rb
     lib/merit/bar_chart.rb
+    lib/merit/calculator.rb
     lib/merit/csv_writer.rb
     lib/merit/errors.rb
     lib/merit/load_curve.rb
@@ -65,6 +66,7 @@ Gem::Specification.new do |s|
     lib/merit/order.rb
     lib/merit/participants/participant.rb
     lib/merit/participants/producer.rb
+    lib/merit/participants/profitable.rb
     lib/merit/participants/types.rb
     lib/merit/participants/user.rb
     lib/merit/root.rb
