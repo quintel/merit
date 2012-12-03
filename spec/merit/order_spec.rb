@@ -6,6 +6,60 @@ module Merit
 
     let(:order){ Order.new }
 
+    let(:p1) do
+      DispatchableProducer.new(
+        key:                       :foo,
+        marginal_costs:            13.999791,
+        output_capacity_per_unit:  0.1,
+        number_of_units:           1,
+        availability:              0.89,
+        fixed_costs_per_unit:      222.9245208,
+        fixed_om_costs_per_unit:   35.775
+      )
+    end
+
+    let(:p2) do
+      VolatileProducer.new(
+        key:                       :bar,
+        marginal_costs:            13.7,
+        output_capacity_per_unit:  0.1,
+        number_of_units:           1,
+        availability:              0.89,
+        fixed_costs_per_unit:      222.9245208,
+        fixed_om_costs_per_unit:   35.775,
+        load_profile_key:          :solar_pv,
+        full_load_hours:           1000
+      )
+    end
+
+    let(:p3) do
+      MustRunProducer.new(
+        key:                       :baz,
+        marginal_costs:            101.1,
+        output_capacity_per_unit:  0.1,
+        number_of_units:           1,
+        availability:              0.89,
+        fixed_costs_per_unit:      222.9245208,
+        fixed_om_costs_per_unit:   35.775,
+        load_profile_key:          :solar_pv,
+        full_load_hours:           1000
+      )
+    end
+
+    let(:p4) do
+      DispatchableProducer.new(
+        key:                       :foo_cheaper,
+        marginal_costs:            12.1,
+        output_capacity_per_unit:  0.1,
+        number_of_units:           1,
+        availability:              0.89,
+        fixed_costs_per_unit:      222.9245208,
+        fixed_om_costs_per_unit:   35.775,
+        load_profile_key:          :solar_pv,
+        full_load_hours:           1000
+      )
+    end
+
     describe "#new" do
       it "should be able to create one" do
         Order.new
@@ -14,13 +68,11 @@ module Merit
 
     describe "#add" do
       it 'should be able to add different types, which should be returned' do
-        new_participant = MustRunProducer.new({key: :foo})
-        expect(order.add(new_participant)).to eql new_participant
+        expect(order.add(p1)).to eql p1
       end
 
       it 'should set a reference to the order on the participant' do
-        new_participant = MustRunProducer.new({key: :foo})
-        expect(order.add(new_participant).order).to eql order
+        expect(order.add(p1).order).to eql order
       end
     end
 
@@ -31,8 +83,6 @@ module Merit
 
     describe "#participants" do
       it 'should remember the added participants' do
-        p1 = MustRunProducer.new({key: :foo})
-        p2 = MustRunProducer.new({key: :bar})
         order.add(p1)
         order.add(p2)
         expect(order.participants).to eql [p1,p2]
@@ -42,9 +92,9 @@ module Merit
     describe '#price_at' do
       it 'should return the marginal cost of the price setting producer' do
         order.stub(:price_setting_producers) do
-          Array.new(Merit::POINTS, VolatileProducer.new(key: :foo, marginal_costs: 1))
+          Array.new(Merit::POINTS, p1)
         end
-        expect(order.price_at(118)).to eql 1
+        expect(order.price_at(118)).to eql 13.999791
       end
     end
 
@@ -62,9 +112,9 @@ module Merit
 
     describe '#producers' do
       it 'returns "always on" participants first' do
-        dispatchable = Merit::DispatchableProducer.new(key: :foo)
-        volatile     = Merit::VolatileProducer.new(key: :bar)
-        must_run     = Merit::MustRunProducer.new(key: :baz)
+        dispatchable = p1
+        volatile     = p2
+        must_run     = p3
 
         order.add(dispatchable)
         order.add(volatile)
@@ -77,7 +127,7 @@ module Merit
     describe "#inspect" do
       it "should contain the number of participants" do
         expect(order.to_s).to match("0 producer")
-        order.add(MustRunProducer.new({key: :foo}))
+        order.add(p1)
         expect(order.to_s).to match("1 producer")
       end
       it "shows the total demand"  do
@@ -91,7 +141,7 @@ module Merit
         expect(order.must_runs).to be_empty
       end
       it "should contain a new must run" do
-        order.add(MustRunProducer.new({key: :foo}))
+        order.add(p3)
         expect(order.must_runs).to_not be_empty
       end
     end
@@ -101,7 +151,7 @@ module Merit
         expect(order.volatiles).to be_empty
       end
       it "should contain a new must run" do
-        order.add(VolatileProducer.new({key: :foo}))
+        order.add(p2)
         expect(order.volatiles).to_not be_empty
       end
     end
@@ -111,25 +161,22 @@ module Merit
         expect(order.dispatchables).to be_empty
       end
       it "should contain a new must run" do
-        order.add(DispatchableProducer.new({key: :foo}))
+        order.add(p1)
         expect(order.dispatchables).to_not be_empty
       end
       it "should be ordered by marginal_costs" do
-        dp1 = DispatchableProducer.new({key: :foo, marginal_costs: 2})
-        dp2 = DispatchableProducer.new({key: :bar, marginal_costs: 1})
-        order.add(dp1)
-        order.add(dp2)
-        expect(order.dispatchables.first).to eql(dp2)
-        expect(order.dispatchables.last).to  eql(dp1)
+        order.add(p1)
+        order.add(p4)
+        expect(order.dispatchables.first).to eql(p4)
+        expect(order.dispatchables.last).to  eql(p1)
       end
     end
 
     describe '#add'do
       context 'when the order has not been calculated' do
         it 'adds the participant to the order' do
-          participant = Participant.new(key: :coal)
-          order.add(participant)
-          expect(order.participants).to include(participant)
+          order.add(p1)
+          expect(order.participants).to include(p1)
         end
       end
 
@@ -137,7 +184,7 @@ module Merit
         it 'raises an error' do
           order.calculate
 
-          expect { order.add(Participant.new(key: :coal)) }.
+          expect { order.add(p1) }.
             to raise_error(Merit::LockedOrderError)
         end
       end
@@ -145,13 +192,13 @@ module Merit
 
     describe '#load_curves' do
       it 'returns an array of load curves' do
-        order.add(DispatchableProducer.new({key: :foo}))
+        order.add(p1)
         expect(order.load_curves).to be_a(Array)
       end
 
       it 'returns one member per producer' do
-        order.add(DispatchableProducer.new({key: :foo}))
-        order.add(DispatchableProducer.new({key: :bar}))
+        order.add(p1)
+        order.add(p2)
 
         expect(order.load_curves.first).to have(2).members
       end

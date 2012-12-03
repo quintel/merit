@@ -12,7 +12,8 @@ module Merit
     # params opts[Hash] set the attributes
     # returns Participant
     def initialize(opts)
-      raise MissingAttributeError.new('key',self.class) unless opts[:key]
+      @opts             = opts
+      require_attributes :key
       @key              = opts[:key]
       @load_profile_key = opts[:load_profile_key]
     end
@@ -35,5 +36,14 @@ module Merit
       not always_on?
     end
 
+    #######
+    private
+    #######
+
+    def require_attributes(*attrs)
+      attrs.each do |attr|
+        raise MissingAttributeError.new(attr,self.class) unless @opts[attr]
+      end
+    end
   end # Participant
 end # Merit

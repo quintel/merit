@@ -9,23 +9,33 @@ module Merit
           marginal_costs:            13.999791,
           output_capacity_per_unit:  0.1,
           number_of_units:           1,
-          availability:              0.89
+          availability:              0.89,
+          fixed_costs_per_unit:      222.9245208,
+          fixed_om_costs_per_unit:   35.775
         ))
 
         order.add(VolatileProducer.new(
           key:                       :volatile,
+          marginal_costs:            19.999791,
           load_profile_key:          :industry_chp,
           output_capacity_per_unit:  0.1,
           availability:              0.95,
-          number_of_units:           1
+          number_of_units:           1,
+          fixed_costs_per_unit:      222.9245208,
+          fixed_om_costs_per_unit:   35.775,
+          full_load_hours:           1000
         ))
 
         order.add(VolatileProducer.new(
           key:                       :volatile_two,
+          marginal_costs:            21.21,
           load_profile_key:          :solar_pv,
           output_capacity_per_unit:  0.1,
           availability:              0.95,
-          number_of_units:           1
+          number_of_units:           1,
+          fixed_costs_per_unit:      222.9245208,
+          fixed_om_costs_per_unit:   35.775,
+          full_load_hours:           1000
         ))
 
         order.add(User.new(key: :total_demand, total_consumption: 6.4e6))
@@ -74,7 +84,7 @@ module Merit
         demand -= volatile_two.max_load_at(0)
 
         expect(load_value).to_not be_nil
-        expect(load_value).to eql(demand)
+        expect(load_value).to be_within(0.01).of(demand)
       end
 
       it 'sets the load profile values of the second producer' do

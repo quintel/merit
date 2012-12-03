@@ -23,12 +23,6 @@ module Merit
 
     end
 
-    describe '#to_s' do
-      it 'should display name of subclass' do
-        expect(MustRunProducer.new(key: :foo).to_s).to match('MustRun')
-      end
-    end # describe #to_s
-
   end # describe Pariticipant
 
 end

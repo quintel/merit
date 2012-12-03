@@ -17,6 +17,12 @@ module Merit
     # returns Participant
     def initialize(opts)
       super
+      require_attributes :marginal_costs,
+                         :output_capacity_per_unit,
+                         :number_of_units,
+                         :availability,
+                         :fixed_costs_per_unit,
+                         :fixed_om_costs_per_unit
 
       @full_load_hours           = opts[:full_load_hours]
       @marginal_costs            = opts[:marginal_costs]

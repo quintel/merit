@@ -1,14 +1,24 @@
 module Merit
 
   class VolatileProducer < Producer
+    def initialize(opts)
+      super
+      require_attributes :full_load_hours,
+                         :load_profile_key
+    end
+    def always_on?; true; end
+  end
+
+  class MustRunProducer < Producer
+    def initialize(opts)
+      super
+      require_attributes :full_load_hours,
+                         :load_profile_key
+    end
     def always_on?; true; end
   end
 
   class DispatchableProducer < Producer
-  end
-
-  class MustRunProducer < Producer
-    def always_on?; true; end
   end
 
 end

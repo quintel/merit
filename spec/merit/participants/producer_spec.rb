@@ -6,38 +6,43 @@ module Merit
 
     let(:producer) do
       Producer.new(
-        key:                       :coal,
-        load_profile_key:          :industry_chp,
+        key:                      :foo,
+        marginal_costs:           11.1,
         output_capacity_per_unit: 1,
-        marginal_costs:            2,
-        availability:              0.95,
-        number_of_units:           2,
-        full_load_hours:           4
+        number_of_units:          5,
+        availability:             0.95,
+        fixed_costs_per_unit:     222.9245208,
+        fixed_om_costs_per_unit:  35.775,
+        load_profile_key:         :solar_pv,
+        full_load_hours:          1050
        )
     end
 
     describe '#new' do
       it 'should remember (more attributes than basic participants)' do
-        expect(producer.key).to eql(:coal)
-        expect(producer.load_profile_key).to eql(:industry_chp)
+        expect(producer.key).to eql(:foo)
+        expect(producer.load_profile_key).to eql(:solar_pv)
         expect(producer.output_capacity_per_unit).to eql(1)
-        expect(producer.marginal_costs).to eql(2)
+        expect(producer.marginal_costs).to eql(11.1)
         expect(producer.availability).to eql(0.95)
-        expect(producer.full_load_hours).to eql(4)
+        expect(producer.full_load_hours).to eql(1050)
       end
     end
 
     describe '#full_load_hours' do
       it 'should be the same as inputted, if it was input' do
-        expect(producer.full_load_hours).to eql 4
+        expect(producer.full_load_hours).to eql 1050
       end
 
       context 'when no explicit value is set' do
         let(:producer) do
           Producer.new(
             key: :bar,
+            marginal_costs: 11.1,
             output_capacity_per_unit: 1600,
             availability: 0.9,
+            fixed_costs_per_unit: 222.9245208,
+            fixed_om_costs_per_unit: 35.775,
             number_of_units: 0.31875
           ).tap { |p| p.stub(:production).and_return(14475023999.999998) }
         end
@@ -90,13 +95,13 @@ module Merit
       it 'should be settable by the merit order' do
         merit = Merit::Order.new
         merit.add(producer)
-        merit.participant(:coal).load_curve = LoadCurve.new((1..3).to_a)
+        merit.participant(:foo).load_curve = LoadCurve.new((1..3).to_a)
         expect(producer.load_curve.to_a).to eql [1,2,3]
       end
       it 'should be adaptable and extendable for the merit order' do
         merit = Merit::Order.new
         merit.add(producer)
-        merit.participant(:coal).load_curve.set(0, 1)
+        merit.participant(:foo).load_curve.set(0, 1)
         expect(producer.load_curve.to_a[0]).to eql(1)
       end
     end
@@ -174,9 +179,21 @@ module Merit
         expect(producer.load_profile.values).to have(8760).values
       end
 
-      it 'should return nil if not available' do
-        producer = Producer.new(key: :foo, load_profile: 'weird-al')
-        expect(producer.load_profile).to be_nil
+      it 'should raise error if not available' do
+        init_code = -> {
+          Producer.new(
+              key:                      :foo,
+              marginal_costs:           11.1,
+              output_capacity_per_unit: 1,
+              number_of_units:          5,
+              availability:             0.95,
+              fixed_costs_per_unit:     222.9245208,
+              fixed_om_costs_per_unit:  35.775,
+              load_profile_key:         :weird_al,
+              full_load_hours:          1050
+            )
+        }
+        expect(init_code).to raise_error(MissingLoadProfileError)
       end
     end
 
@@ -184,12 +201,12 @@ module Merit
       context 'when full load hours was not inputted' do
         it 'should return the correct outcome in MJ' do
           producer.instance_variable_set(:@full_load_hours, nil)
-          expect(producer.max_production).to eql 1 * 3600 * 2 * 0.95 * 8760
+          expect(producer.max_production).to eql 149796000.0
         end
       end
       context 'when full load hours have been inputted' do
         it 'should return the correct outcome in MJ' do
-          expect(producer.max_production).to eql 1 * 4 * 3600 * 2
+          expect(producer.max_production).to eql 18900000
         end
       end
     end
