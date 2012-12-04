@@ -21,8 +21,14 @@ module Merit
       end
       it 'should be able to draw a chart with negative values' do
         pending "implemenation of negative numbers"
-        expect(barchart0.drawing).to eql "--o 0.00e+00\n-o- 0.00e+00\no-- 0.00e+00"
       end
     end #describe #drawing
+
+    describe '#draw!' do
+      it 'should send stream to puts' do
+        output = capture_stdout { barchart0.draw }
+        expect(output).to eql "--- 0.00e+00\n--- 0.00e+00\nooo 0.00e+00\n"
+      end
+    end
   end #describe BarChart
 end #module Merit

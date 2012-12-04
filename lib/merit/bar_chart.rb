@@ -8,7 +8,6 @@ module Merit
     HEIGHT = 16
     EMPTY  = '-'
     MARKER = 'o'
-    FILLED = true  # Do you want to the area below the line filled?
 
     def initialize(values, height = HEIGHT, width = WIDTH)
       @height, @width = height, width
@@ -35,13 +34,15 @@ module Merit
       # puts a marker on the place where the value is
       reduced_values.each_with_index do |value, index|
         x_value = index
-        max_y_value == 0 ? y_value = 0 : y_value = (value / max_y_value * height-1)
-        if FILLED
-          0.upto(y_value) do |value|
-            matrix[x_value][value] = MARKER unless matrix[x_value].nil?
-          end
+
+        if max_y_value.zero?
+          y_value = 0
         else
-          matrix[x_value][y_value] = MARKER unless matrix[x_value].nil?
+          y_value = (value / max_y_value * height-1)
+        end
+
+        0.upto(y_value) do |value|
+          matrix[x_value][value] = MARKER unless matrix[x_value].nil?
         end
       end
 

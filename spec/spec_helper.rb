@@ -19,3 +19,14 @@ RSpec.configure do |config|
   # Allow adding examples to a filter group with only a symbol.
   config.treat_symbols_as_metadata_keys_with_true_values = true
 end
+
+def capture_stdout(&block)
+  original_stdout = $stdout
+  $stdout = fake = StringIO.new
+  begin
+    yield
+  ensure
+    $stdout = original_stdout
+  end
+  fake.string
+end
