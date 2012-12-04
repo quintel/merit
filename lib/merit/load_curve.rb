@@ -44,12 +44,8 @@ module Merit
     end
 
     # Public: creates a new drawing in the terminal for this LoadCurve
-    def draw!
-      BarChart.new(to_a).draw
-    end
-
     def draw
-      BarChart.new(to_a).drawing
+      BarChart.new(to_a).draw
     end
 
     # Public: substract one load curve from the other

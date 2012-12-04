@@ -35,7 +35,9 @@ module Merit
 
     describe '#draw' do
       it 'should draw' do
-        expect(->{ load_curve.draw }).to_not raise_error
+        output = capture_stdout(load_curve.draw)
+        expect(output).to be_a(String)
+        expect(output.size).to be > 0
       end
     end
 
