@@ -22,7 +22,7 @@ module Merit
     # Public: created a new Order
     def initialize(total_demand = nil)
       @participants            = {}
-      @price_setting_producers = []
+      @price_setting_producers = Array.new(POINTS)
       if total_demand
         add(User.new(key: :total_demand))
         users.first.total_consumption = total_demand
