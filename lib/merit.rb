@@ -12,6 +12,7 @@ require 'merit/participants/profitable'
 
 require 'merit/calculator'
 require 'merit/order'
+require 'merit/order_attribute_groups'
 require 'merit/load_curve'
 require 'merit/load_profile'
 
@@ -23,3 +24,4 @@ require 'merit/participants/user'
 # Helpers
 require 'merit/bar_chart'
 require 'merit/csv_writer'
+require 'merit/collection_table'

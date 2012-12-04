@@ -17,6 +17,17 @@ module Merit
   #
   class Order
 
+    PROFIT_ATTRS = [ 'key',
+                     'class',
+                     'profitability',
+                     'full_load_hours',
+                     'profit',
+                     'revenue',
+                     'total_costs',
+                     'fixed_costs',
+                     'variable_costs',
+                     'operating_costs' ]
+
     attr_reader :price_setting_producers
 
     # Public: created a new Order
@@ -181,10 +192,7 @@ module Merit
     end
 
     def profit_info
-      puts Terminal::Table.new(
-        :headings => profit_summary[0],
-        :rows     => profit_summary[1..-1]
-      )
+      puts CollectionTable.new(producers, PROFIT_ATTRS).draw!
     end
 
     # Public: Returns an Array containing a 'table' with all the producers
