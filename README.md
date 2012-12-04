@@ -93,7 +93,7 @@ Then you can start to request output, e.g. a summary of the 'Merit Order':
 | energy_power_combined_cycle_ccs_gas_power_fuelmix    | Merit::DispatchableProducer | 57.28270883    | NaN                |
 | energy_chp_combined_cycle_natural_gas                | Merit::DispatchableProducer | 60.33237888    | 2692.5290921503865 |
 | energy_power_ultra_supercritical_gas_power_fuelmix   | Merit::DispatchableProducer | 65.90324432    | 519.7911394222648  |
-| energy_power_turbine_network_gas                     | Merit::DispatchableProducer | 78.01340618    | 65.0114838600931   |
+| energy_power_turbine_gas_power_fuelmix               | Merit::DispatchableProducer | 78.01340618    | 65.0114838600931   |
 | energy_power_ultra_supercritical_crude_oil           | Merit::DispatchableProducer | 93.09320787    | NaN                |
 | energy_chp_ultra_supercritical_crude_oil             | Merit::DispatchableProducer | 109.3782764    | NaN                |
 | energy_chp_ultra_supercritical_wood_pellets          | Merit::DispatchableProducer | 139.7898305    | NaN                |

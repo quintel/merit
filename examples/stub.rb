@@ -442,7 +442,7 @@ module Merit
 
     merit_order.add(
       DispatchableProducer.new(
-        key: :energy_power_turbine_network_gas,
+        key: :energy_power_turbine_gas_power_fuelmix,
         marginal_costs: 77.98197244,
         output_capacity_per_unit: 147.0,
         number_of_units: 1.442176871,
