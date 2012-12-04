@@ -146,7 +146,7 @@ module Merit
 
     merit_order.add(
       MustRunProducer.new(
-        key: :agriculture_chp_engine_gas_power_fuelmix,
+        key: :agriculture_chp_engine_natural_gas,
         marginal_costs: 78.2912044,
         output_capacity_per_unit: 1.01369863,
         number_of_units: 3023.581081,
@@ -174,7 +174,7 @@ module Merit
 
     merit_order.add(
       MustRunProducer.new(
-        key: :buildings_collective_chp_gas_power_fuelmix,
+        key: :buildings_collective_chp_natural_gas,
         marginal_costs: 94.00461948,
         output_capacity_per_unit: 0.465581395,
         number_of_units: 871.7816937,
@@ -272,7 +272,7 @@ module Merit
 
     merit_order.add(
       DispatchableProducer.new(
-        key: :energy_chp_combined_cycle_gas_power_fuelmix,
+        key: :energy_chp_combined_cycle_natural_gas,
         marginal_costs: 0.0,
         output_capacity_per_unit: 574.9333333,
         number_of_units: 5.749536178,

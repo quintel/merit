@@ -69,9 +69,9 @@ Then you can start to request output, e.g. a summary of the 'Merit Order':
 | industry_chp_supercritical_wood_pellets              | Merit::MustRunProducer      | 139.7898305    | 5247.813411        |
 | industry_chp_ultra_supercritical_coal                | Merit::MustRunProducer      | 32.15521115    | 4204.8             |
 | energy_power_supercritical_waste_mix                 | Merit::MustRunProducer      | 1.20608908     | 6190.47619         |
-| agriculture_chp_engine_gas_power_fuelmix             | Merit::MustRunProducer      | 78.31972973    | 3980.424144        |
+| agriculture_chp_engine_natural_gas                   | Merit::MustRunProducer      | 78.31972973    | 3980.424144        |
 | buildings_collective_chp_wood_pellets                | Merit::MustRunProducer      | 154.16507      | 6097.777778        |
-| buildings_collective_chp_gas_power_fuelmix           | Merit::MustRunProducer      | 94.03660242    | 3942               |
+| buildings_collective_chp_natural_gas                 | Merit::MustRunProducer      | 94.03660242    | 3942               |
 | households_collective_chp_wood_pellets               | Merit::MustRunProducer      | 119.9789346    | 6097.777778        |
 | households_collective_chp_network_gas                | Merit::MustRunProducer      | 13.2815786     | 3942               |
 | households_water_heater_fuel_cell_chp_network_gas    | Merit::MustRunProducer      | 0.0            | 0                  |
@@ -91,7 +91,7 @@ Then you can start to request output, e.g. a summary of the 'Merit Order':
 | energy_power_ultra_supercritical_ccs_coal            | Merit::DispatchableProducer | 34.97148374    | NaN                |
 | energy_power_combined_cycle_gas_power_fuelmix        | Merit::DispatchableProducer | 44.24374451    | 6671.774693261107  |
 | energy_power_combined_cycle_ccs_gas_power_fuelmix    | Merit::DispatchableProducer | 57.28270883    | NaN                |
-| energy_chp_combined_cycle_gas_power_fuelmix          | Merit::DispatchableProducer | 60.33237888    | 2692.5290921503865 |
+| energy_chp_combined_cycle_natural_gas                | Merit::DispatchableProducer | 60.33237888    | 2692.5290921503865 |
 | energy_power_ultra_supercritical_gas_power_fuelmix   | Merit::DispatchableProducer | 65.90324432    | 519.7911394222648  |
 | energy_power_turbine_network_gas                     | Merit::DispatchableProducer | 78.01340618    | 65.0114838600931   |
 | energy_power_ultra_supercritical_crude_oil           | Merit::DispatchableProducer | 93.09320787    | NaN                |
@@ -111,9 +111,9 @@ details. You will see a summary of the information, with a chart of the *load
 curve*.
 
 ```
-> merit_order.participant(:energy_chp_combined_cycle_gas_power_fuelmix).info
+> merit_order.participant(:energy_chp_combined_cycle_natural_gas).info
 =================================================================================
-Key:   energy_chp_combined_cycle_gas_power_fuelmix
+Key:   energy_chp_combined_cycle_natural_gas
 Class: Merit::DispatchableProducer
 
 -o---------------------------------------------------------------------- 2.13e+03
