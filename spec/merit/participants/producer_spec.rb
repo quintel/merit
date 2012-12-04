@@ -231,7 +231,9 @@ module Merit
 
     describe '#info' do
       it 'should produce some statistics about this producer' do
-        expect(producer.info).to_not be_nil
+        output = capture_stdout { producer.info }
+        expect(output).to be_a(String)
+        expect(output).to match producer.key.to_s
       end
     end
 
