@@ -82,13 +82,6 @@ module Merit
       Math.sqrt(variance)
     end
 
-    # Public: outputs the current load_curve to a csv file
-    def to_csv(file_name = 'output.csv')
-      CSV.open(File.join(Merit.root, 'output', file_name), 'w') do |csv|
-        each { |value| csv << [value] }
-      end
-    end
-
     #######
     private
     #######
