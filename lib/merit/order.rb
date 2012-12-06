@@ -28,6 +28,12 @@ module Merit
                      'variable_costs',
                      'operating_costs' ]
 
+    LOAD_ATTRS   = [ 'key',
+                     'class',
+                     'marginal_costs',
+                     'full_load_hours',
+                     'production' ]
+
     attr_reader :price_setting_producers
 
     # Public: created a new Order
@@ -138,57 +144,8 @@ module Merit
       " #{users.size} users >"
     end
 
-    # TODO: Dry up this method
-    # Public: Returns an Array containing a 'table' with a row for every
-    # producer and it's key, class, marginal costs,  full load hours.
-    def summary
-      rows = [['key',
-               'class',
-               'marginal costs',
-               'full load hours',
-               'production (PJ)'
-      ]]
-      producers.each do |p|
-        rows << [p.key,
-                 p.class,
-                 p.marginal_costs,
-                 p.full_load_hours,
-                 p.production / 10**9
-        ]
-      end
-      rows << ['TOTALS:',nil,nil,nil,producers.map(&:production).reduce(:+) / 10**9]
-      rows
-    end
-
-    # TODO: Dry up this method
-    # Public: Returns an Array containing a 'table' with a row for every
-    # producer and it's financial specs
-    def profit_summary
-      rows = [['key',
-               'class',
-               'profitability',
-               'flh',
-               'profit',
-               'revenue',
-               'total_costs',
-               'fixed_costs',
-               'variable_costs',
-               'operating_costs'
-      ]]
-      producers.each do |p|
-        rows << [p.key,
-                 p.class,
-                 p.profitability,
-                 p.full_load_hours.to_i,
-                 p.profit.to_i / 10**6,
-                 p.revenue.to_i / 10**6,
-                 p.total_costs.to_i / 10**6,
-                 p.fixed_costs.to_i / 10**6,
-                 p.variable_costs.to_i / 10**6,
-                 p.operating_costs.to_i / 10**6
-        ]
-      end
-      rows
+    def info
+      puts CollectionTable.new(producers, LOAD_ATTRS).draw!
     end
 
     def profit_info
@@ -208,13 +165,6 @@ module Merit
         ].flatten
       end
       columns.transpose
-    end
-
-    def info
-      puts Terminal::Table.new(
-        :headings => summary[0],
-        :rows     => summary[1..-1]
-      )
     end
 
     #######
