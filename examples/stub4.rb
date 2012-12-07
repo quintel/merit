@@ -230,7 +230,7 @@ module Merit
 
     merit_order.add(
       MustRunProducer.new(
-        key: :other_chp_engine_gas_power_fuelmix,
+        key: :other_chp_engine_network_gas,
         marginal_costs: 78.35349089,
         output_capacity_per_unit: 0.467669373,
         number_of_units: 0.0,
@@ -272,7 +272,7 @@ module Merit
 
     merit_order.add(
       DispatchableProducer.new(
-        key: :energy_chp_combined_cycle_natural_gas,
+        key: :energy_chp_combined_cycle_network_gas,
         marginal_costs: 0.0,
         output_capacity_per_unit: 574.9333333,
         number_of_units: 5.749536178,
@@ -344,7 +344,7 @@ module Merit
 
     merit_order.add(
       DispatchableProducer.new(
-        key: :energy_power_combined_cycle_ccs_gas_power_fuelmix,
+        key: :energy_power_combined_cycle_ccs_network_gas,
         marginal_costs: 0.0,
         output_capacity_per_unit: 651.1186441,
         number_of_units: 0.0,
@@ -368,7 +368,7 @@ module Merit
 
     merit_order.add(
       DispatchableProducer.new(
-        key: :energy_power_combined_cycle_gas_power_fuelmix,
+        key: :energy_power_combined_cycle_network_gas,
         marginal_costs: 0.0,
         output_capacity_per_unit: 784.0,
         number_of_units: 5.104591837,
@@ -428,7 +428,7 @@ module Merit
 
     merit_order.add(
       DispatchableProducer.new(
-        key: :energy_power_turbine_gas_power_fuelmix,
+        key: :energy_power_turbine_network_gas,
         marginal_costs: 0.0,
         output_capacity_per_unit: 147.0,
         number_of_units: 1.442176871,
@@ -476,7 +476,7 @@ module Merit
 
     merit_order.add(
       DispatchableProducer.new(
-        key: :energy_power_ultra_supercritical_gas_power_fuelmix,
+        key: :energy_power_ultra_supercritical_network_gas,
         marginal_costs: 0.0,
         output_capacity_per_unit: 792.0,
         number_of_units: 4.828282828,
