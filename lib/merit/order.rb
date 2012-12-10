@@ -195,16 +195,6 @@ module Merit
       participants.select { |participant| participant.is_a?(klass) }
     end
 
-    # Internal: Yields each point for which loads should be calcualted.
-    #
-    # This can be overridden in subclass if you want to calculate only a
-    # subset of the points.
-    #
-    # Returns nothing.
-    def each_point
-      Merit::POINTS.times { |point| yield point }
-    end
-
     class << self
       # Public: Sets a calculator instance to use when calculating the loads
       # for merit orders when the user does not explicitly supply their own.

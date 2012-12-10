@@ -137,6 +137,21 @@ module Merit
       end
     end
 
+    # Public: What is the total demand between the two given points (inclusive
+    # of both points)?
+    #
+    # start  - The earlier point.
+    # finish - The later point.
+    #
+    # Returns a float.
+    def load_between(start, finish)
+      if @load_profile
+        @load_profile.values[start..finish].reduce(:+) * max_production
+      else
+        available_output_capacity * (1 + (finish - start))
+      end
+    end
+
     # Public: All the information you want in your terminal!
     def info
       puts <<EOF

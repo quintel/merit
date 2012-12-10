@@ -204,5 +204,19 @@ module Merit
       end
     end
 
+    describe '.calculator=' do
+      it 'sets the default calculator for calculations' do
+        previous = Merit::Order.calculator
+        new      = Merit::AveragingCalculator.new
+
+        begin
+          Merit::Order.calculator = new
+          expect(Merit::Order.calculator).to eql(new)
+        ensure
+          Merit::Order.calculator = previous
+        end
+      end
+    end
+
   end
 end

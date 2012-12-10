@@ -229,6 +229,30 @@ module Merit
       end
     end
 
+    describe '#load_between' do
+      context 'given a load profile' do
+        it 'should return the total max load over the period' do
+          producer.load_profile = LoadProfile.new(:a, Array.new(8760, 1))
+
+          expect(producer.load_between(50, 52)).to eql(
+            producer.max_load_at(50) +
+            producer.max_load_at(51) +
+            producer.max_load_at(52))
+        end
+      end
+
+      context 'given no load profile' do
+        it 'returns the available output capacity over the period' do
+          producer.load_profile = nil
+
+          expect(producer.load_between(50, 52)).to eql(
+            producer.max_load_at(50) +
+            producer.max_load_at(51) +
+            producer.max_load_at(52))
+        end
+      end
+    end
+
     describe '#info' do
       it 'should produce some statistics about this producer' do
         output = capture_stdout { producer.info }

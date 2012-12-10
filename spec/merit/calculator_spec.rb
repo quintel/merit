@@ -138,7 +138,6 @@ module Merit
       end
     end
 
-
     describe 'with QuantizingCalculator' do
       it 'should set a value for each load point' do
         # Set an excess of demand so that the dispatchable is running
@@ -158,6 +157,58 @@ module Merit
           to raise_error(InvalidChunkSize)
       end
     end # with QuantizingCalculator
+
+    describe 'with AveragingCalculator' do
+      it 'should set a value for each nth load point' do
+        # Set an excess of demand so that the dispatchable is running
+        # all the time.
+        order.users.first.total_consumption = 6.4e7
+
+        AveragingCalculator.new.calculate(order)
+
+        values = order.participant(:dispatchable).load_curve.
+          instance_variable_get(:@values).compact
+
+        expect(values).to have(Merit::POINTS / 8).members
+      end
+
+      it 'raises an error if using a chunk size of 1' do
+        expect { AveragingCalculator.new(1) }.
+          to raise_error(InvalidChunkSize)
+      end
+
+      it "doesn't over-assign load" do
+        order.users.first.total_consumption = 1.0e6
+
+        # Explicitly tests assigning the "remaining" demand in
+        # AveragingCalulator#compute_loads!
+        expect {
+          AveragingCalculator.new.calculate(order)
+        }.to_not raise_error
+      end
+
+      it "only assigns demand when some is present" do
+        # Set zero demand so that each producers receives zero. This
+        # explicitly tests the "break" in AveragingCalculator#compute_loads!
+        order.users.first.total_consumption = 0.0
+
+        expect {
+          AveragingCalculator.new.calculate(order)
+        }.to_not raise_error
+      end
+    end # with AveragingCalculator
+
+    context 'when producer order is incorrect' do
+      # Impossible with the current Order class, but serves as a regression
+      # test.
+      it 'raises an error' do
+        order.stub(:producers).and_return([
+          volatile, dispatchable, volatile_two])
+
+        expect { Calculator.new.calculate(order) }.
+          to raise_error(IncorrectProducerOrder)
+      end
+    end
 
   end # Calculator
 end # Merit
