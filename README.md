@@ -330,6 +330,26 @@ participant at every point in time can be found by multiplying its load profile
 with its **electricity production** (note that this is not equal to its
 demand).
 
+###### NOTE: The scaling of MO load_profiles can result in loads (MW) larger 
+then the available efficiency
+
+This happens because the area under the profiles needs to be scaled to the 
+total produced electricity but the shape of the profiles does not always 
+include all information.
+
+For example, the profiles for wind may not describe every gush of wind that 
+has been converted into electricity and therefore 'misses' features, i.e., it 
+has a trough where it should have a peak. This is inevitable as we do not have 
+measurement of every location in the Netherlands where a turbine is situated 
+and we do not know the exact relation between the wind speeds (measured) and 
+the production of a turbine.
+
+This means that to reproduce the total production, the profile has to be 
+scaled vertically (to make up for the lost peaks) and peaks in the load may 
+become unphysically high. This is not a fundamental problem, as the curve is 
+only indicative of the variability of the technology, but it might confuse 
+the user.
+
 #### Full load hours
 
 The full load hours are defined as:
