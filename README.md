@@ -330,8 +330,8 @@ participant at every point in time can be found by multiplying its load profile
 with its **electricity production** (note that this is not equal to its
 demand).
 
-###### NOTE: The scaling of MO load_profiles can result in loads (MW) larger 
-then the available efficiency
+**NOTE: The scaling of MO load_profiles can result in loads (MW) larger 
+then the available efficiency**
 
 This happens because the area under the profiles needs to be scaled to the 
 total produced electricity but the shape of the profiles does not always 
