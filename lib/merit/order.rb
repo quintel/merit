@@ -89,10 +89,20 @@ module Merit
     end
 
     # Public: Returns all the dispatchables participants, ordered
-    # by marginal_costs
+    # by marginal_costs. Sets the dispatchable position attribute, which
+    # which starts with 1 and is set to -1 if the capacity production is zero
     def dispatchables
-      @dispatchables ||
-        select_participants(DispatchableProducer).sort_by(&:marginal_costs)
+      position = 1
+      dispatchables = select_participants(DispatchableProducer).sort_by(&:marginal_costs)
+      dispatchables.each do |d|
+        if d.output_capacity_per_unit * d.number_of_units == 0
+          d.position = -1
+        else
+          d.position = position
+          position += 1
+        end
+      end
+      @dispatchables || dispatchables
     end
 
     # Public: returns all the users of electricity

@@ -10,7 +10,7 @@ module Merit
                   :number_of_units, :marginal_costs, :fixed_costs_per_unit,
                   :fixed_om_costs_per_unit
 
-    attr_accessor :load_curve, :load_profile
+    attr_accessor :load_curve, :load_profile, :position
 
     # Public: creates a new producer
     # params opts[Hash] set the attributes

@@ -60,6 +60,20 @@ module Merit
       )
     end
 
+    let(:p5) do
+      DispatchableProducer.new(
+        key:                       :foo_no_units,
+        marginal_costs:            0,
+        output_capacity_per_unit:  0.1,
+        number_of_units:           0,
+        availability:              0.89,
+        fixed_costs_per_unit:      222.9245208,
+        fixed_om_costs_per_unit:   35.775,
+        load_profile_key:          :solar_pv,
+        full_load_hours:           1000
+      )
+    end
+
     describe "#new" do
       it "should be able to create one" do
         Order.new
@@ -169,6 +183,18 @@ module Merit
         order.add(p4)
         expect(order.dispatchables.first).to eql(p4)
         expect(order.dispatchables.last).to  eql(p1)
+      end
+
+      it "should be assigned the right position" do
+        order.add(p1)
+        order.add(p4)
+        expect(order.dispatchables.first.position).to eql(1)
+        expect(order.dispatchables.last.position).to  eql(2)
+      end
+
+      it "should assign -1 as position when capacity production is 0" do
+        order.add(p5) # producer with 0 units
+        expect(order.dispatchables.first.position).to eql(-1)
       end
     end
 
