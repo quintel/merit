@@ -114,6 +114,32 @@ module Merit
       end
     end
 
+    describe '#profit_per_mwh_electricity' do
+      before do
+        @dispatchable = DispatchableProducer.new(
+          key:                       :foo,
+          marginal_costs:            50,
+          output_capacity_per_unit:  1,
+          number_of_units:           1,
+          availability:              0.8,
+          fixed_costs_per_unit:      100,
+          fixed_om_costs_per_unit:   30
+        )
+        order.add @dispatchable
+      end
+
+      it 'should calculate correctly' do
+        @dispatchable.stub(:production) { 1 }
+        # marginal costs + fixed_costs_per_unit
+        expect(@dispatchable.profit_per_mwh_electricity).to eql -150.0
+      end
+
+      it 'should return nil if the production is 0' do
+        @dispatchable.stub(:production) { 0 }
+        expect(@dispatchable.profit_per_mwh_electricity).to be_nil
+      end
+    end
+
   end # describe Producer
 
 end # module Merit
