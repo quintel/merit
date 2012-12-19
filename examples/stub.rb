@@ -20,20 +20,6 @@ module Merit
 
     merit_order.add(
       VolatileProducer.new(
-        key: :energy_power_solar_csp_solar_radiation,
-        marginal_costs: 1.0,
-        output_capacity_per_unit: 50.0,
-        number_of_units: 0.0,
-        availability: 0.99,
-        fixed_costs_per_unit: 15129166.33,
-        fixed_om_costs_per_unit: 400000,
-        load_profile_key: :solar_pv,
-        full_load_hours: 500
-      )
-    )
-
-    merit_order.add(
-      VolatileProducer.new(
         key: :energy_power_wind_turbine_inland,
         marginal_costs: 0.0,
         output_capacity_per_unit: 3.0,
@@ -231,7 +217,7 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :households_water_heater_fuel_cell_chp_network_gas,
-        marginal_costs: 0.0,
+        marginal_costs: 42.18407605,
         output_capacity_per_unit: 0.0015,
         number_of_units: 0.0,
         availability: 0.97,
@@ -259,7 +245,7 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :households_space_heater_micro_chp_network_gas,
-        marginal_costs: 0.0,
+        marginal_costs: 148.8849743,
         output_capacity_per_unit: 0.001,
         number_of_units: 0.0,
         availability: 0.97,
@@ -273,7 +259,7 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :households_water_heater_micro_chp_network_gas,
-        marginal_costs: 0.0,
+        marginal_costs: 148.8849743,
         output_capacity_per_unit: 0.001,
         number_of_units: 0.0,
         availability: 0.97,
@@ -311,7 +297,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_chp_ultra_supercritical_crude_oil,
-        marginal_costs: 0.0,
+        marginal_costs: 109.3782764,
         output_capacity_per_unit: 784.0,
         number_of_units: 0.0,
         availability: 0.89,
@@ -322,20 +308,8 @@ module Merit
 
     merit_order.add(
       DispatchableProducer.new(
-        key: :energy_chp_ultra_supercritical_lignite,
-        marginal_costs: 0.0,
-        output_capacity_per_unit: 613.8,
-        number_of_units: 0.0,
-        availability: 0.97,
-        fixed_costs_per_unit: 92837254.57,
-        fixed_om_costs_per_unit: 3670588.235,
-      )
-    )
-
-    merit_order.add(
-      DispatchableProducer.new(
         key: :energy_chp_ultra_supercritical_wood_pellets,
-        marginal_costs: 0.0,
+        marginal_costs: 139.7898305,
         output_capacity_per_unit: 66.96428571,
         number_of_units: 0.0,
         availability: 0.89,
@@ -347,7 +321,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_combined_cycle_ccs_coal,
-        marginal_costs: 0.0,
+        marginal_costs: 28.36859203,
         output_capacity_per_unit: 645.5452539,
         number_of_units: 0.0,
         availability: 0.87,
@@ -359,7 +333,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_combined_cycle_ccs_network_gas,
-        marginal_costs: 0.0,
+        marginal_costs: 57.26112855,
         output_capacity_per_unit: 651.1186441,
         number_of_units: 0.0,
         availability: 0.85,
@@ -395,7 +369,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_engine_diesel,
-        marginal_costs: 0.0,
+        marginal_costs: 93.09320787,
         output_capacity_per_unit: 784.0,
         number_of_units: 0.0,
         availability: 0.89,
@@ -407,7 +381,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_nuclear_gen2_uranium_oxide,
-        marginal_costs: 0.0,
+        marginal_costs: 6.133182844,
         output_capacity_per_unit: 1600.0,
         number_of_units: 0.0,
         availability: 0.85,
@@ -431,7 +405,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_supercritical_coal,
-        marginal_costs: 0.0,
+        marginal_costs: 29.9100356,
         output_capacity_per_unit: 792.0,
         number_of_units: 0.0,
         availability: 0.89,
@@ -455,7 +429,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_ultra_supercritical_ccs_coal,
-        marginal_costs: 0.0,
+        marginal_costs: 34.97148374,
         output_capacity_per_unit: 625.0,
         number_of_units: 0.0,
         availability: 0.85,
@@ -479,7 +453,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_ultra_supercritical_crude_oil,
-        marginal_costs: 0.0,
+        marginal_costs: 93.09320787,
         output_capacity_per_unit: 784.0,
         number_of_units: 0.0,
         availability: 0.89,
@@ -499,31 +473,7 @@ module Merit
         fixed_om_costs_per_unit: 1365600,
       )
     )
-
-    merit_order.add(
-      DispatchableProducer.new(
-        key: :energy_power_ultra_supercritical_lignite,
-        marginal_costs: 0.0,
-        output_capacity_per_unit: 790.0,
-        number_of_units: 0.0,
-        availability: 0.89,
-        fixed_costs_per_unit: 112037799.7,
-        fixed_om_costs_per_unit: 19607800,
-      )
-    )
-
-    merit_order.add(
-      DispatchableProducer.new(
-        key: :energy_power_ultra_supercritical_oxyfuel_ccs_lignite,
-        marginal_costs: 0.0,
-        output_capacity_per_unit: 640.0,
-        number_of_units: 0.0,
-        availability: 0.85,
-        fixed_costs_per_unit: 240498185.1,
-        fixed_om_costs_per_unit: 21906185.09,
-      )
-    )
-
+    
     merit_order.add(
       User.new(
         key: :total_demand,
