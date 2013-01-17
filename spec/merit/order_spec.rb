@@ -118,7 +118,8 @@ module Merit
             Array.new(Merit::POINTS, nil)
           end
           order.add(p1)
-          expect(order.price_at(188)).to eql p1.marginal_costs
+          order.add(p2) # has lower marginal costs.
+          expect(order.price_at(188)).to eql(p1.marginal_costs * 7.22)
         end
       end
     end

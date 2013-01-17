@@ -120,11 +120,18 @@ module Merit
       @participants.values
     end
 
-    # Public: Returns the price for a certain moment in time
+    # Public: Returns the price for a certain moment in time. The price is
+    # determined by the 'price setting producer', or it is just the most
+    # expensive **installed** producer multiplied with a factor 7.22.
+    #
+    # See https://github.com/quintel/merit/issues/66#issuecomment-12317794
+    # for the rationale of this factor 7.22
     def price_at(time)
-      producer = price_setting_producers[time] || dispatchables.last
-
-      producer.marginal_costs
+      if producer = price_setting_producers[time]
+        producer.marginal_costs
+      else
+        dispatchables.select{|p|p.number_of_units > 0}.last.marginal_costs * 7.22
+      end
     end
 
     # Public: Returns a Curve with all the (known) prices
