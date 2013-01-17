@@ -104,11 +104,22 @@ module Merit
     end
 
     describe '#price_at' do
-      it 'should return the marginal cost of the price setting producer' do
-        order.stub(:price_setting_producers) do
-          Array.new(Merit::POINTS, p1)
+      context 'when there is a price setting producer' do
+        it 'should return the marginal cost of the price setting producer' do
+          order.stub(:price_setting_producers) do
+            Array.new(Merit::POINTS, p1)
+          end
+          expect(order.price_at(118)).to eql 13.999791
         end
-        expect(order.price_at(118)).to eql 13.999791
+      end
+      context 'when there is NO price setting producer' do
+        it 'is a multiple of most expensive installed plant' do
+          order.stub(:price_setting_producers) do
+            Array.new(Merit::POINTS, nil)
+          end
+          order.add(p1)
+          expect(order.price_at(188)).to eql p1.marginal_costs
+        end
       end
     end
 
