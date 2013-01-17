@@ -401,9 +401,11 @@ possible but still (infinite) smaller than the cost of the participant that is
 the first one *not* producing.
 
 If all the dispatchables are producing, and hence there is none *not-running*,
-the *highest* `:marginal_costs` are assumed to be the price in that market.
+the *highest* `:marginal_costs` of a **runnning** dispatchable plant multiplied
+with a factor 7.22 is taken to be the price in that market.
 
-**N.B.** We could multiply the latter value with a certain factor.**
+If there are no dispatchable running plants defined, the fall back price is 600
+Euros.
 
 ## For each Participant
 

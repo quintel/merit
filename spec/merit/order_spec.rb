@@ -113,13 +113,22 @@ module Merit
         end
       end
       context 'when there is NO price setting producer' do
-        it 'is a multiple of most expensive installed plant' do
+        before do
           order.stub(:price_setting_producers) do
             Array.new(Merit::POINTS, nil)
           end
-          order.add(p1)
-          order.add(p2) # has lower marginal costs.
-          expect(order.price_at(188)).to eql(p1.marginal_costs * 7.22)
+        end
+        context 'when there are dispatchables' do
+          it 'is a multiple of most expensive installed plant' do
+            order.add(p1)
+            order.add(p2) # has lower marginal costs.
+            expect(order.price_at(188)).to eql(p1.marginal_costs * 7.22)
+          end
+        end
+        context 'when there are no dispatachables' do
+          it 'is 600' do
+            expect(order.price_at(188)).to eql(600)
+          end
         end
       end
     end
