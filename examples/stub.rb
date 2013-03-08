@@ -3,7 +3,21 @@ module Merit
   def self.stub
 
     merit_order = Merit::Order.new
-    # Add 45 Converters which are examples taken from ETENgine
+    # Add 46 Converters which are examples taken from ETENgine
+    merit_order.add(
+      VolatileProducer.new(
+        key: :energy_power_hydro_river,
+        marginal_costs: 0.0,
+        output_capacity_per_unit: 10.0,
+        number_of_units: 3.7,
+        availability: 0.98,
+        fixed_costs_per_unit: 3000000.0,
+        fixed_om_costs_per_unit: 320000,
+        load_profile_key: :river,
+        full_load_hours: 2703
+      )
+    )
+
     merit_order.add(
       VolatileProducer.new(
         key: :energy_power_solar_pv_solar_radiation,
@@ -91,7 +105,7 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :industry_chp_combined_cycle_gas_power_fuelmix,
-        marginal_costs: 116.9414593,
+        marginal_costs: 109.4862237,
         output_capacity_per_unit: 25.43252595,
         number_of_units: 122.0877551,
         availability: 0.97,
@@ -105,7 +119,7 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :industry_chp_supercritical_wood_pellets,
-        marginal_costs: 137.8983051,
+        marginal_costs: 139.7898305,
         output_capacity_per_unit: 32.5203252,
         number_of_units: 10.54725,
         availability: 0.97,
@@ -119,7 +133,7 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :industry_chp_ultra_supercritical_coal,
-        marginal_costs: 30.26513289,
+        marginal_costs: 32.15521115,
         output_capacity_per_unit: 11.57407407,
         number_of_units: 0.0,
         availability: 0.97,
@@ -147,7 +161,7 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :agriculture_chp_engine_natural_gas,
-        marginal_costs: 83.1425698,
+        marginal_costs: 78.2912044,
         output_capacity_per_unit: 1.01369863,
         number_of_units: 3023.581081,
         availability: 0.97,
@@ -161,7 +175,7 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :buildings_collective_chp_wood_pellets,
-        marginal_costs: 152.5202653,
+        marginal_costs: 154.16507,
         output_capacity_per_unit: 47.91666667,
         number_of_units: 0.0,
         availability: 0.97,
@@ -175,7 +189,7 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :buildings_collective_chp_natural_gas,
-        marginal_costs: 99.44402917,
+        marginal_costs: 94.00461948,
         output_capacity_per_unit: 0.465581395,
         number_of_units: 871.7816937,
         availability: 0.97,
@@ -189,7 +203,7 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :households_collective_chp_wood_pellets,
-        marginal_costs: 118.7179177,
+        marginal_costs: 119.9789346,
         output_capacity_per_unit: 58.33333333,
         number_of_units: 0.0,
         availability: 0.97,
@@ -203,7 +217,7 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :households_collective_chp_network_gas,
-        marginal_costs: 90.72572382,
+        marginal_costs: 85.59713755,
         output_capacity_per_unit: 0.606666667,
         number_of_units: 0.0,
         availability: 0.97,
@@ -217,7 +231,7 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :households_water_heater_fuel_cell_chp_network_gas,
-        marginal_costs: 45.17575138,
+        marginal_costs: 42.18407605,
         output_capacity_per_unit: 0.0015,
         number_of_units: 0.0,
         availability: 0.97,
@@ -231,7 +245,7 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :other_chp_engine_network_gas,
-        marginal_costs: 83.20485629,
+        marginal_costs: 78.35349089,
         output_capacity_per_unit: 0.467669373,
         number_of_units: 0.0,
         availability: 0.97,
@@ -245,7 +259,7 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :households_space_heater_micro_chp_network_gas,
-        marginal_costs: 159.4438284,
+        marginal_costs: 148.8849743,
         output_capacity_per_unit: 0.001,
         number_of_units: 0.0,
         availability: 0.97,
@@ -259,7 +273,7 @@ module Merit
     merit_order.add(
       MustRunProducer.new(
         key: :households_water_heater_micro_chp_network_gas,
-        marginal_costs: 159.4438284,
+        marginal_costs: 148.8849743,
         output_capacity_per_unit: 0.001,
         number_of_units: 0.0,
         availability: 0.97,
@@ -273,7 +287,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_chp_combined_cycle_network_gas,
-        marginal_costs: 64.30424652,
+        marginal_costs: 60.30808917,
         output_capacity_per_unit: 574.9333333,
         number_of_units: 5.749536178,
         availability: 0.9,
@@ -285,7 +299,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_chp_ultra_supercritical_coal,
-        marginal_costs: 30.90200246,
+        marginal_costs: 32.3919581,
         output_capacity_per_unit: 705.9130435,
         number_of_units: 2.365705626,
         availability: 0.88,
@@ -297,7 +311,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_chp_ultra_supercritical_crude_oil,
-        marginal_costs: 119.3610657,
+        marginal_costs: 109.3782764,
         output_capacity_per_unit: 784.0,
         number_of_units: 0.0,
         availability: 0.89,
@@ -309,7 +323,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_chp_ultra_supercritical_wood_pellets,
-        marginal_costs: 137.8983051,
+        marginal_costs: 139.7898305,
         output_capacity_per_unit: 66.96428571,
         number_of_units: 0.0,
         availability: 0.89,
@@ -321,7 +335,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_combined_cycle_ccs_coal,
-        marginal_costs: 26.82366735,
+        marginal_costs: 28.36859203,
         output_capacity_per_unit: 645.5452539,
         number_of_units: 0.0,
         availability: 0.87,
@@ -333,7 +347,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_combined_cycle_ccs_network_gas,
-        marginal_costs: 60.913171,
+        marginal_costs: 57.26112855,
         output_capacity_per_unit: 651.1186441,
         number_of_units: 0.0,
         availability: 0.85,
@@ -345,7 +359,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_combined_cycle_coal,
-        marginal_costs: 21.81858134,
+        marginal_costs: 23.20617439,
         output_capacity_per_unit: 784.0,
         number_of_units: 0.322704082,
         availability: 0.9,
@@ -357,7 +371,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_combined_cycle_network_gas,
-        marginal_costs: 47.15644745,
+        marginal_costs: 44.22593206,
         output_capacity_per_unit: 784.0,
         number_of_units: 5.104591837,
         availability: 0.9,
@@ -369,7 +383,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_engine_diesel,
-        marginal_costs: 101.4116809,
+        marginal_costs: 93.09320787,
         output_capacity_per_unit: 784.0,
         number_of_units: 0.0,
         availability: 0.89,
@@ -381,7 +395,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_nuclear_gen2_uranium_oxide,
-        marginal_costs: 5.815744921,
+        marginal_costs: 6.133182844,
         output_capacity_per_unit: 1600.0,
         number_of_units: 0.0,
         availability: 0.85,
@@ -393,7 +407,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_nuclear_gen3_uranium_oxide,
-        marginal_costs: 5.543995485,
+        marginal_costs: 5.826162528,
         output_capacity_per_unit: 1600.0,
         number_of_units: 0.31875,
         availability: 0.9,
@@ -405,7 +419,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_supercritical_coal,
-        marginal_costs: 28.16398101,
+        marginal_costs: 29.9100356,
         output_capacity_per_unit: 792.0,
         number_of_units: 0.0,
         availability: 0.89,
@@ -417,7 +431,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_turbine_network_gas,
-        marginal_costs: 83.15347019,
+        marginal_costs: 77.98197244,
         output_capacity_per_unit: 147.0,
         number_of_units: 1.442176871,
         availability: 0.89,
@@ -429,7 +443,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_ultra_supercritical_ccs_coal,
-        marginal_costs: 33.37520423,
+        marginal_costs: 34.97148374,
         output_capacity_per_unit: 625.0,
         number_of_units: 0.0,
         availability: 0.85,
@@ -441,7 +455,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_ultra_supercritical_coal,
-        marginal_costs: 27.55324854,
+        marginal_costs: 28.88177546,
         output_capacity_per_unit: 792.0,
         number_of_units: 3.391901654,
         availability: 0.88,
@@ -453,7 +467,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_ultra_supercritical_crude_oil,
-        marginal_costs: 101.4116809,
+        marginal_costs: 93.09320787,
         output_capacity_per_unit: 784.0,
         number_of_units: 0.0,
         availability: 0.89,
@@ -465,7 +479,7 @@ module Merit
     merit_order.add(
       DispatchableProducer.new(
         key: :energy_power_ultra_supercritical_network_gas,
-        marginal_costs: 70.27229872,
+        marginal_costs: 65.87652564,
         output_capacity_per_unit: 792.0,
         number_of_units: 4.828282828,
         availability: 0.89,
@@ -473,7 +487,6 @@ module Merit
         fixed_om_costs_per_unit: 1365600,
       )
     )
-
     
     merit_order.add(
       User.new(

@@ -3,7 +3,21 @@ module Merit
   def self.stub
 
     merit_order = Merit::Order.new
-    # Add 45 Converters which are examples taken from ETENgine
+    # Add 46 Converters which are examples taken from ETENgine
+    merit_order.add(
+      VolatileProducer.new(
+        key: :energy_power_hydro_river,
+        marginal_costs: 0.0,
+        output_capacity_per_unit: 10.0,
+        number_of_units: 3.7,
+        availability: 0.98,
+        fixed_costs_per_unit: 3000000.0,
+        fixed_om_costs_per_unit: 320000,
+        load_profile_key: :river,
+        full_load_hours: 2703
+      )
+    )
+
     merit_order.add(
       VolatileProducer.new(
         key: :energy_power_solar_pv_solar_radiation,
