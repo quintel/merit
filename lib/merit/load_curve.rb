@@ -43,6 +43,8 @@ module Merit
       "<#{self.class}: #{length} values>"
     end
 
+    alias_method :inspect, :to_s
+
     # Public: creates a new drawing in the terminal for this LoadCurve
     def draw
       BarChart.new(to_a).draw
