@@ -20,6 +20,7 @@ require 'merit/participants/participant'
 require 'merit/participants/producer'
 require 'merit/participants/types'
 require 'merit/participants/user'
+require 'merit/participants/storage'
 
 # Helpers
 require 'merit/bar_chart'
