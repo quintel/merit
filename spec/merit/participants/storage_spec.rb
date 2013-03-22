@@ -42,5 +42,19 @@ module Merit
         expect(storage.available_capacity).to eql 40
       end
     end
+
+    describe "#max_load_at" do
+      it "returns utilization if it is lower than max_output" do
+        storage.utilization = storage.max_output - 10
+        expect(storage.max_load_at(1)).to eql(storage.utilization)
+      end
+
+      it "returns max_output if it is lower than utilization" do
+        storage.utilization = storage.max_output + 10
+        expect(storage.max_load_at(1)).to eql(storage.max_output)
+      end
+
+    end
+
   end # describe Storage
 end #module Merit
