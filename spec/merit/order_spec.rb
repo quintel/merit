@@ -74,6 +74,16 @@ module Merit
       )
     end
 
+      let(:s1) do
+        Storage.new(
+          key:         :test_storage,
+          capacity:    100,
+          max_input:   40,
+          max_output:  50,
+          utilization: 60
+        )
+      end
+
     describe "#new" do
       it "should be able to create one" do
         Order.new
@@ -188,6 +198,17 @@ module Merit
       it "should contain a new must run" do
         order.add(p2)
         expect(order.volatiles).to_not be_empty
+      end
+    end
+
+    describe "#storage" do
+      it "must be empty at start" do
+        expect(order.storages).to be_empty
+      end
+
+      it "should contain a new storage" do
+        order.add(s1)
+        expect(order.storages).to_not be_empty
       end
     end
 

@@ -73,7 +73,8 @@ module Merit
     # Ordering is as follows:
     #   1. volatiles     (wind, solar, etc.)
     #   2. must runs     (chps, nuclear, etc.)
-    #   3. dispatchables (coal, gas, etc.)
+    #   3. storages
+    #   4. dispatchables (coal, gas, etc.)
     def producers
       @producers || (volatiles + must_runs + dispatchables)
     end
@@ -86,6 +87,11 @@ module Merit
     # Public: Returns all the must_run participants
     def must_runs
       @must_runs || select_participants(MustRunProducer)
+    end
+
+    # Public: Returns all the storages
+    def storages
+      @storages || select_participants(Storage)
     end
 
     # Public: Returns all the dispatchables participants, ordered
