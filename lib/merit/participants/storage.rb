@@ -6,7 +6,7 @@ module Merit
   class Storage < Participant
 
     attr_reader :capacity, :max_input, :max_output, :fixed_costs_per_unit
-    attr_accessor :utilization
+    attr_accessor :utilization, :load_curve
 
     # Public: creates a new storage
     # params opts[Hash] set the attributes

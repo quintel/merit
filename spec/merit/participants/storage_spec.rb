@@ -51,5 +51,21 @@ module Merit
       end
     end
 
+    describe "#load_curve" do
+      it "it settable by the merit order" do
+        merit = Merit::Order.new
+        merit.add(storage)
+        merit.participant(:foo).load_curve = LoadCurve.new((1..3).to_a)
+        expect(storage.load_curve.to_a).to eql [1,2,3]
+      end
+
+      it "is adaptable and extendable for the merit order" do
+        merit = Merit::Order.new
+        merit.add(storage)
+        merit.participant(:foo).load_curve.set(0, 1)
+        expect(storage.load_curve.to_a[0]).to eql(1)
+      end
+    end
+
   end # describe Storage
 end #module Merit
