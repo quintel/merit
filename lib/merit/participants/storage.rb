@@ -1,13 +1,11 @@
 module Merit
-# TODO: calculate supply
-  #
   # The Storage within the Merit order is responsible for storing excess
   # of electricity production and for producing electricity if
   # demand is higher that the amount being produced by must-runs and
   # volatile producers.
   class Storage < Participant
 
-    attr_reader :capacity, :max_input, :max_output
+    attr_reader :capacity, :max_input, :max_output, :fixed_costs_per_unit
     attr_accessor :utilization
 
     # Public: creates a new storage
@@ -25,10 +23,11 @@ module Merit
                          :max_input,
                          :max_output
 
-      @capacity    = opts[:capacity]
-      @max_input   = opts[:max_input]
-      @max_output  = opts[:max_output]
-      @utilization = opts[:utilization] || 0
+      @capacity             = opts[:capacity]
+      @max_input            = opts[:max_input]
+      @max_output           = opts[:max_output]
+      @utilization          = opts[:utilization] || 0
+      @fixed_costs_per_unit = opts[:fixed_costs_per_unit] || 500
 
       @load_curve = LoadCurve.new([], Merit::POINTS)
     end
@@ -43,7 +42,6 @@ module Merit
     def max_load_at(point_in_time)
       [max_output, utilization].min
     end
-
 
   end
 end
