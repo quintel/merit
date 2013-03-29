@@ -27,7 +27,7 @@ module Merit
         expect(storage.max_input).to eql(40)
         expect(storage.max_output).to eql(50)
         expect(storage.capacity).to eql(100)
-        expect(storage.utilization).to eql(0)
+        expect(storage.utilization).to eql(0.0)
         expect(storage.fixed_costs_per_unit).to eql(500)
       end
     end

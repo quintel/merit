@@ -27,9 +27,10 @@ module Merit
       @order = order
 
       always_on, transients = split_producers(order)
+      storages = order.storages
 
       each_point do |point|
-        compute_loads!(point, demand(order, point), always_on, transients)
+        compute_loads!(point, demand(order, point), always_on, transients, storages)
       end
 
       self
@@ -120,7 +121,9 @@ module Merit
     # transients - Producers which may be turned off.
     #
     # Returns nothing.
-    def compute_loads!(point, remaining, always_on, transients)
+    def compute_loads!(point, remaining, always_on, transients, storages)
+      # TODO: add storage into account
+      # TODO: is it possible to charge and discharge the storage at the same time?
       # Optimisation: This is order-dependent; it requires that always-on
       # producers are before the transient producers, otherwise "remaining"
       # load will not be correct.
@@ -134,6 +137,36 @@ module Merit
         remaining -= producer.max_load_at(point)
       end
 
+      # If remaining is negative, then charge the storage
+      # Charge storages
+      if remaining < 0.0
+        storages.each do |storage|
+          to_charge = storage.demand(remaining.abs)
+          remaining += to_charge
+          storage.charge(to_charge)
+        end
+      end
+
+      # discharge storages
+      storages.each do |storage|
+        max_load = storage.max_load_at(point)
+
+        next if max_load.zero?
+
+        if max_load < remaining
+          assign_load(storage, point, max_load)
+        elsif remaining > 0.0
+          assign_load(storage, point, remaining)
+        else
+          assign_price_setting(order, storage, point)
+          break
+        end
+
+        storage.utilization -= max_load
+        remaining -= max_load
+      end
+
+      # what if remaining is already 0?
       transients.each do |producer|
         max_load = producer.max_load_at(point)
 
@@ -313,7 +346,7 @@ module Merit
     # transients - Producers which may be turned off.
     #
     # Returns nothing.
-    def compute_loads!(point, remaining, always_on, transients)
+    def compute_loads!(point, remaining, always_on, transients, storages)
       future = point + @chunk_size - 1
 
       always_on.each do |producer|
