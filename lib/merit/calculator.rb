@@ -26,8 +26,11 @@ module Merit
     def calculate(order)
       @order = order
 
-      always_on, transients = split_producers(order)
-      storages = order.storages
+      # always_on, transients = split_producers(order)
+      # storages = order.storages
+      always_on  = order.producers[:volatiles] + order.producers[:must_runs]
+      transients = order.producers[:dispatchables]
+      storages   = order.producers[:storages]
 
       each_point do |point|
         compute_loads!(point, demand(order, point), always_on, transients, storages)

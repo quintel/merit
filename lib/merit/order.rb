@@ -68,7 +68,7 @@ module Merit
       (calculator || self.class.calculator).calculate(self)
     end
 
-    # Public: returns an +ordered+ Array of all the producers
+    # Public: returns a Hash of all the producers and storages
     #
     # Ordering is as follows:
     #   1. volatiles     (wind, solar, etc.)
@@ -76,7 +76,8 @@ module Merit
     #   3. storages
     #   4. dispatchables (coal, gas, etc.)
     def producers
-      @producers || (volatiles + must_runs + dispatchables)
+      @producers || { volatiles: volatiles, must_runs: must_runs,
+                      storages: storages, dispatchables: dispatchables }
     end
 
     # Public: Returns all the volatiles participants
