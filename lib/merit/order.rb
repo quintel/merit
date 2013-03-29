@@ -183,13 +183,15 @@ module Merit
     # vertically, and horizontally the power per point in time.
     def load_curves
       columns = []
-      producers.each do |producer|
-        columns << [producer.key,
-                    producer.class,
-                    producer.output_capacity_per_unit,
-                    producer.number_of_units,
-                    producer.load_curve.to_a
-        ].flatten
+      producers.each_value do |type|
+        type.each do |producer|
+          columns << [producer.key,
+                      producer.class,
+                      producer.output_capacity_per_unit,
+                      producer.number_of_units,
+                      producer.load_curve.to_a
+          ].flatten
+        end
       end
       columns.transpose
     end

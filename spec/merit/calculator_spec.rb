@@ -110,7 +110,7 @@ module Merit
       end
     end
 
-    context 'with an overly excess of supply' do
+    context 'with an overly excess of supply (' do
       before { volatile.instance_variable_set(:@number_of_units, 10**9) }
       before { order.calculate(Calculator.new) }
 
@@ -197,18 +197,6 @@ module Merit
         }.to_not raise_error
       end
     end # with AveragingCalculator
-
-    context 'when producer order is incorrect' do
-      # Impossible with the current Order class, but serves as a regression
-      # test.
-      it 'raises an error' do
-        order.stub(:producers).and_return([
-          volatile, dispatchable, volatile_two])
-
-        expect { Calculator.new.calculate(order) }.
-          to raise_error(IncorrectProducerOrder)
-      end
-    end
 
   end # Calculator
 end # Merit

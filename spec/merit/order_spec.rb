@@ -156,16 +156,22 @@ module Merit
     end
 
     describe '#producers' do
-      it 'returns "always on" participants first' do
+      it 'returns a Hash with  keys :volatiles, :must_runs, :storages, :dispatachables' do
         dispatchable = p1
         volatile     = p2
         must_run     = p3
+        storage      = s1
 
         order.add(dispatchable)
         order.add(volatile)
         order.add(must_run)
+        order.add(storage)
 
-        expect(order.producers.last).to eql(dispatchable)
+        expect(order.producers).to be_a(Hash)
+        expect(order.producers).to have_key(:volatiles)
+        expect(order.producers).to have_key(:must_runs)
+        expect(order.producers).to have_key(:storages)
+        expect(order.producers).to have_key(:dispatchables)
       end
     end
 
