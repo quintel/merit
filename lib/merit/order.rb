@@ -172,11 +172,11 @@ module Merit
     end
 
     def info
-      puts CollectionTable.new(producers, LOAD_ATTRS).draw!
+      puts CollectionTable.new(producers.values.flatten, LOAD_ATTRS).draw!
     end
 
     def profit_info
-      puts CollectionTable.new(producers, PROFIT_ATTRS).draw!
+      puts CollectionTable.new(producers.values.flatten, PROFIT_ATTRS).draw!
     end
 
     # Public: Returns an Array containing a 'table' with all the producers
