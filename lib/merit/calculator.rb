@@ -26,8 +26,6 @@ module Merit
     def calculate(order)
       @order = order
 
-      # always_on, transients = split_producers(order)
-      # storages = order.storages
       always_on  = order.producers[:volatiles] + order.producers[:must_runs]
       transients = order.producers[:dispatchables]
       storages   = order.producers[:storages]
@@ -68,34 +66,6 @@ module Merit
       order.price_setting_producers[point] = producer
     end
 
-    # Internal: Given a merit +order+, returns the always-on and transient
-    # producers.
-    #
-    # order - A merit order.
-    #
-    # Raises an IncorrectProducerOrder if an always-on producer appears after
-    # the first transient producer.
-    #
-    # Returns an array where the first element contains the always-on
-    # producers, and the second element contains the transients (those which
-    # are not always-on).
-    def split_producers(order)
-      producers = order.producers
-
-      # Not using Enumerable#partition allows us to quickly test that all the
-      # always-on producers were before the first transient producer.
-      partition = producers.index(&:transient?) || producers.length - 1
-
-      always_on = producers[0...partition]
-      transient = producers[partition..-1] || []
-
-      if transient.any?(&:always_on?)
-        raise Merit::IncorrectProducerOrder.new
-      end
-
-      return always_on, transient
-    end
-
     # Internal: Computes the total energy demand for a given +point+.
     #
     # order - The merit order.
@@ -125,8 +95,6 @@ module Merit
     #
     # Returns nothing.
     def compute_loads!(point, remaining, always_on, transients, storages)
-      # TODO: add storage into account
-      # TODO: is it possible to charge and discharge the storage at the same time?
       # Optimisation: This is order-dependent; it requires that always-on
       # producers are before the transient producers, otherwise "remaining"
       # load will not be correct.
