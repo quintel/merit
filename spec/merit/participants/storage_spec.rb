@@ -9,7 +9,8 @@ module Merit
         key: :foo,
         capacity: 100,
         max_input: 40,
-        max_output: 50
+        max_output: 50,
+        number_of_units: 2
       )
     end
 
@@ -18,6 +19,7 @@ module Merit
     it { should respond_to(:capacity) }
     it { should respond_to(:max_input) }
     it { should respond_to(:max_output) }
+    it { should respond_to(:number_of_units)}
     it { should respond_to(:utilization) }
     it { should respond_to(:fixed_costs_per_unit) }
 

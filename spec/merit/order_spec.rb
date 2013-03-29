@@ -76,11 +76,12 @@ module Merit
 
       let(:s1) do
         Storage.new(
-          key:         :test_storage,
-          capacity:    100,
-          max_input:   40,
-          max_output:  50,
-          utilization: 60
+          key:             :test_storage,
+          capacity:        100,
+          max_input:       40,
+          max_output:      50,
+          utilization:     60,
+          number_of_units: 2
         )
       end
 
@@ -156,7 +157,7 @@ module Merit
     end
 
     describe '#producers' do
-      it 'returns a Hash with  keys :volatiles, :must_runs, :storages, :dispatachables' do
+      it 'returns a Hash with keys :volatiles, :must_runs, :storages, :dispatchables' do
         dispatchable = p1
         volatile     = p2
         must_run     = p3

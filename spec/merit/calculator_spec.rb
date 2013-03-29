@@ -38,6 +38,14 @@ module Merit
           full_load_hours:           1000
         ))
 
+        order.add(Storage.new(
+          key:             :storage,
+          capacity:        100.0,
+          max_input:       50,
+          max_output:      30,
+          number_of_units: 2
+        ))
+
         order.add(User.new(key: :total_demand, total_consumption: 6.4e6))
       end
     end
@@ -46,6 +54,7 @@ module Merit
     let(:volatile)     { order.participant(:volatile) }
     let(:volatile_two) { order.participant(:volatile_two) }
     let(:dispatchable) { order.participant(:dispatchable) }
+    let(:storage)      { order.participant(:storage) }
 
     context 'with an excess of demand' do
       before { Calculator.new.calculate(order) }
@@ -110,7 +119,7 @@ module Merit
       end
     end
 
-    context 'with an overly excess of supply (' do
+    context 'with an overly excess of supply' do
       before { volatile.instance_variable_set(:@number_of_units, 10**9) }
       before { order.calculate(Calculator.new) }
 
@@ -131,6 +140,7 @@ module Merit
 
         expect(load_value).to be_within(0.001).of(0.0)
       end
+
 
       it 'assigns the price setting producer with nothing' do
         expect(order.price_setting_producers).to eql \
