@@ -80,8 +80,7 @@ module Merit
           capacity:        100,
           max_input:       40,
           max_output:      50,
-          utilization:     60,
-          number_of_units: 2
+          utilization:     60
         )
       end
 
@@ -157,7 +156,7 @@ module Merit
     end
 
     describe '#producers' do
-      it 'returns a Hash with keys :volatiles, :must_runs, :storages, :dispatchables' do
+      it 'returns a Hash with keys :volatiles, :must_runs, :dispatchables' do
         dispatchable = p1
         volatile     = p2
         must_run     = p3
@@ -166,12 +165,10 @@ module Merit
         order.add(dispatchable)
         order.add(volatile)
         order.add(must_run)
-        order.add(storage)
 
         expect(order.producers).to be_a(Hash)
         expect(order.producers).to have_key(:volatiles)
         expect(order.producers).to have_key(:must_runs)
-        expect(order.producers).to have_key(:storages)
         expect(order.producers).to have_key(:dispatchables)
       end
     end

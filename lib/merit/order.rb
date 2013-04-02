@@ -77,7 +77,7 @@ module Merit
     #   4. dispatchables (coal, gas, etc.)
     def producers
       @producers || { volatiles: volatiles, must_runs: must_runs,
-                      storages: storages, dispatchables: dispatchables }
+                      dispatchables: dispatchables }
     end
 
     # Public: Returns all the volatiles participants

@@ -28,7 +28,7 @@ module Merit
 
       always_on  = order.producers[:volatiles] + order.producers[:must_runs]
       transients = order.producers[:dispatchables]
-      storages   = order.producers[:storages]
+      storages   = order.storages
 
       each_point do |point|
         compute_loads!(point, demand(order, point), always_on, transients, storages)
