@@ -42,8 +42,7 @@ module Merit
           key:             :storage,
           capacity:        100.0,
           max_input:       50,
-          max_output:      30,
-          number_of_units: 2
+          max_output:      30
         ))
 
         order.add(User.new(key: :total_demand, total_consumption: 6.4e6))

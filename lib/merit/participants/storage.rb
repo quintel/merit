@@ -5,8 +5,7 @@ module Merit
   # volatile producers.
   class Storage < Participant
 
-    attr_reader :capacity, :max_input, :max_output, :fixed_costs_per_unit,
-                :number_of_units
+    attr_reader :capacity, :max_input, :max_output, :fixed_costs_per_unit
     attr_accessor :utilization, :load_curve
 
     # Public: creates a new storage
@@ -22,13 +21,11 @@ module Merit
       super
       require_attributes :capacity,
                          :max_input,
-                         :max_output,
-                         :number_of_units
+                         :max_output
 
       @capacity             = opts[:capacity]
       @max_input            = opts[:max_input]
       @max_output           = opts[:max_output]
-      @number_of_units      = opts[:number_of_units]
       @utilization          = opts[:utilization] || 0.0
       @fixed_costs_per_unit = opts[:fixed_costs_per_unit] || 500
 
