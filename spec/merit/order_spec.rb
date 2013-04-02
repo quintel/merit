@@ -144,7 +144,7 @@ module Merit
     end
 
     describe '#price_curve' do
-      before(:all) do
+      before do
         order.stub(:price_at) { 1 }
       end
       it 'should be another instance of a Curve' do
