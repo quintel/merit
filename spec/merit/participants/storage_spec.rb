@@ -51,6 +51,26 @@ module Merit
       end
     end
 
+    describe "#demand" do
+      it "returns available_capacity if it is less than available energy" do
+        energy = 120
+        expect(storage.demand(energy)).to eql storage.available_capacity
+      end
+
+      it "returns available energy if it is less or equal to available_capacity" do
+        energy = storage.available_capacity - 10
+        expect(storage.demand(energy)).to eql energy
+      end
+    end
+
+    describe "#charge" do
+      it "increases utilization of the storage" do
+        energy = 10.0
+        storage.charge(energy)
+        expect(storage.utilization).to eql 10.0
+      end
+    end
+
     describe "#load_curve" do
       it "it settable by the merit order" do
         merit = Merit::Order.new

@@ -43,9 +43,12 @@ module Merit
       [max_output, utilization].min
     end
 
+    # the amount of available energy that can be consumed.
     def demand(energy)
       energy > available_capacity ? available_capacity : energy
     end
+
+    # charge the storage by amount of energy.
     def charge(energy)
       self.utilization = self.utilization + energy
     end
