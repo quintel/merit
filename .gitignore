@@ -25,6 +25,7 @@ rakefile.compiled.rbc
 ## PROJECT::GENERAL
 .bundle
 .yardoc
+.rbenv-version
 _yardoc
 coverage
 doc
