@@ -73,7 +73,7 @@ Then you can start to request output, e.g. a summary of the 'Merit Order':
 | industry_chp_supercritical_wood_pellets              | Merit::MustRunProducer      | 139.7898305    | 5247.813411        |
 | industry_chp_ultra_supercritical_coal                | Merit::MustRunProducer      | 32.15521115    | 4204.8             |
 | energy_power_supercritical_waste_mix                 | Merit::MustRunProducer      | 1.20608908     | 6190.47619         |
-| agriculture_chp_engine_natural_gas                   | Merit::MustRunProducer      | 78.31972973    | 3980.424144        |
+| agriculture_chp_engine_network_gas                   | Merit::MustRunProducer      | 78.31972973    | 3980.424144        |
 | buildings_collective_chp_wood_pellets                | Merit::MustRunProducer      | 154.16507      | 6097.777778        |
 | buildings_collective_chp_natural_gas                 | Merit::MustRunProducer      | 94.03660242    | 3942               |
 | households_collective_chp_wood_pellets               | Merit::MustRunProducer      | 119.9789346    | 6097.777778        |

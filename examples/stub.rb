@@ -6,7 +6,7 @@ module Merit
     # Add 46 Converters which are examples taken from ETENgine
     merit_order.add(
       MustRunProducer.new(
-        key: :agriculture_chp_engine_natural_gas,
+        key: :agriculture_chp_engine_network_gas,
         marginal_costs: 81.34086561,
         output_capacity_per_unit: 1.01369863,
         number_of_units: 3023.581081,
