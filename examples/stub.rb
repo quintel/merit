@@ -98,18 +98,6 @@ module Merit
 
     merit_order.add(
       DispatchableProducer.new(
-        key: :energy_chp_ultra_supercritical_wood_pellets,
-        marginal_costs: 141.4474576,
-        output_capacity_per_unit: 66.96428571,
-        number_of_units: 0.0,
-        availability: 0.89,
-        fixed_costs_per_unit: 27886950.9,
-        fixed_om_costs_per_unit: 9527777.778,
-      )
-    )
-
-    merit_order.add(
-      DispatchableProducer.new(
         key: :energy_power_combined_cycle_ccs_coal,
         marginal_costs: 26.48919339,
         output_capacity_per_unit: 645.5452539,
