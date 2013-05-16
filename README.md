@@ -378,7 +378,10 @@ The full load hours can be queried from the ETM with the following query:
 The full load hours of a **dispatchable** participant are determined by this
 module (so they are 'output').
 
-```Ruby merit_order.participant[:coal].full_load_hours => 2000.0 #hours ```
+````ruby
+merit_order.participant(:coal).full_load_hours
+=> 2000.0 #hours
+```
 
 In full load hours, 'full load' means that the plant runs at its **effective**
 capacity. A plant that runs every second of the year at half load, therefore
