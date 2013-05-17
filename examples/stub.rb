@@ -20,7 +20,7 @@ module Merit
 
     merit_order.add(
       MustRunProducer.new(
-        key: :buildings_collective_chp_natural_gas,
+        key: :buildings_collective_chp_network_gas,
         marginal_costs: 97.4239366,
         output_capacity_per_unit: 0.465581395,
         number_of_units: 871.7816937,
