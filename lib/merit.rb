@@ -5,6 +5,7 @@ require 'terminal-table'
 # Merit order specific
 require 'merit/root'
 require 'merit/version'
+require 'merit/area'
 require 'merit/errors'
 
 # Mixins

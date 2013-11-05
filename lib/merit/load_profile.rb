@@ -93,17 +93,23 @@ module Merit
 
       # Public: Returns Array with all the oad profiles stored
       def all
-        Dir.glob("#{Merit.root}/load_profiles/*.csv").map do |path|
+        Dir.glob("#{ data_path }/*.csv").map do |path|
           key = File.basename(path, ".csv")
           self.load(key)
         end
       end
+
+      # Returns the path where the CSV files can be found
+      def data_path
+        "#{ Merit.root }/load_profiles/#{ Merit.area }"
+      end
+
     end # class << self
 
     # Internal: Loads profile information from a "load_profiles" CSV file.
     class Reader
       def read(key)
-        path   = "#{Merit.root}/load_profiles/#{key}.csv"
+        path   = "#{ LoadProfile.data_path }/#{ key }.csv"
         values = []
 
         begin
