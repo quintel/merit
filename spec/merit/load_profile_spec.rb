@@ -23,6 +23,22 @@ module Merit
       end
     end
 
+    describe '.data-path' do
+      context 'when in NL' do
+        it 'points to nl directory' do
+          expect(LoadProfile.data_path).to match /nl/
+        end
+      end
+      context 'when in EU' do
+        around(:each) do |example|
+          Merit.within_area(:eu, &example)
+        end
+        it 'points to eu directory' do
+          expect(LoadProfile.data_path).to match /eu/
+        end
+      end
+    end
+
     describe '#load' do
       it 'should load a profile from file' do
         load_profile = LoadProfile.load(:solar_pv)
