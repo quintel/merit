@@ -1,7 +1,6 @@
-#### This eu folder containts load profiles for the EU27 model (base year 2011). 
+#### This "eu" folder contains load profiles for the EU27 dataset (base year 2011). 
 
-Documentation on how profiles are made in general can be found on https://github.com/quintel/documentation/blob/master/modules/merit_order/must-run%20Profile%20specifications.markdown
-Specifically: The 'intrinsic' full load hours of any profile (defined as `Full Load Hours (profile) = Total(profile) / Max(profile)`) should never surpass the full load hours that are assigned to the respective technology. This avoids that merit order will operate a technology at a higher capacity than the installed capacity allows. 
+This documents the origin of the EU profiles. For an extended documentation, please refer to the Source Analyses of the EU dataset. 
 
 ##### agriculture_chp.csv
 	identical to NL profile
