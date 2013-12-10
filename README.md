@@ -354,6 +354,9 @@ become unphysically high. This is not a fundamental problem, as the curve is
 only indicative of the variability of the technology, but it might confuse 
 the user.
 
+For a guideline on how to generate merit order profiles, please check out the 
+[profile_generation_guidelines.md](https://github.com/quintel/merit/blob/master/profile_generation_guidelines.md). 
+
 #### Full load hours
 
 The full load hours are defined as:
