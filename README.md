@@ -1,13 +1,14 @@
 # Merit
 
-The Merit module is used to calculate the merit order for the [Energy
-Transition Model](http://et-model.com).
+The Merit module is used to calculate the
+[merit order](http://en.wikipedia.org/wiki/Merit_order) for the
+[Energy Transition Model](http://et-model.com).
 
-## Build Status
-### Master
-![Master branch](https://semaphoreapp.com/api/v1/projects/2ae041ef26ece32798c70411422544b8f43a5919/14150/badge.png)
+### Build Status
 
-## Introduction
+**Master**: ![Master branch](https://semaphoreapp.com/api/v1/projects/2ae041ef26ece32798c70411422544b8f43a5919/14150/badge.png)
+
+### Introduction
 
 The **merit order** predicts/calculates which electricity generating
 **producers** are producing the power to meet the demand/load of the
