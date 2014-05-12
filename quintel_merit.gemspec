@@ -4,7 +4,7 @@ $LOAD_PATH.unshift File.expand_path('../lib', __FILE__)
 require 'merit/version'
 
 Gem::Specification.new do |s|
-  s.name         = 'merit'
+  s.name         = 'quintel_merit'
   s.version      = Merit::VERSION
   s.platform     = Gem::Platform::RUBY
 
