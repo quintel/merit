@@ -1,0 +1,4 @@
+# Set default behaviour, in case users don't have core.autocrlf set.
+*.csv text=input
+
+load_profiles/*.csv text eol=lf
