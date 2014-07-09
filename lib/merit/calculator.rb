@@ -14,9 +14,6 @@ module Merit
   #                  demand which cannot be provided by an always-on producer.
   #
   class Calculator
-
-    attr_reader :order
-
     # Public: Performs the calculation. This sets the load curve values for
     # each transient producer.
     #
@@ -24,12 +21,11 @@ module Merit
     #
     # Returns self.
     def calculate(order)
-      @order = order
-
       always_on, transients = split_producers(order)
 
       each_point do |point|
-        compute_loads!(point, demand(order, point), always_on, transients)
+        compute_loads!(order, point, demand(order, point),
+                       always_on, transients)
       end
 
       self
@@ -113,6 +109,7 @@ module Merit
     # changes can have large effects on the time taken to run the calculation.
     # Therefore, always benchmark / profile your changes!
     #
+    # order      - The Merit::Order being calculated.
     # point      - The point in time, as an integer. Should be a value between
     #              zero and Merit::POINTS - 1.
     # remaining  - How much demand has to be assigned to the producers.
@@ -120,7 +117,7 @@ module Merit
     # transients - Producers which may be turned off.
     #
     # Returns nothing.
-    def compute_loads!(point, remaining, always_on, transients)
+    def compute_loads!(order, point, remaining, always_on, transients)
       # Optimisation: This is order-dependent; it requires that always-on
       # producers are before the transient producers, otherwise "remaining"
       # load will not be correct.
@@ -306,6 +303,7 @@ module Merit
     # be handled by transient energy producers, and assigns the calculated
     # values to the producer's load curve.
     #
+    # order      - The Merit::Order being calculated.
     # point      - The point in time, as an integer. Should be a value between
     #              zero and Merit::POINTS - 1.
     # remaining  - How much demand has to be assigned to the producers.
@@ -313,7 +311,7 @@ module Merit
     # transients - Producers which may be turned off.
     #
     # Returns nothing.
-    def compute_loads!(point, remaining, always_on, transients)
+    def compute_loads!(order, point, remaining, always_on, transients)
       future = point + @chunk_size - 1
 
       always_on.each do |producer|
