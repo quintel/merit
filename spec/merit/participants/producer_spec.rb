@@ -95,13 +95,13 @@ module Merit
       it 'should be settable by the merit order' do
         merit = Merit::Order.new
         merit.add(producer)
-        merit.participant(:foo).load_curve = LoadCurve.new((1..3).to_a)
+        merit.participants[:foo].load_curve = LoadCurve.new((1..3).to_a)
         expect(producer.load_curve.to_a).to eql [1,2,3]
       end
       it 'should be adaptable and extendable for the merit order' do
         merit = Merit::Order.new
         merit.add(producer)
-        merit.participant(:foo).load_curve.set(0, 1)
+        merit.participants[:foo].load_curve.set(0, 1)
         expect(producer.load_curve.to_a[0]).to eql(1)
       end
     end

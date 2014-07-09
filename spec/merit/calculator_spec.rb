@@ -43,9 +43,9 @@ module Merit
     end
 
     let(:order)        { make_order }
-    let(:volatile)     { order.participant(:volatile) }
-    let(:volatile_two) { order.participant(:volatile_two) }
-    let(:dispatchable) { order.participant(:dispatchable) }
+    let(:volatile)     { order.participants[:volatile] }
+    let(:volatile_two) { order.participants[:volatile_two] }
+    let(:dispatchable) { order.participants[:dispatchable] }
 
     context 'with an excess of demand' do
       before { Calculator.new.calculate(order) }
@@ -83,7 +83,7 @@ module Merit
       it 'sets the load profile values of the first producer' do
         load_value = dispatchable.load_curve.get(0)
 
-        demand = order.users.first.load_at(0)
+        demand = order.participants.users.first.load_at(0)
         demand -= volatile.max_load_at(0)
         demand -= volatile_two.max_load_at(0)
 
@@ -142,11 +142,11 @@ module Merit
       it 'should set a value for each load point' do
         # Set an excess of demand so that the dispatchable is running
         # all the time.
-        order.users.first.total_consumption = 6.4e7
+        order.participants.users.first.total_consumption = 6.4e7
 
         QuantizingCalculator.new.calculate(order)
 
-        values = order.participant(:dispatchable).load_curve.
+        values = order.participants[:dispatchable].load_curve.
           instance_variable_get(:@values).compact
 
         expect(values).to have(Merit::POINTS).members
@@ -162,11 +162,11 @@ module Merit
       it 'should set a value for each nth load point' do
         # Set an excess of demand so that the dispatchable is running
         # all the time.
-        order.users.first.total_consumption = 6.4e7
+        order.participants.users.first.total_consumption = 6.4e7
 
         AveragingCalculator.new.calculate(order)
 
-        values = order.participant(:dispatchable).load_curve.
+        values = order.participants[:dispatchable].load_curve.
           instance_variable_get(:@values).compact
 
         expect(values).to have(Merit::POINTS / 8).members
@@ -178,7 +178,7 @@ module Merit
       end
 
       it "doesn't over-assign load" do
-        order.users.first.total_consumption = 1.0e6
+        order.participants.users.first.total_consumption = 1.0e6
 
         # Explicitly tests assigning the "remaining" demand in
         # AveragingCalulator#compute_loads!
@@ -190,7 +190,7 @@ module Merit
       it "only assigns demand when some is present" do
         # Set zero demand so that each producers receives zero. This
         # explicitly tests the "break" in AveragingCalculator#compute_loads!
-        order.users.first.total_consumption = 0.0
+        order.participants.users.first.total_consumption = 0.0
 
         expect {
           AveragingCalculator.new.calculate(order)
@@ -202,7 +202,7 @@ module Merit
       # Impossible with the current Order class, but serves as a regression
       # test.
       it 'raises an error' do
-        order.stub(:producers).and_return([
+        order.participants.stub(:producers).and_return([
           volatile, dispatchable, volatile_two])
 
         expect { Calculator.new.calculate(order) }.

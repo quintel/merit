@@ -38,11 +38,11 @@ module Merit
 
     # Public: created a new Order
     def initialize(total_demand = nil)
-      @participants            = {}
       @price_setting_producers = Array.new(POINTS)
+
       if total_demand
         add(User.new(key: :total_demand))
-        users.first.total_consumption = total_demand
+        participants.users.first.total_consumption = total_demand
       end
     end
 
@@ -64,60 +64,12 @@ module Merit
     # Recalculates
     # Returns true when we did them all
     def recalculate!(calculator = nil)
-      memoize_participants!
       (calculator || self.class.calculator).calculate(self)
-    end
-
-    # Public: returns an +ordered+ Array of all the producers
-    #
-    # Ordering is as follows:
-    #   1. volatiles     (wind, solar, etc.)
-    #   2. must runs     (chps, nuclear, etc.)
-    #   3. dispatchables (coal, gas, etc.)
-    def producers
-      @producers || (volatiles + must_runs + dispatchables)
-    end
-
-    # Public: Returns all the volatiles participants
-    def volatiles
-      @volatiles || select_participants(VolatileProducer)
-    end
-
-    # Public: Returns all the must_run participants
-    def must_runs
-      @must_runs || select_participants(MustRunProducer)
-    end
-
-    # Public: Returns all the dispatchables participants, ordered
-    # by marginal_costs. Sets the dispatchable position attribute, which
-    # which starts with 1 and is set to -1 if the capacity production is zero
-    def dispatchables
-      position = 1
-      dispatchables = select_participants(DispatchableProducer).sort_by(&:marginal_costs)
-      dispatchables.each do |d|
-        if d.output_capacity_per_unit * d.number_of_units == 0
-          d.position = -1
-        else
-          d.position = position
-          position += 1
-        end
-      end
-      @dispatchables || dispatchables
-    end
-
-    # Public: returns all the users of electricity
-    def users
-      @users || select_participants(User)
-    end
-
-    # Public Returns the participant for a given key, nil if not exists
-    def participant(key)
-      @participants[key]
     end
 
     # Public: Returns an array containing all the participants
     def participants
-      @participants.values
+      @participants ||= ParticipantSet.new
     end
 
     # Public: Returns the price for a certain moment in time. The price is
@@ -130,7 +82,7 @@ module Merit
     def price_at(time)
       if producer = price_setting_producers[time]
         producer.marginal_costs
-      elsif producer = dispatchables.select{|p|p.number_of_units > 0}.last
+      elsif producer = participants.dispatchables.select { |p| p.number_of_units > 0 }.last
         producer.marginal_costs * 7.22
       else
         600
@@ -150,33 +102,31 @@ module Merit
     #
     # returns - participant
     def add(participant)
-      raise LockedOrderError.new(participant) if @calculated
-
+      participants.add(participant)
       participant.order = self
 
-      # TODO: add DuplicateKeyError if collection already contains this key
-      @participants[participant.key] = participant
+      participant
     end
 
     def to_s
-      "<#{self.class}" \
-      " #{participants.size - users.size} producers," \
-      " #{users.size} users >"
+      "<##{ self.class } (#{ participants.to_s })>"
     end
 
+    alias_method :inspect, :to_s
+
     def info
-      puts CollectionTable.new(producers, LOAD_ATTRS).draw!
+      puts CollectionTable.new(participants.producers, LOAD_ATTRS).draw!
     end
 
     def profit_info
-      puts CollectionTable.new(producers, PROFIT_ATTRS).draw!
+      puts CollectionTable.new(participants.producers, PROFIT_ATTRS).draw!
     end
 
     # Public: Returns an Array containing a 'table' with all the producers
     # vertically, and horizontally the power per point in time.
     def load_curves
       columns = []
-      producers.each do |producer|
+      participants.producers.each do |producer|
         columns << [producer.key,
                     producer.class,
                     producer.output_capacity_per_unit,
@@ -185,34 +135,6 @@ module Merit
         ].flatten
       end
       columns.transpose
-    end
-
-    #######
-    private
-    #######
-
-    # Internal: Stores each participant collection (must run, volatiles, etc)
-    # for faster retrieval. This should only be done when all of the
-    # participants have been added, and you are ready to perform the
-    # calculation.
-    #
-    # Returns nothing.
-    def memoize_participants!
-      @producers     = producers.freeze
-      @volatiles     = volatiles.freeze
-      @must_runs     = must_runs.freeze
-      @dispatchables = dispatchables.freeze
-      @users         = users.freeze
-    end
-
-    # Internal: Retrieves all member participants which are descendants of the
-    # given +klass+.
-    #
-    # klass - The class of participants to be included.
-    #
-    # Returns an enumerable containing Participants.
-    def select_participants(klass)
-      participants.select { |participant| participant.is_a?(klass) }
     end
 
     class << self

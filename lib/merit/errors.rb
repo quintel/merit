@@ -56,4 +56,9 @@ module Merit
     "of 1, use the Calculator class instead."
   end
 
+  DuplicateParticipant = error_class do |name|
+    "You added a participant called #{ name.inspect }; but that participant " \
+    "had already been added"
+  end
+
 end # Merit

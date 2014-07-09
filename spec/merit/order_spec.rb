@@ -99,7 +99,7 @@ module Merit
       it 'should remember the added participants' do
         order.add(p1)
         order.add(p2)
-        expect(order.participants).to eql [p1,p2]
+        expect(order.participants.to_a).to eql [p1,p2]
       end
     end
 
@@ -155,7 +155,7 @@ module Merit
         order.add(volatile)
         order.add(must_run)
 
-        expect(order.producers.last).to eql(dispatchable)
+        expect(order.participants.producers.last).to eql(dispatchable)
       end
     end
 
@@ -173,49 +173,49 @@ module Merit
 
     describe "#must_runs" do
       it "must be empty at start" do
-        expect(order.must_runs).to be_empty
+        expect(order.participants.must_runs).to be_empty
       end
       it "should contain a new must run" do
         order.add(p3)
-        expect(order.must_runs).to_not be_empty
+        expect(order.participants.must_runs).to_not be_empty
       end
     end
 
     describe "#volatiles" do
       it "must be empty at start" do
-        expect(order.volatiles).to be_empty
+        expect(order.participants.volatiles).to be_empty
       end
       it "should contain a new must run" do
         order.add(p2)
-        expect(order.volatiles).to_not be_empty
+        expect(order.participants.volatiles).to_not be_empty
       end
     end
 
     describe "#dispatchables" do
       it "must be empty at start" do
-        expect(order.dispatchables).to be_empty
+        expect(order.participants.dispatchables).to be_empty
       end
       it "should contain a new must run" do
         order.add(p1)
-        expect(order.dispatchables).to_not be_empty
+        expect(order.participants.dispatchables).to_not be_empty
       end
       it "should be ordered by marginal_costs" do
         order.add(p1)
         order.add(p4)
-        expect(order.dispatchables.first).to eql(p4)
-        expect(order.dispatchables.last).to  eql(p1)
+        expect(order.participants.dispatchables.first).to eql(p4)
+        expect(order.participants.dispatchables.last).to  eql(p1)
       end
 
       it "should be assigned the right position" do
         order.add(p1)
         order.add(p4)
-        expect(order.dispatchables.first.position).to eql(1)
-        expect(order.dispatchables.last.position).to  eql(2)
+        expect(order.participants.dispatchables.first.position).to eql(1)
+        expect(order.participants.dispatchables.last.position).to  eql(2)
       end
 
       it "should assign -1 as position when capacity production is 0" do
         order.add(p5) # producer with 0 units
-        expect(order.dispatchables.first.position).to eql(-1)
+        expect(order.participants.dispatchables.first.position).to eql(-1)
       end
     end
 

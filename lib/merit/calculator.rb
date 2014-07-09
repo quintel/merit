@@ -21,11 +21,10 @@ module Merit
     #
     # Returns self.
     def calculate(order)
-      always_on, transients = split_producers(order)
+      order.participants.lock!
 
       each_point do |point|
-        compute_loads!(order, point, demand(order, point),
-                       always_on, transients)
+        compute_loads!(order, point, demand(order, point))
       end
 
       self
@@ -60,34 +59,6 @@ module Merit
       order.price_setting_producers[point] = producer
     end
 
-    # Internal: Given a merit +order+, returns the always-on and transient
-    # producers.
-    #
-    # order - A merit order.
-    #
-    # Raises an IncorrectProducerOrder if an always-on producer appears after
-    # the first transient producer.
-    #
-    # Returns an array where the first element contains the always-on
-    # producers, and the second element contains the transients (those which
-    # are not always-on).
-    def split_producers(order)
-      producers = order.producers
-
-      # Not using Enumerable#partition allows us to quickly test that all the
-      # always-on producers were before the first transient producer.
-      partition = producers.index(&:transient?) || producers.length - 1
-
-      always_on = producers[0...partition]
-      transient = producers[partition..-1] || []
-
-      if transient.any?(&:always_on?)
-        raise Merit::IncorrectProducerOrder.new
-      end
-
-      return always_on, transient
-    end
-
     # Internal: Computes the total energy demand for a given +point+.
     #
     # order - The merit order.
@@ -96,7 +67,7 @@ module Merit
     # Returns a float.
     def demand(order, point)
       # The total demand for energy at the point in time.
-      order.users.map { |user| user.load_at(point) }.reduce(:+) || 0.0
+      order.participants.users.map { |u| u.load_at(point) }.reduce(:+) || 0.0
     end
 
     # Internal: For a given +point+ in time, calculates the load which should
@@ -113,11 +84,9 @@ module Merit
     # point      - The point in time, as an integer. Should be a value between
     #              zero and Merit::POINTS - 1.
     # remaining  - How much demand has to be assigned to the producers.
-    # always_on  - The producers which should be running constantly.
-    # transients - Producers which may be turned off.
     #
     # Returns nothing.
-    def compute_loads!(order, point, remaining, always_on, transients)
+    def compute_loads!(order, point, remaining)
       # Optimisation: This is order-dependent; it requires that always-on
       # producers are before the transient producers, otherwise "remaining"
       # load will not be correct.
@@ -127,11 +96,11 @@ module Merit
       # #always_on? in every iteration. This accounts for a 20% reduction in
       # the calculation runtime.
 
-      always_on.each do |producer|
+      order.participants.always_on.each do |producer|
         remaining -= producer.max_load_at(point)
       end
 
-      transients.each do |producer|
+      order.participants.transients.each do |producer|
         max_load = producer.max_load_at(point)
 
         # Optimisation: Load points default to zero, skipping to the next
@@ -297,7 +266,10 @@ module Merit
     # Returns a float.
     def demand(order, point)
       future = point + @chunk_size - 1
-      order.users.map { |user| user.load_between(point, future) }.reduce(:+)
+
+      order.participants.users.map do |user|
+        user.load_between(point, future)
+      end.reduce(:+)
     end
 
     # Internal: For a given +point+ in time, calculates the load which should
@@ -308,18 +280,16 @@ module Merit
     # point      - The point in time, as an integer. Should be a value between
     #              zero and Merit::POINTS - 1.
     # remaining  - How much demand has to be assigned to the producers.
-    # always_on  - The producers which should be running constantly.
-    # transients - Producers which may be turned off.
     #
     # Returns nothing.
-    def compute_loads!(order, point, remaining, always_on, transients)
+    def compute_loads!(order, point, remaining)
       future = point + @chunk_size - 1
 
-      always_on.each do |producer|
+      order.participants.always_on.each do |producer|
         remaining -= producer.load_between(point, future)
       end
 
-      transients.each do |producer|
+      order.participants.transients.each do |producer|
         max_load = producer.load_between(point, future)
 
         # Optimisation: Load points default to zero, skipping to the next

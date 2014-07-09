@@ -1,6 +1,7 @@
 # General libraries
 require 'csv'
 require 'terminal-table'
+require 'forwardable'
 
 # Merit order specific
 require 'merit/root'
@@ -16,6 +17,8 @@ require 'merit/order'
 require 'merit/order_attribute_groups'
 require 'merit/load_curve'
 require 'merit/load_profile'
+
+require 'merit/participant_set'
 
 require 'merit/participants/participant'
 require 'merit/participants/producer'
