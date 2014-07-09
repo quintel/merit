@@ -23,9 +23,7 @@ module Merit
     def calculate(order)
       order.participants.lock!
 
-      each_point do |point|
-        compute_loads!(order, point, demand(order, point))
-      end
+      each_point { |point| compute_loads!(order, point) }
 
       self
     end
@@ -83,10 +81,9 @@ module Merit
     # order      - The Merit::Order being calculated.
     # point      - The point in time, as an integer. Should be a value between
     #              zero and Merit::POINTS - 1.
-    # remaining  - How much demand has to be assigned to the producers.
     #
     # Returns nothing.
-    def compute_loads!(order, point, remaining)
+    def compute_loads!(order, point)
       # Optimisation: This is order-dependent; it requires that always-on
       # producers are before the transient producers, otherwise "remaining"
       # load will not be correct.
@@ -95,6 +92,8 @@ module Merit
       # transient producers in separate loops allows us to skip calling
       # #always_on? in every iteration. This accounts for a 20% reduction in
       # the calculation runtime.
+
+      remaining = demand(order, point)
 
       order.participants.always_on.each do |producer|
         remaining -= producer.max_load_at(point)
@@ -279,11 +278,11 @@ module Merit
     # order      - The Merit::Order being calculated.
     # point      - The point in time, as an integer. Should be a value between
     #              zero and Merit::POINTS - 1.
-    # remaining  - How much demand has to be assigned to the producers.
     #
     # Returns nothing.
-    def compute_loads!(order, point, remaining)
-      future = point + @chunk_size - 1
+    def compute_loads!(order, point)
+      remaining = demand(order, point)
+      future    = point + @chunk_size - 1
 
       order.participants.always_on.each do |producer|
         remaining -= producer.load_between(point, future)
