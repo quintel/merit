@@ -181,7 +181,7 @@ module Merit
         order.participants.users.first.total_consumption = 1.0e6
 
         # Explicitly tests assigning the "remaining" demand in
-        # AveragingCalulator#compute_loads!
+        # AveragingCalulator#compute_point
         expect {
           AveragingCalculator.new.calculate(order)
         }.to_not raise_error
@@ -189,7 +189,7 @@ module Merit
 
       it "only assigns demand when some is present" do
         # Set zero demand so that each producers receives zero. This
-        # explicitly tests the "break" in AveragingCalculator#compute_loads!
+        # explicitly tests the "break" in AveragingCalculator#compute_point
         order.participants.users.first.total_consumption = 0.0
 
         expect {

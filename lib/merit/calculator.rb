@@ -23,7 +23,7 @@ module Merit
     def calculate(order)
       order.participants.lock!
 
-      each_point { |point| compute_loads!(order, point) }
+      each_point { |point| compute_point(order, point) }
 
       self
     end
@@ -83,7 +83,7 @@ module Merit
     #              zero and Merit::POINTS - 1.
     #
     # Returns nothing.
-    def compute_loads!(order, point)
+    def compute_point(order, point)
       # Optimisation: This is order-dependent; it requires that always-on
       # producers are before the transient producers, otherwise "remaining"
       # load will not be correct.
@@ -280,7 +280,7 @@ module Merit
     #              zero and Merit::POINTS - 1.
     #
     # Returns nothing.
-    def compute_loads!(order, point)
+    def compute_point(order, point)
       remaining = demand(order, point)
       future    = point + @chunk_size - 1
 
