@@ -144,6 +144,7 @@ module Merit
           assign_load(producer, point, remaining)
         else
           assign_price_setting(order, producer, point)
+
           # Optimisation: If all of the demand has been accounted for, there
           # is no need to waste time with further iterations and expensive
           # calls to Producer#max_load_at.
@@ -330,6 +331,8 @@ module Merit
         elsif remaining > 0.0
           assign_load(producer, point, remaining)
         else
+          assign_price_setting(order, producer, point)
+
           # Optimisation: If all of the demand has been accounted for, there
           # is no need to waste time with further iterations and expensive
           # calls to Producer#max_load_at.
