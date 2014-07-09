@@ -48,14 +48,13 @@ module Merit
           raise_error(MissingLoadProfileError)
       end
       it 'should raise IncorrectLoadProfileError if LoadProfile is not a valid fraction' do
-        LoadProfile.reader.stub!(:read).with(:foo){ (1..7).to_a }
+        LoadProfile.reader.stub(:read).with(:foo){ (1..7).to_a }
         expect(->{ LoadProfile.load(:foo) }).to \
           raise_error(IncorrectLoadProfileError)
       end
       it 'should not raise IncorrectLoadProfileError if LoadProfile is a valid fraction' do
-        LoadProfile.reader.stub!(:read).with(:foo){ (1..2).to_a }
-        expect(->{ LoadProfile.load(:foo) }).to_not \
-          raise_error(IncorrectLoadProfileError)
+        LoadProfile.reader.stub(:read).with(:foo){ (1..2).to_a }
+        expect(->{ LoadProfile.load(:foo) }).to_not raise_error
       end
     end
 

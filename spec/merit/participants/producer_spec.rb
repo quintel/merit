@@ -70,7 +70,7 @@ module Merit
     end # full_load_hours
 
     describe '#production' do
-      before(:all) do
+      before(:each) do
         producer.load_curve.set(0, 10.0)
         producer.load_curve.set(1, 50.0)
       end
