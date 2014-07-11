@@ -38,7 +38,7 @@ module Merit
           full_load_hours:           1000
         ))
 
-        order.add(User.new(key: :total_demand, total_consumption: 6.4e6))
+        order.add(user)
       end
     end
 
@@ -46,6 +46,8 @@ module Merit
     let(:volatile)     { order.participants[:volatile] }
     let(:volatile_two) { order.participants[:volatile_two] }
     let(:dispatchable) { order.participants[:dispatchable] }
+
+    let(:user) { User.create(key: :total_demand, total_consumption: 6.4e6) }
 
     context 'with an excess of demand' do
       before { Calculator.new.calculate(order) }
@@ -139,11 +141,11 @@ module Merit
     end
 
     describe 'with QuantizingCalculator' do
-      it 'should set a value for each load point' do
-        # Set an excess of demand so that the dispatchable is running
-        # all the time.
-        order.participants.users.first.total_consumption = 6.4e7
+      # Set an excess of demand so that the dispatchable is running
+      # all the time.
+      let(:user) { User.create(key: :total_demand, total_consumption: 6.4e7) }
 
+      it 'should set a value for each load point' do
         QuantizingCalculator.new.calculate(order)
 
         values = order.participants[:dispatchable].load_curve.
@@ -159,42 +161,48 @@ module Merit
     end # with QuantizingCalculator
 
     describe 'with AveragingCalculator' do
-      it 'should set a value for each nth load point' do
-        # Set an excess of demand so that the dispatchable is running
-        # all the time.
-        order.participants.users.first.total_consumption = 6.4e7
-
-        AveragingCalculator.new.calculate(order)
-
-        values = order.participants[:dispatchable].load_curve.
-          instance_variable_get(:@values).compact
-
-        expect(values).to have(Merit::POINTS / 8).members
-      end
-
       it 'raises an error if using a chunk size of 1' do
         expect { AveragingCalculator.new(1) }.
           to raise_error(InvalidChunkSize)
       end
 
-      it "doesn't over-assign load" do
-        order.participants.users.first.total_consumption = 1.0e6
+      describe 'with an excess of demand' do
+        # Set an excess of demand so that the dispatchable is running
+        # all the time.
+        let(:user) { User.create(key: :total_demand, total_consumption: 6.4e7) }
 
-        # Explicitly tests assigning the "remaining" demand in
-        # AveragingCalulator#compute_point
-        expect {
+        it 'should set a value for each nth load point' do
           AveragingCalculator.new.calculate(order)
-        }.to_not raise_error
+
+          values = order.participants[:dispatchable].load_curve.
+            instance_variable_get(:@values).compact
+
+          expect(values).to have(Merit::POINTS / 8).members
+        end
       end
 
-      it "only assigns demand when some is present" do
+      describe 'with less demand than capacity' do
+        let(:user) { User.create(key: :total_demand, total_consumption: 1.0e6) }
+
+        it "doesn't over-assign load" do
+          # Explicitly tests assigning the "remaining" demand in
+          # AveragingCalulator#compute_point
+          expect {
+            AveragingCalculator.new.calculate(order)
+          }.to_not raise_error
+        end
+      end
+
+      describe 'with no demand' do
         # Set zero demand so that each producers receives zero. This
         # explicitly tests the "break" in AveragingCalculator#compute_point
-        order.participants.users.first.total_consumption = 0.0
+        let(:user) { User.create(key: :total_demand, total_consumption: 0.0) }
 
-        expect {
-          AveragingCalculator.new.calculate(order)
-        }.to_not raise_error
+        it "only assigns demand when some is present" do
+          expect {
+            AveragingCalculator.new.calculate(order)
+          }.to_not raise_error
+        end
       end
     end # with AveragingCalculator
 

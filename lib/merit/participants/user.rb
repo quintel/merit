@@ -1,38 +1,28 @@
 module Merit
-
-  # The User class holds consumers of electricity. They can be added together
-  # to form the 'total demand' for a particular setting of the Merit Order.
   class User < Participant
+    class << self
+      protected :new
 
-    attr_accessor :total_consumption
+      # Public: Creates an appropriate User for the options given. The options
+      # hash should include a :total_consumption key if you want to express the
+      # User's total energy use for the year, or a :load_curve if the per-point
+      # consumption defined using a LoadCurve.
+      #
+      # Returns a Participant.
+      def create(options)
+        if options.key?(:total_consumption)
+          TotalConsumption.new(options)
+        elsif options.key?(:load_curve)
+          WithCurve.new(options)
+        else
+          fail UnknownDemandError.new
+        end
+      end
+    end # class << self
 
-    # Public: creates a new participant
-    # params opts[Hash] set the attributes
-    # returns Participant
-    def initialize(opts)
-      super
-      @total_consumption = opts[:total_consumption]
-    end
-
-    # Public: the load curve of a participant, tells us how much energy
-    # is produced at what time. It is a product of the load_profile and
-    # the total_production.
-    # Returns the load in MW
-    def load_curve
-      raise UnknownDemandError unless total_consumption
-      @load_curve ||= LoadCurve.new(load_profile.values.map{ |v| v * total_consumption })
-    end
-
-    # Public: returns the LoadProfile of this participant. This basically
-    # tells you during what period in a year this technology is used/on.
-    def load_profile
-      @load_profile ||= LoadProfile.load(key)
-    end
-
-    # Public: returns us what the load is for a certain point in time
+    # Public: Teels us load on the participant for a certain point in time.
     def load_at(point_in_time)
-      raise UnknownDemandError unless total_consumption
-      load_profile.values[point_in_time] * total_consumption
+      load_curve.values[point_in_time]
     end
 
     # Public: What is the total supply between the two given points (inclusive
@@ -43,12 +33,7 @@ module Merit
     #
     # Returns a float.
     def load_between(start, finish)
-      count  = 1 + (finish - start)
-      values = load_profile.values[start..finish]
-
-      values.reduce(:+) * total_consumption
+      load_curve.values[start..finish].reduce(:+)
     end
-
-  end
-
-end
+  end # User
+end # Merit

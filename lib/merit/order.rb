@@ -41,8 +41,7 @@ module Merit
       @price_setting_producers = Array.new(POINTS)
 
       if total_demand
-        add(User.new(key: :total_demand))
-        participants.users.first.total_consumption = total_demand
+        add(User.create(key: :total_demand, total_consumption: total_demand))
       end
     end
 

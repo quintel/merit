@@ -6,6 +6,8 @@ module Merit
   class LoadCurve
     include Enumerable
 
+    attr_reader :values
+
     # Public: Creates a LoadCurve with the given +values+.
     #
     # values - The values for each point in the curve.

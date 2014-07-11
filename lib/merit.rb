@@ -24,6 +24,8 @@ require 'merit/participants/participant'
 require 'merit/participants/producer'
 require 'merit/participants/types'
 require 'merit/participants/user'
+require 'merit/participants/user/total_consumption'
+require 'merit/participants/user/with_curve'
 
 # Helpers
 require 'merit/bar_chart'

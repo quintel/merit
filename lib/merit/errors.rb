@@ -24,7 +24,7 @@ module Merit
 
   # Added a node to a graph, when one already exists with the same key.
   UnknownDemandError = error_class do
-    "Cannot calculate if Demand is not (yet known)"
+    "Cannot create a User without either :total_consumption or :load_curve"
   end
 
   MissingLoadProfileError = error_class do |key|
