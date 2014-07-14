@@ -14,7 +14,7 @@ module Merit
 
     describe '#all' do
       it 'should load all keys' do
-        expect(LoadProfile.all).to have_at_least(1).load_profiles
+        expect(LoadProfile.all).to_not be_empty
       end
       LoadProfile.all.each do |load_profile|
         it "#{load_profile.key} should be valid" do
@@ -48,12 +48,12 @@ module Merit
           raise_error(MissingLoadProfileError)
       end
       it 'should raise IncorrectLoadProfileError if LoadProfile is not a valid fraction' do
-        LoadProfile.reader.stub(:read).with(:foo){ (1..7).to_a }
+        allow(LoadProfile.reader).to receive(:read).with(:foo) { (1..7).to_a }
         expect(->{ LoadProfile.load(:foo) }).to \
           raise_error(IncorrectLoadProfileError)
       end
       it 'should not raise IncorrectLoadProfileError if LoadProfile is a valid fraction' do
-        LoadProfile.reader.stub(:read).with(:foo){ (1..2).to_a }
+        allow(LoadProfile.reader).to receive(:read).with(:foo){ (1..2).to_a }
         expect(->{ LoadProfile.load(:foo) }).to_not raise_error
       end
     end
@@ -61,7 +61,7 @@ module Merit
     describe '#values' do
       it 'should return the same values from file' do
         load_profile = LoadProfile.load(:solar_pv)
-        expect(load_profile.values).to have(8760).points
+        expect(load_profile.values.length).to eq(8760)
       end
     end
 
@@ -80,12 +80,12 @@ module Merit
 
     describe '#valid?' do
       it 'should be true when the surface area is =~ 1/3600.0' do
-        load_profile.stub(:surface){ 1/3600.0 }
-        expect(load_profile.valid?).to be_true
+        allow(load_profile).to receive(:surface).and_return(1/3600.0)
+        expect(load_profile.valid?).to be
       end
       it 'should be false when the surface area is !=~ 1/3600.0' do
-        load_profile.stub(:surface){ 1/3500.0 }
-        expect(load_profile.valid?).to be_false
+        allow(load_profile).to receive(:surface).and_return(1/3500.0)
+        expect(load_profile.valid?).to_not be
       end
     end
 

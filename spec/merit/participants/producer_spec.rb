@@ -44,7 +44,7 @@ module Merit
             fixed_costs_per_unit: 222.9245208,
             fixed_om_costs_per_unit: 35.775,
             number_of_units: 0.31875
-          ).tap { |p| p.stub(:production).and_return(14475023999.999998) }
+          ).tap { |p| allow(p).to receive(:production).and_return(14475023999.999998) }
         end
 
         it 'should be 8760 * availability for a continuously on dispatchable' do
@@ -52,7 +52,7 @@ module Merit
         end
 
         context 'when effective output capacity is zero' do
-          before { producer.stub(:output_capacity_per_unit).and_return(0.0) }
+          before { allow(producer).to receive(:output_capacity_per_unit).and_return(0.0) }
 
           it 'is zero' do
             expect(producer.full_load_hours).to eql(0.0)
@@ -60,7 +60,7 @@ module Merit
         end
 
         context 'when number of units is zero' do
-          before { producer.stub(:number_of_units).and_return(0.0) }
+          before { allow(producer).to receive(:number_of_units).and_return(0.0) }
 
           it 'is zero' do
             expect(producer.full_load_hours).to eql(0.0)
@@ -113,7 +113,7 @@ module Merit
         end
 
         it 'should be the product of max production and the load profile' do
-          producer.stub(:max_production) { 1000 }
+          allow(producer).to receive(:max_production) { 1000 }
 
           expect(producer.max_load_curve.get(117)).
             to eql(producer.load_profile.values[117] * 1000)
@@ -176,7 +176,7 @@ module Merit
 
     describe '#load_profile' do
       it 'should contain the values' do
-        expect(producer.load_profile.values).to have(8760).values
+        expect(producer.load_profile.values.length).to eq(8760)
       end
 
       it 'should raise error if not available' do

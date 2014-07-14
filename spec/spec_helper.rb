@@ -16,8 +16,7 @@ RSpec.configure do |config|
   config.filter_run(focus: true)
   config.run_all_when_everything_filtered = true
 
-  # Allow adding examples to a filter group with only a symbol.
-  config.treat_symbols_as_metadata_keys_with_true_values = true
+  config.expose_dsl_globally = true
 end
 
 def capture_stdout(&block)

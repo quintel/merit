@@ -19,7 +19,7 @@ module Merit
       it 'should be able to draw a chart with just values 0' do
         expect(barchart0.drawing).to eql "--- 0.00e+00\n--- 0.00e+00\nooo 0.00e+00"
       end
-      it 'should be able to draw a chart with negative values' do
+      skip 'should be able to draw a chart with negative values' do
         pending "implemenation of negative numbers"
       end
     end #describe #drawing

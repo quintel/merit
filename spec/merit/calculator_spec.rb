@@ -164,7 +164,7 @@ module Merit
         values = order.participants[:dispatchable].load_curve.
           instance_variable_get(:@values).compact
 
-        expect(values).to have(Merit::POINTS).members
+        expect(values.length).to eq(Merit::POINTS)
       end
 
       it 'raises an error if using a chunk size of 1' do
@@ -190,7 +190,7 @@ module Merit
           values = order.participants[:dispatchable].load_curve.
             instance_variable_get(:@values).compact
 
-          expect(values).to have(Merit::POINTS / 8).members
+          expect(values.length).to eq(Merit::POINTS / 8)
         end
       end
 
@@ -223,7 +223,7 @@ module Merit
       # Impossible with the current Order class, but serves as a regression
       # test.
       it 'raises an error' do
-        order.participants.stub(:producers).and_return([
+        allow(order.participants).to receive(:producers).and_return([
           volatile, dispatchable, volatile_two])
 
         expect { Calculator.new.calculate(order) }.

@@ -9,15 +9,15 @@ module Merit
 
     describe '#new' do
       it 'should create a LoadCurve with 8760 values' do
-        expect(load_curve.to_a).to have(8760).values
-        expect(load_curve.to_a).to eql (1..8760).to_a
+        expect(load_curve.to_a.length).to eq(8760)
+        expect(load_curve.to_a).to eql((1..8760).to_a)
       end
 
       context 'with an explicit length' do
         let(:curve) { LoadCurve.new([], 100) }
 
         it 'iterates through the full length' do
-          expect(curve.to_a).to have(100).members
+          expect(curve.to_a.length).to eq(100)
           expect(curve.to_a.first).to eql(0.0)
         end
 

@@ -106,15 +106,16 @@ module Merit
     describe '#price_at' do
       context 'when there is a price setting producer' do
         it 'should return the marginal cost of the price setting producer' do
-          order.stub(:price_setting_producers) do
+          allow(order).to receive(:price_setting_producers) do
             Array.new(Merit::POINTS, p1)
           end
+
           expect(order.price_at(118)).to eql 13.999791
         end
       end
       context 'when there is NO price setting producer' do
         before do
-          order.stub(:price_setting_producers) do
+          allow(order).to receive(:price_setting_producers) do
             Array.new(Merit::POINTS, nil)
           end
         end
@@ -135,7 +136,7 @@ module Merit
 
     describe '#price_curve' do
       before(:each) do
-        order.stub(:price_at) { 1 }
+        allow(order).to receive(:price_at) { 1 }
       end
       it 'should be another instance of a Curve' do
         expect(order.price_curve).to be_a(LoadCurve)
@@ -247,7 +248,7 @@ module Merit
         order.add(p1)
         order.add(p2)
 
-        expect(order.load_curves.first).to have(2).members
+        expect(order.load_curves.first.length).to eq(2)
       end
     end
 
