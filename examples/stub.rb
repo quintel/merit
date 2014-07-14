@@ -478,7 +478,7 @@ module Merit
 
     
     merit_order.add(
-      User.new(
+      User.create(
         key: :total_demand,
         total_consumption: 417946498897.5582
       )
