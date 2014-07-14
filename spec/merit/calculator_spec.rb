@@ -140,6 +140,19 @@ module Merit
       end
     end
 
+    describe 'with sub-zero demand' do
+      let(:curve) { Merit::LoadCurve.new([0, 0, -1, 3].map(&:to_f) * 6 * 365) }
+      let(:user)  { User.create(key: :total_demand, total_consumption: 0) }
+      let(:cuser) { User.create(key: :with_curve, load_curve: curve) }
+
+      before { order.add(cuser) }
+
+      it 'should return raise SubZeroDemand' do
+        expect { Calculator.new.calculate(order) }
+          .to raise_error(Merit::SubZeroDemand, /in point 2/)
+      end
+    end # with sub-zero demand
+
     describe 'with QuantizingCalculator' do
       # Set an excess of demand so that the dispatchable is running
       # all the time.

@@ -61,4 +61,8 @@ module Merit
     "had already been added"
   end
 
+  SubZeroDemand = error_class do |point, demand|
+    "Merit order has a subzero demand (#{ demand.inspect }) in point #{ point }"
+  end
+
 end # Merit
