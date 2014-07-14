@@ -112,7 +112,7 @@ module Merit
       end
     end
 
-    context 'with an overly excess of supply' do
+    context 'with a huge excess of supply' do
       before { volatile.instance_variable_set(:@number_of_units, 10**9) }
       before { order.calculate(Calculator.new) }
 
@@ -152,6 +152,38 @@ module Merit
           .to raise_error(Merit::SubZeroDemand, /in point 2/)
       end
     end # with sub-zero demand
+
+    describe 'with a variable-marginal-cost producer' do
+      let(:curve) do
+        LoadCurve.new([[12.0] * 24, [24.0] * 24, [12.0] * 120].flatten * 52)
+      end
+
+      let(:ic) do
+        SupplyInterconnect.new(
+          key:                       :interconnect,
+          price_curve:               curve,
+          output_capacity_per_unit:  6.3e6,
+          availability:              1.0,
+          fixed_costs_per_unit:      1.0,
+          fixed_om_costs_per_unit:   1.0
+        )
+      end
+
+      # We need "dispatchable" to take all of the remaining demand when it is
+      # competitive, so that none is assigned to the interconnector
+      before { dispatchable.instance_variable_set(:@number_of_units, 2) }
+
+      before { order.add(ic) }
+      before { order.calculate(Calculator.new) }
+
+      it 'should be active when competitive' do
+        expect(ic.load_curve.get(0)).to_not be_zero
+      end
+
+      it 'should be inactive when uncompetitive' do
+        expect(ic.load_curve.get(24)).to be_zero
+      end
+    end # with a variable-marginal-cost producer
 
     describe 'with QuantizingCalculator' do
       # Set an excess of demand so that the dispatchable is running

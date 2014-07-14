@@ -33,6 +33,20 @@ module Merit
       @must_runs || select_participants(MustRunProducer)
     end
 
+    # Public: Returns a ParticipantSet which can be used in a merit order
+    # calculation. In most cases, this will return itself, however when one or
+    # more producers has a cost which varies over time, a Resortable is returned
+    # instead.
+    #
+    # Returns something which responds to #always_on and #transients
+    def producers_for_calculation
+      if producers.any?(&:variable_marginal_cost?)
+        producers = ParticipantSet::Resortable.new(self)
+      else
+        self
+      end
+    end
+
     # Public: Returns all the dispatchables participants, ordered
     # by marginal_costs. Sets the dispatchable position attribute, which
     # which starts with 1 and is set to -1 if the capacity production is zero
@@ -40,15 +54,18 @@ module Merit
       @dispatchables || begin
         position = 1
 
-        dispatchables =
-          select_participants(DispatchableProducer).sort_by(&:marginal_costs)
+        dispatchables = select_participants(DispatchableProducer)
 
-        dispatchables.each do |d|
-          if d.output_capacity_per_unit * d.number_of_units == 0
-            d.position = -1
-          else
-            d.position = position
-            position += 1
+        if dispatchables.none?(&:variable_marginal_cost?)
+          dispatchables.sort_by!(&:marginal_costs)
+
+          dispatchables.each do |d|
+            if d.output_capacity_per_unit * d.number_of_units == 0
+              d.position = -1
+            else
+              d.position = position
+              position += 1
+            end
           end
         end
 
@@ -62,12 +79,22 @@ module Merit
     end
 
     # Public: Returns participants which may only be running sometimes.
-    def transients
+    #
+    # Accepts (and discards) an optional "point" parameter for API compatibility
+    # with Resortable.
+    #
+    # Returns an array of Producers.
+    def transients(*)
       @transients || split_producers.last
     end
 
     # Public: Returns all participants which are always running.
-    def always_on
+    #
+    # Accepts (and discards) an optional "point" parameter for API compatibility
+    # with Resortable.
+    #
+    # Returns an array of Producers.
+    def always_on(*)
       @always_on || split_producers.first
     end
 
@@ -166,6 +193,23 @@ module Merit
       end
 
       return always_on, transient
+    end
+
+    # A class used in the merit order calculation when one or more producer has
+    # a variable marginal cost, requiring the producers to be sorted in every
+    # calculation point.
+    class Resortable
+      def initialize(set)
+        @always_on, @transients = set.always_on, set.transients
+      end
+
+      def always_on(point)
+        @always_on.sort_by { |p| p.marginal_cost_at(point) }
+      end
+
+      def transients(point)
+        @transients.sort_by { |p| p.marginal_cost_at(point) }
+      end
     end
   end # ParticipantSet
 end # Merit

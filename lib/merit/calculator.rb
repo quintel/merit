@@ -22,8 +22,9 @@ module Merit
     # Returns self.
     def calculate(order)
       order.participants.lock!
+      producers = order.participants.producers_for_calculation
 
-      each_point { |point| compute_point(order, point) }
+      each_point { |point| compute_point(order, point, producers) }
 
       self
     end
@@ -78,12 +79,13 @@ module Merit
     # changes can have large effects on the time taken to run the calculation.
     # Therefore, always benchmark / profile your changes!
     #
-    # order      - The Merit::Order being calculated.
-    # point      - The point in time, as an integer. Should be a value between
-    #              zero and Merit::POINTS - 1.
+    # order     - The Merit::Order being calculated.
+    # point     - The point in time, as an integer. Should be a value between
+    #             zero and Merit::POINTS - 1.
+    # producers - An object supplying the always_on and transient producers.
     #
     # Returns nothing.
-    def compute_point(order, point)
+    def compute_point(order, point, producers)
       # Optimisation: This is order-dependent; it requires that always-on
       # producers are before the transient producers, otherwise "remaining"
       # load will not be correct.
@@ -97,11 +99,11 @@ module Merit
         raise SubZeroDemand.new(point, remaining)
       end
 
-      order.participants.always_on.each do |producer|
+      producers.always_on(point).each do |producer|
         remaining -= producer.max_load_at(point)
       end
 
-      order.participants.transients.each do |producer|
+      producers.transients(point).each do |producer|
         max_load = producer.max_load_at(point)
 
         # Optimisation: Load points default to zero, skipping to the next
@@ -277,20 +279,21 @@ module Merit
     # be handled by transient energy producers, and assigns the calculated
     # values to the producer's load curve.
     #
-    # order      - The Merit::Order being calculated.
-    # point      - The point in time, as an integer. Should be a value between
-    #              zero and Merit::POINTS - 1.
+    # order     - The Merit::Order being calculated.
+    # point     - The point in time, as an integer. Should be a value between
+    #             zero and Merit::POINTS - 1.
+    # producers - An object supplying the always_on and transient producers.
     #
     # Returns nothing.
-    def compute_point(order, point)
+    def compute_point(order, point, producers)
       remaining = demand(order, point)
       future    = point + @chunk_size - 1
 
-      order.participants.always_on.each do |producer|
+      producers.always_on.each do |producer|
         remaining -= producer.load_between(point, future)
       end
 
-      order.participants.transients.each do |producer|
+      producers.transients.each do |producer|
         max_load = producer.load_between(point, future)
 
         # Optimisation: Load points default to zero, skipping to the next

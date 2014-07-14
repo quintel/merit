@@ -65,4 +65,17 @@ module Merit
     "Merit order has a subzero demand (#{ demand.inspect }) in point #{ point }"
   end
 
+  MissingPriceCurve = error_class do |name|
+    "You need to supply #{ name.inspect } with a :price_curve"
+  end
+
+  VariableMarginalCost = error_class do |obj|
+    class_only = obj.class.name.split('::').last
+
+    "#{ obj.class.name } has a variable marginal cost. Call " \
+    "#{ class_only }#marginal_cost_at(point) to find the cost for a " \
+    "particular point in time, or #{ class_only }#variable_costs to find " \
+    "the total (annual) marginal cost applied to the load curve."
+  end
+
 end # Merit

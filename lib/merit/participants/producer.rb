@@ -17,12 +17,15 @@ module Merit
     # returns Participant
     def initialize(opts)
       super
-      require_attributes :marginal_costs,
-                         :output_capacity_per_unit,
+      require_attributes :output_capacity_per_unit,
                          :number_of_units,
                          :availability,
                          :fixed_costs_per_unit,
                          :fixed_om_costs_per_unit
+
+      if opts[:marginal_costs].nil? && opts[:price_curve].nil?
+        fail MissingAttributeError.new(:marginal_costs, self.class)
+      end
 
       @full_load_hours           = opts[:full_load_hours]
       @marginal_costs            = opts[:marginal_costs]
@@ -34,6 +37,16 @@ module Merit
 
       @load_curve   = LoadCurve.new([], Merit::POINTS)
       @load_profile = load_profile_key && LoadProfile.load(load_profile_key)
+    end
+
+    # Public: Returns the marginal cost of the interconnect in the given point.
+    def marginal_cost_at(point)
+      marginal_costs
+    end
+
+    # Public: Returns if the marginal cost of the producer may vary over time.
+    def variable_marginal_cost?
+      !! @price_curve
     end
 
     # The full load hours are defined as the number of hours that the
