@@ -141,7 +141,7 @@ module Merit
     end
 
     describe 'with sub-zero demand' do
-      let(:curve) { Merit::LoadCurve.new([0, 0, -1, 3].map(&:to_f) * 6 * 365) }
+      let(:curve) { Merit::Curve.new([0, 0, -1, 3].map(&:to_f) * 6 * 365) }
       let(:user)  { User.create(key: :total_demand, total_consumption: 0) }
       let(:cuser) { User.create(key: :with_curve, load_curve: curve) }
 
@@ -155,7 +155,7 @@ module Merit
 
     describe 'with a variable-marginal-cost producer' do
       let(:curve) do
-        LoadCurve.new([[12.0] * 24, [24.0] * 24, [12.0] * 120].flatten * 52)
+        Curve.new([[12.0] * 24, [24.0] * 24, [12.0] * 120].flatten * 52)
       end
 
       let(:ic) do

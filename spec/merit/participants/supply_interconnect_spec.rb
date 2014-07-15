@@ -3,7 +3,7 @@ require 'spec_helper'
 module Merit
   describe SupplyInterconnect do
     let(:price_curve) do
-      LoadCurve.new([
+      Curve.new([
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
         13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24
       ] * 365)
@@ -41,7 +41,7 @@ module Merit
 
     describe '#variable_costs' do
       let(:load_curve) do
-        LoadCurve.new([
+        Curve.new([
           1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
           13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24
         ] * 365)

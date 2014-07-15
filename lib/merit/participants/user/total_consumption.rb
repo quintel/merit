@@ -9,7 +9,7 @@ module Merit
       # the total_production.
       # Returns the load in MW
       def load_curve
-        @load_curve ||= LoadCurve.new(load_profile.values.map do |value|
+        @load_curve ||= Curve.new(load_profile.values.map do |value|
           value * @total_consumption
         end)
       end

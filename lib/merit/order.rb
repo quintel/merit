@@ -91,7 +91,7 @@ module Merit
     # Public: Returns a Curve with all the (known) prices
     def price_curve
       @price_curve ||= begin
-        prices = LoadCurve.new
+        prices = Curve.new
         POINTS.times { |point| prices.set(point, price_at(point)) }
         prices
       end

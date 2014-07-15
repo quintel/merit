@@ -13,9 +13,9 @@ require 'merit/errors'
 require 'merit/participants/profitable'
 
 require 'merit/calculator'
+require 'merit/curve'
 require 'merit/order'
 require 'merit/order_attribute_groups'
-require 'merit/load_curve'
 require 'merit/load_profile'
 
 require 'merit/participant_set'

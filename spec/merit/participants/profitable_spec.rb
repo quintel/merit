@@ -62,7 +62,7 @@ module Merit
       context 'when the producer has >0 number of units and >0 capacity' do
         it 'should return the correct number' do
           allow(order).to receive(:price_curve).
-            and_return(LoadCurve.new(Array.new(8760,1)))
+            and_return(Curve.new(Array.new(8760,1)))
 
           producer.order = order
           expect(producer.revenue).to be_within(0.1).of(1 * 2 * 4.0)
@@ -71,12 +71,12 @@ module Merit
     end
 
     describe '#revenue_curve' do
-      it 'should return a LoadCurve' do
+      it 'should return a Curve' do
         allow(order).to receive(:price_curve).
-         and_return(LoadCurve.new(Array.new(8760,1)))
+         and_return(Curve.new(Array.new(8760,1)))
 
         producer.order = order
-        expect(producer.revenue_curve).to be_a(LoadCurve)
+        expect(producer.revenue_curve).to be_a(Curve)
         expect(producer.revenue_curve.to_a.first).to \
           be_within(0.01).of(8 / 8760.0)
       end

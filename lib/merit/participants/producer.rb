@@ -35,7 +35,7 @@ module Merit
       @fixed_costs_per_unit      = opts[:fixed_costs_per_unit]
       @fixed_om_costs_per_unit   = opts[:fixed_om_costs_per_unit]
 
-      @load_curve   = LoadCurve.new([], Merit::POINTS)
+      @load_curve   = Curve.new([], Merit::POINTS)
       @load_profile = load_profile_key && LoadProfile.load(load_profile_key)
     end
 
@@ -80,10 +80,10 @@ module Merit
       load_curve.select{ |v| v == 0 }.size
     end
 
-    # Public: Returns a LoadCurve with the absolute increase/decrease of power
-    # from one hour to the next
+    # Public: Returns a Curve with the absolute increase/decrease of power from
+    # one hour to the next
     def ramping_curve
-      LoadCurve.new(load_curve.each_cons(2).map{ |a,b| (b-a).abs })
+      Curve.new(load_curve.each_cons(2).map{ |a,b| (b-a).abs })
     end
 
     # Public: the load curve of a participant, tells us how much energy
@@ -96,11 +96,11 @@ module Merit
         values = Array.new(Merit::POINTS, available_output_capacity)
       end
 
-      @max_load_curve ||= LoadCurve.new(values)
+      @max_load_curve ||= Curve.new(values)
     end
 
-    # Public: Returns a LoadCurve with the difference between the max and the
-    # actual load used.
+    # Public: Returns a Curve with the difference between the max and the actual
+    # load used.
     def spare_load_curve
       max_load_curve - load_curve
     end

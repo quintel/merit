@@ -1,23 +1,21 @@
 module Merit
-  # A LoadCurve is a container for LoadCurvevalues and is a timed series
-  #
-  # It will contain the 'global' methods for e.g. the total_profit of all the
-  # load_curve_values
-  class LoadCurve
+  # A Curve is a container for time series values, typically with one value for
+  # each hour in the year. Values stored may include load on a producer, or
+  # marginal costs which vary by hour.
+  class Curve
     include Enumerable
 
     attr_reader :values
 
-    # Public: Creates a LoadCurve with the given +values+.
+    # Public: Creates a Curve with the given +values+.
     #
     # values - The values for each point in the curve.
-    # length - When the load curve needs to be a specific length, but the
-    #          supplied +values+ do not provide all the values, provide a
-    #          +length+ to ensure that +each+ and +to_a+ always return the
-    #          desired number of elements (empty elements will be returned as
-    #          0.0).
+    # length - When the curve needs to be a specific length, but the supplied
+    #          +values+ are shorter than this length, provide a +length+ to
+    #          ensure that +each+ and +to_a+ always return the desired number of
+    #          elements (empty elements will be returned as 0.0).
     #
-    # Returns a LoadCurve.
+    # Returns a Curve.
     def initialize(values = [], length = nil)
       @values = values
       @length = length
@@ -47,7 +45,7 @@ module Merit
 
     alias_method :inspect, :to_s
 
-    # Public: creates a new drawing in the terminal for this LoadCurve
+    # Public: creates a new drawing in the terminal for this Curve
     def draw
       BarChart.new(to_a).draw
     end
@@ -109,5 +107,5 @@ module Merit
       new_values
     end
 
-  end # LoadCurve
+  end # Curve
 end # Merit

@@ -95,7 +95,7 @@ module Merit
       it 'should be settable by the merit order' do
         merit = Merit::Order.new
         merit.add(producer)
-        merit.participants[:foo].load_curve = LoadCurve.new((1..3).to_a)
+        merit.participants[:foo].load_curve = Curve.new((1..3).to_a)
         expect(producer.load_curve.to_a).to eql [1,2,3]
       end
       it 'should be adaptable and extendable for the merit order' do
@@ -136,8 +136,8 @@ module Merit
     end
 
     describe '#spare_load_curve' do
-      it 'is a LoadCurve' do
-        expect(producer.spare_load_curve).to be_a(LoadCurve)
+      it 'is a Curve' do
+        expect(producer.spare_load_curve).to be_a(Curve)
       end
 
       it 'describes the difference between maximum capacity and usage' do
@@ -153,8 +153,8 @@ module Merit
     end
 
     describe '#ramping_curve' do
-      it 'is a LoadCurve' do
-        expect(producer.ramping_curve).to be_a(LoadCurve)
+      it 'is a Curve' do
+        expect(producer.ramping_curve).to be_a(Curve)
       end
     end
 

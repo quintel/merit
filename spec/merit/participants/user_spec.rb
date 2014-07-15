@@ -23,7 +23,7 @@ module Merit
       let(:user) { tc_user(total_consumption: 300 * 10 ** 9) }
 
       it 'should return a load curve' do
-        expect(user.load_curve).to be_a(Merit::LoadCurve)
+        expect(user.load_curve).to be_a(Merit::Curve)
       end
     end #describe #load_curve
 
@@ -54,7 +54,7 @@ module Merit
          12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23
       ].map(&:to_f)
 
-      Merit::LoadCurve.new(day * 365)
+      Merit::Curve.new(day * 365)
     end
 
     let(:user) { User.create(key: :with_curve, load_curve: curve) }

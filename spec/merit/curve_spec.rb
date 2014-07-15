@@ -2,19 +2,19 @@ require 'spec_helper'
 
 module Merit
 
-  describe LoadCurve do
+  describe Curve do
 
-    let(:load_curve) { LoadCurve.new((1..8760).to_a) }
-    let(:load_curve2){ LoadCurve.new((1..8760).to_a) }
+    let(:load_curve) { Curve.new((1..8760).to_a) }
+    let(:load_curve2){ Curve.new((1..8760).to_a) }
 
     describe '#new' do
-      it 'should create a LoadCurve with 8760 values' do
+      it 'should create a Curve with 8760 values' do
         expect(load_curve.to_a.length).to eq(8760)
         expect(load_curve.to_a).to eql((1..8760).to_a)
       end
 
       context 'with an explicit length' do
-        let(:curve) { LoadCurve.new([], 100) }
+        let(:curve) { Curve.new([], 100) }
 
         it 'iterates through the full length' do
           expect(curve.to_a.length).to eq(100)
@@ -42,7 +42,7 @@ module Merit
     end
 
     describe '#to_a' do
-      let(:curve) { LoadCurve.new([3.0, 4.0, nil, 2.0]) }
+      let(:curve) { Curve.new([3.0, 4.0, nil, 2.0]) }
       let(:array) { curve.to_a }
 
       it 'has the same length as the original values' do
@@ -58,10 +58,20 @@ module Merit
       it 'converts nils to 0.0' do
         expect(array[2]).to eql(0.0)
       end
+
+      describe 'when the curve has an explicit length' do
+        describe 'and the init values are shorter' do
+          let(:curve) { Curve.new([3.0, 2.0], 4) }
+
+          it 'pads the array with zeros' do
+            expect(curve.to_a).to eq([3.0, 2.0, 0.0, 0.0])
+          end
+        end # and the init values are shorter
+      end # when the curve has an explicit length
     end # to_a
 
     describe '#get' do
-      let(:curve) { LoadCurve.new([3.0, nil]) }
+      let(:curve) { Curve.new([3.0, nil]) }
 
       it 'retrieves the value' do
         expect(curve.get(0)).to eql(3.0)
@@ -74,10 +84,24 @@ module Merit
       it 'returns 0.0 if no value is set' do
         expect(curve.get(2)).to eql(0.0)
       end
+
+      describe 'when the curve has an explicit length' do
+        describe 'and the init values are shorter' do
+          let(:curve) { Curve.new([3.0, 2.0], 10) }
+
+          it 'returns an in-bounds value' do
+            expect(curve.get(1)).to eq(2.0)
+          end
+
+          it 'returns 0.0 to an out-of-bounds element' do
+            expect(curve.get(5)).to eq(0.0)
+          end
+        end # and the init values are shorter
+      end # when the curve has an explicit length
     end # get
 
     describe '#set' do
-      let(:curve) { LoadCurve.new([3.0, nil]) }
+      let(:curve) { Curve.new([3.0, nil]) }
 
       it 'sets the value' do
         curve.set(1, 1337)
@@ -87,12 +111,12 @@ module Merit
 
     describe '#-' do
       context 'with equal-length curves' do
-        let(:left)  { LoadCurve.new([1, 5.2, 3]) }
-        let(:right) { LoadCurve.new([2.0, 3, 2]) }
+        let(:left)  { Curve.new([1, 5.2, 3]) }
+        let(:right) { Curve.new([2.0, 3, 2]) }
         let(:curve) { left - right }
 
-        it 'returns a LoadCurve' do
-          expect(curve).to be_a(LoadCurve)
+        it 'returns a Curve' do
+          expect(curve).to be_a(Curve)
         end
 
         it 'has as many values as the originals' do
@@ -107,12 +131,12 @@ module Merit
       end # with equal-length curves
 
       context 'with a different-length right curve' do
-        let(:left)  { LoadCurve.new([1, 4.2, 3]) }
-        let(:right) { LoadCurve.new([2.0]) }
+        let(:left)  { Curve.new([1, 4.2, 3]) }
+        let(:right) { Curve.new([2.0]) }
         let(:curve) { left - right }
 
-        it 'returns a LoadCurve' do
-          expect(curve).to be_a(LoadCurve)
+        it 'returns a Curve' do
+          expect(curve).to be_a(Curve)
         end
 
         it 'has as many values as the longest original' do
@@ -127,12 +151,12 @@ module Merit
       end # with a different-length right curve
 
       context 'with a different-length left curve' do
-        let(:left)  { LoadCurve.new([2.0]) }
-        let(:right) { LoadCurve.new([1, 4.2, 3]) }
+        let(:left)  { Curve.new([2.0]) }
+        let(:right) { Curve.new([1, 4.2, 3]) }
         let(:curve) { left - right }
 
-        it 'returns a LoadCurve' do
-          expect(curve).to be_a(LoadCurve)
+        it 'returns a Curve' do
+          expect(curve).to be_a(Curve)
         end
 
         it 'has as many values as the longest original' do
@@ -149,12 +173,12 @@ module Merit
 
     describe '#+' do
       context 'with equal-length curves' do
-        let(:left)  { LoadCurve.new([1, 5.2, 3]) }
-        let(:right) { LoadCurve.new([2.0, 3, 2]) }
+        let(:left)  { Curve.new([1, 5.2, 3]) }
+        let(:right) { Curve.new([2.0, 3, 2]) }
         let(:curve) { left + right }
 
-        it 'returns a LoadCurve' do
-          expect(curve).to be_a(LoadCurve)
+        it 'returns a Curve' do
+          expect(curve).to be_a(Curve)
         end
 
         it 'has as many values as the originals' do
@@ -169,12 +193,12 @@ module Merit
       end # with equal-length curves
 
       context 'with different-length right curve' do
-        let(:left)  { LoadCurve.new([1, 4.2, 3]) }
-        let(:right) { LoadCurve.new([2.0]) }
+        let(:left)  { Curve.new([1, 4.2, 3]) }
+        let(:right) { Curve.new([2.0]) }
         let(:curve) { left + right }
 
-        it 'returns a LoadCurve' do
-          expect(curve).to be_a(LoadCurve)
+        it 'returns a Curve' do
+          expect(curve).to be_a(Curve)
         end
 
         it 'has as many values as the longest original' do
@@ -189,12 +213,12 @@ module Merit
       end # with different-length right curve
 
       context 'with different-length left curve' do
-        let(:left)  { LoadCurve.new([2.0]) }
-        let(:right) { LoadCurve.new([1, 4.2, 3]) }
+        let(:left)  { Curve.new([2.0]) }
+        let(:right) { Curve.new([1, 4.2, 3]) }
         let(:curve) { left + right }
 
-        it 'returns a LoadCurve' do
-          expect(curve).to be_a(LoadCurve)
+        it 'returns a Curve' do
+          expect(curve).to be_a(Curve)
         end
 
         it 'has as many values as the longest original' do
@@ -211,12 +235,12 @@ module Merit
 
     describe '#*' do
       context 'with same length' do
-        let(:a) { LoadCurve.new([1, 5.2, 3]) }
-        let(:b) { LoadCurve.new([2.0, 3, 2]) }
+        let(:a) { Curve.new([1, 5.2, 3]) }
+        let(:b) { Curve.new([2.0, 3, 2]) }
         let(:c) { a * b }
 
-        it 'should return a LoadCurve' do
-          expect(c).to be_a(LoadCurve)
+        it 'should return a Curve' do
+          expect(c).to be_a(Curve)
         end
 
         it 'has as many values as the longest original' do

@@ -6,7 +6,7 @@ module Merit
       # Public: Creates an appropriate User for the options given. The options
       # hash should include a :total_consumption key if you want to express the
       # User's total energy use for the year, or a :load_curve if the per-point
-      # consumption defined using a LoadCurve.
+      # consumption defined using a Curve.
       #
       # Returns a Participant.
       def create(options)

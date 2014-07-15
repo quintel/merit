@@ -139,7 +139,7 @@ module Merit
         allow(order).to receive(:price_at) { 1 }
       end
       it 'should be another instance of a Curve' do
-        expect(order.price_curve).to be_a(LoadCurve)
+        expect(order.price_curve).to be_a(Curve)
       end
       it 'should have all ones' do
         expect(order.price_curve.to_a[118]).to eql 1
