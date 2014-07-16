@@ -40,7 +40,7 @@ module Merit
     #
     # Returns something which responds to #always_on and #transients
     def producers_for_calculation
-      if producers.any?(&:variable_marginal_cost?)
+      if producers.any? { |p| p.cost_strategy.variable? }
         producers = ParticipantSet::Resortable.new(self)
       else
         self
@@ -56,8 +56,8 @@ module Merit
 
         dispatchables = select_participants(DispatchableProducer)
 
-        if dispatchables.none?(&:variable_marginal_cost?)
-          dispatchables.sort_by!(&:marginal_costs)
+        unless dispatchables.any? { |p| p.cost_strategy.variable? }
+          dispatchables.sort_by! { |p| p.cost_strategy.sortable_cost }
 
           dispatchables.each do |d|
             if d.output_capacity_per_unit * d.number_of_units == 0
@@ -204,11 +204,11 @@ module Merit
       end
 
       def always_on(point)
-        @always_on.sort_by { |p| p.marginal_cost_at(point) }
+        @always_on.sort_by { |p| p.cost_strategy.sortable_cost(point) }
       end
 
       def transients(point)
-        @transients.sort_by { |p| p.marginal_cost_at(point) }
+        @transients.sort_by { |p| p.cost_strategy.sortable_cost(point) }
       end
     end
   end # ParticipantSet

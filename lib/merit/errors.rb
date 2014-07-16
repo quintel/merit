@@ -61,6 +61,11 @@ module Merit
     "had already been added"
   end
 
+  NoCostData = error_class do |producer|
+    "Couldn't determine how to calculate the cost for #{ producer }. Did " \
+    "you forget to provide a :marginal_costs attribute?"
+  end
+
   SubZeroDemand = error_class do |point, demand|
     "Merit order has a subzero demand (#{ demand.inspect }) in point #{ point }"
   end

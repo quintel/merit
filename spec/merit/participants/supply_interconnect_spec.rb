@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module Merit
   describe SupplyInterconnect do
-    let(:price_curve) do
+    let(:cost_curve) do
       Curve.new([
         1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
         13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24
@@ -12,7 +12,7 @@ module Merit
     let(:ic) do
       SupplyInterconnect.new({
         key: :import_interconnect,
-        price_curve: price_curve,
+        cost_curve: cost_curve,
         availability: 1.0,
         fixed_costs_per_unit: 1.0,
         fix_om_costs_per_unit: 1.0,
@@ -23,21 +23,11 @@ module Merit
 
     # --------------------------------------------------------------------------
 
-    describe '#marginal_costs' do
-      it 'raises an error' do
-        expect { ic.marginal_costs }.to raise_error(VariableMarginalCost)
+    describe '#initialze' do
+      it 'sets number of units to 1' do
+        expect(ic.number_of_units).to eq(1)
       end
-    end
-
-    describe '#marginal_cost_at' do
-      it 'returns the cost for the given point' do
-        expect(ic.marginal_cost_at(25)).to eq(2)
-      end
-
-      it 'returns 0.0 when given an invalid point' do
-        expect(ic.marginal_cost_at(25000)).to be(0.0)
-      end
-    end # marginal_costs_at
+    end # initialize
 
     describe '#variable_costs' do
       let(:load_curve) do

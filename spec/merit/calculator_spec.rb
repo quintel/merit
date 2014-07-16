@@ -161,7 +161,7 @@ module Merit
       let(:ic) do
         SupplyInterconnect.new(
           key:                       :interconnect,
-          price_curve:               curve,
+          cost_curve:                curve,
           output_capacity_per_unit:  6.3e6,
           availability:              1.0,
           fixed_costs_per_unit:      1.0,

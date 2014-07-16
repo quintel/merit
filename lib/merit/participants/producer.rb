@@ -6,9 +6,9 @@ module Merit
 
     include Profitable
 
-    attr_reader   :output_capacity_per_unit, :availability,
-                  :number_of_units, :marginal_costs, :fixed_costs_per_unit,
-                  :fixed_om_costs_per_unit
+    attr_reader   :output_capacity_per_unit, :availability, :number_of_units,
+                  :fixed_costs_per_unit, :fixed_om_costs_per_unit,
+                  :cost_strategy
 
     attr_accessor :load_curve, :load_profile, :position
 
@@ -23,30 +23,30 @@ module Merit
                          :fixed_costs_per_unit,
                          :fixed_om_costs_per_unit
 
-      if opts[:marginal_costs].nil? && opts[:price_curve].nil?
-        fail MissingAttributeError.new(:marginal_costs, self.class)
-      end
-
       @full_load_hours           = opts[:full_load_hours]
-      @marginal_costs            = opts[:marginal_costs]
       @output_capacity_per_unit  = opts[:output_capacity_per_unit]
       @availability              = opts[:availability]
       @number_of_units           = opts[:number_of_units]
       @fixed_costs_per_unit      = opts[:fixed_costs_per_unit]
       @fixed_om_costs_per_unit   = opts[:fixed_om_costs_per_unit]
 
-      @load_curve   = Curve.new([], Merit::POINTS)
-      @load_profile = load_profile_key && LoadProfile.load(load_profile_key)
+      @load_curve    = Curve.new([], Merit::POINTS)
+      @load_profile  = load_profile_key && LoadProfile.load(load_profile_key)
+
+      @cost_strategy = CostStrategy.create(self, opts)
     end
 
-    # Public: Returns the marginal cost of the interconnect in the given point.
-    def marginal_cost_at(point)
-      marginal_costs
-    end
-
-    # Public: Returns if the marginal cost of the producer may vary over time.
-    def variable_marginal_cost?
-      !! @price_curve
+    # Public: The cost for the producer to output a MW. This may be a constant,
+    # or it may vary depending on what times of the year the producer is active,
+    # or the amount of energy it outputs.
+    #
+    # This method may not be called prior to calculation of the merit order; if
+    # you need a value to sort the producers, use +cost_strategy.sortable_cost+
+    # instead.
+    #
+    # Returns a Numeric.
+    def marginal_costs
+      @cost_strategy.marginal_cost
     end
 
     # The full load hours are defined as the number of hours that the

@@ -29,15 +29,22 @@ module Merit
         expect(->{ MustRunProducer.new(attrs) }).to_not raise_error
       end
       context 'should raise an error when any of those' do
-        attributes = [:key, :marginal_costs, :output_capacity_per_unit, :number_of_units,
+        attributes = [:key, :output_capacity_per_unit, :number_of_units,
          :availability, :fixed_costs_per_unit, :fixed_om_costs_per_unit,
          :load_profile_key, :full_load_hours]
         attributes.each do |attribute|
           it "should raise an error when #{attribute} is missing" do
-            expect(-> { MustRunProducer.new(attrs.reject { |k,_| k == attribute }) }).to \
+            attrs.delete(attribute)
+
+            expect { MustRunProducer.new(attrs) }.to \
               raise_error(MissingAttributeError)
           end
         end
+      end
+
+      it 'should raise an error when there is no cost data' do
+        attrs.delete(:marginal_costs)
+        expect { MustRunProducer.new(attrs) }.to raise_error(NoCostData)
       end
     end
 

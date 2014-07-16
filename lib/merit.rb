@@ -13,6 +13,7 @@ require 'merit/errors'
 require 'merit/participants/profitable'
 
 require 'merit/calculator'
+require 'merit/cost_strategy'
 require 'merit/curve'
 require 'merit/order'
 require 'merit/order_attribute_groups'

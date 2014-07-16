@@ -47,7 +47,7 @@ module Merit::Profitable
   # Returns the costs that are dependent on the amount of production
   # in EUR per MWh.
   def variable_costs
-    marginal_costs * production(:mwh)
+    @cost_strategy.variable_cost
   end
 
   # Returns the operating costs (OPEX) in EUR per MWh.
