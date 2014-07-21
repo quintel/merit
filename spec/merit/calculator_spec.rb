@@ -202,6 +202,45 @@ module Merit
       end
     end # with sub-zero demand
 
+    context 'with highly-competitive dispatchers' do
+      before { order.calculate(Calculator.new) }
+
+      let(:order) do
+        Order.new.tap do |order|
+          order.add(dispatchable)
+          order.add(dispatchable_two)
+          order.add(user)
+        end
+      end
+
+      let(:user) do
+        User.create(
+          key: :curve_demand,
+          load_curve: Curve.new([1.0] * Merit::POINTS)
+        )
+      end
+
+      let(:disp_1_attrs) { super().merge(
+        cost_spread: 0.4, marginal_costs: 20.0, availability: 1.0,
+        output_capacity_per_unit: 0.1, number_of_units: 10
+      ) }
+
+      let(:disp_2_attrs) { super().merge(
+        marginal_costs: 20.1, availability: 1.0,
+        output_capacity_per_unit: 0.02, number_of_units: 1
+      ) }
+
+      it 'assigns all load to the first dispatchable' do
+        # Dispatchable #1 has a lower mean price, even though it becomes more
+        # expensive than #2 as we assign more load to it.
+        expect(dispatchable.load_curve.get(0)).to eq(1.0)
+      end
+
+      it 'assigns no load to the second dispatchable' do
+        expect(dispatchable_two.load_curve.get(0)).to be_zero
+      end
+    end # with highly-competitive dispatchers
+
     describe 'with a variable-marginal-cost producer' do
       let(:curve) do
         Curve.new([[12.0] * 24, [24.0] * 24, [12.0] * 120].flatten * 52)
