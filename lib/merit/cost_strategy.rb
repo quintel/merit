@@ -56,7 +56,7 @@ module Merit
       #
       # Returns a Numeric.
       def sortable_cost(*args)
-        marginal_cost(*args)
+        marginal_cost
       end
 
       # Public: The variable cost of a producer is the marginal cost multiplied
