@@ -12,8 +12,8 @@ module Merit
     def self.create(producer, options)
       if options[:cost_curve]
         FromCurve.new(producer, options[:cost_curve])
-      elsif options[:cost_function]
-        args = options[:cost_function].values_at(:mean, :spread)
+      elsif options[:cost_spread]
+        args = options.values_at(:marginal_costs, :cost_spread)
         LinearCostFunction.new(producer, *args)
       elsif options[:marginal_costs]
         Constant.new(producer, options[:marginal_costs])

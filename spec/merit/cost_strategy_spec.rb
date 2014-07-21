@@ -43,7 +43,7 @@ module Merit::CostStrategy ; describe Merit::CostStrategy do
   end # Constant
 
   describe LinearCostFunction do
-    let(:attrs) { super().merge(cost_function: { mean: 100.0, spread: 0.02 }) }
+    let(:attrs) { super().merge(marginal_costs: 100.0, cost_spread: 0.02) }
 
     it 'is a LinearCostFunction' do
       expect(strategy).to be_a(LinearCostFunction)
