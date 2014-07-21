@@ -167,6 +167,8 @@ module Merit
         typical = @producer.output_capacity_per_unit
         avail   = @producer.available_output_capacity
 
+        return Float::INFINITY if avail.zero?
+
         y_min = @mean * (1 - @spread / 2)
         y_max = @mean * (1 + @spread / 2)
 
