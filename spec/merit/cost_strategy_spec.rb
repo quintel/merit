@@ -40,6 +40,22 @@ module Merit::CostStrategy ; describe Merit::CostStrategy do
         expect(strategy.variable_cost).to eq(43800000.0)
       end
     end # variable_cost
+
+    describe '#price' do
+      before do
+        producer.load_curve.set(0, 0)
+        producer.load_curve.set(1, 1)
+      end
+
+      it 'calculates the price to be equal to the marginal cost' do
+        expect(strategy.price_at(0)).to eq(100.0)
+      end
+
+      it 'raises an error when the producer has non-zero load' do
+        expect { strategy.price_at(1) }.
+          to raise_error(Merit::InsufficentCapacityForPrice)
+      end
+    end # price
   end # Constant
 
   describe LinearCostFunction do
@@ -69,6 +85,54 @@ module Merit::CostStrategy ; describe Merit::CostStrategy do
         expect(strategy.variable_cost).to eq(43800000.0)
       end
     end # variable_cost
+
+    describe 'with a cost of zero' do
+      let(:attrs) { super().merge(marginal_costs: 0.0, cost_spread: 0.02) }
+
+      it 'has a marginal cost of zero' do
+        expect(strategy.marginal_cost).to be_zero
+      end
+
+      it 'has a sortable cost of zero' do
+        expect(strategy.sortable_cost).to be_zero
+      end
+
+      it 'has a variable cost of zero' do
+        expect(strategy.variable_cost).to be_zero
+      end
+    end # with a cost of zero
+
+    describe '#price' do
+      context 'when the producer does not provide a price' do
+        it 'calculates the price for one additional plant' do
+          expect(strategy.price_at(0)).to eq(99.6)
+          expect(strategy.price_at(1)).to eq(100.8)
+        end
+
+        it 'raises an error when there is insufficient remaining capacity' do
+          producer.load_curve.set(0, 91.0)
+
+          expect { strategy.price_at(0) }.
+            to raise_error(Merit::InsufficentCapacityForPrice)
+        end
+      end # when the producer does not provide a price
+
+      context 'when the producer provides a price' do
+        before do
+          allow(producer).to receive(:provides_price?).and_return(true)
+        end
+
+        it 'calculates the price to be equal to the marginal cost' do
+          expect(strategy.price_at(0)).to eq(99.4)
+          expect(strategy.price_at(1)).to eq(100.6)
+        end
+
+        it 'raises no error when there is insufficient remaining capacity' do
+          producer.load_curve.set(0, 100.0)
+          expect(strategy.price_at(0)).to eq(101.0)
+        end
+      end # when the producer provides a price
+    end # price
   end # LinearCostFunction
 
   describe FromCurve do
@@ -101,5 +165,21 @@ module Merit::CostStrategy ; describe Merit::CostStrategy do
           to be_within(1e4).of(43800000.0)
       end
     end # variable_cost
+
+    describe '#price' do
+      before do
+        producer.load_curve.set(0, 0.0)
+        producer.load_curve.set(2, 40.0)
+      end
+
+      it 'calculates the price to be equal to the marginal cost' do
+        expect(strategy.price_at(0)).to eq(100.0)
+      end
+
+      it 'raises an error when the producer has non-zero load' do
+        expect { strategy.price_at(2) }.
+          to raise_error(Merit::InsufficentCapacityForPrice)
+      end
+    end # price
   end # LinearCostFunction
 end ; end # describe CostStrategy ; Merit::CostStrategy

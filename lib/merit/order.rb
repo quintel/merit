@@ -80,9 +80,9 @@ module Merit
     # for the rationale of this factor 7.22
     def price_at(time)
       if producer = price_setting_producers[time]
-        producer.marginal_costs
+        producer.price_at(time)
       elsif producer = participants.dispatchables.select { |p| p.number_of_units > 0 }.last
-        producer.marginal_costs * 7.22
+        producer.price_at(time) * 7.22
       else
         600
       end

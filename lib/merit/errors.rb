@@ -74,6 +74,11 @@ module Merit
     "You need to supply #{ name.inspect } with a :price_curve"
   end
 
+  InsufficentCapacityForPrice = error_class do |producer, point|
+    "Cannot calculate a price for #{ producer.key } in point ##{ point } " \
+    "since there is insufficient spare capacity for it to be price-setting."
+  end
+
   VariableMarginalCost = error_class do |obj|
     class_only = obj.class.name.split('::').last
 

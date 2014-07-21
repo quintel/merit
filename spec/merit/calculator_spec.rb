@@ -2,50 +2,66 @@ require 'spec_helper'
 
 module Merit
   describe 'Calculations' do
-    def make_order
+    let(:disp_1_attrs) {{
+      key:                       :dispatchable,
+      marginal_costs:            13.999791,
+      output_capacity_per_unit:  0.1,
+      number_of_units:           1,
+      availability:              0.89,
+      fixed_costs_per_unit:      222.9245208,
+      fixed_om_costs_per_unit:   35.775
+    }}
+
+    let(:disp_2_attrs) {{
+      key:                       :dispatchable_2,
+      marginal_costs:            15.999791,
+      output_capacity_per_unit:  0.005,
+      number_of_units:           1,
+      availability:              0.89,
+      fixed_costs_per_unit:      222.9245208,
+      fixed_om_costs_per_unit:   35.775
+    }}
+
+    let(:vol_1_attrs) {{
+      key:                       :volatile,
+      marginal_costs:            19.999791,
+      load_profile_key:          :industry_chp,
+      output_capacity_per_unit:  0.1,
+      availability:              0.95,
+      number_of_units:           1,
+      fixed_costs_per_unit:      222.9245208,
+      fixed_om_costs_per_unit:   35.775,
+      full_load_hours:           1000
+    }}
+
+    let(:vol_2_attrs) {{
+      key:                       :volatile_two,
+      marginal_costs:            21.21,
+      load_profile_key:          :solar_pv,
+      output_capacity_per_unit:  0.1,
+      availability:              0.95,
+      number_of_units:           1,
+      fixed_costs_per_unit:      222.9245208,
+      fixed_om_costs_per_unit:   35.775,
+      full_load_hours:           1000
+    }}
+
+    let(:order) do
       Order.new.tap do |order|
-        order.add(DispatchableProducer.new(
-          key:                       :dispatchable,
-          marginal_costs:            13.999791,
-          output_capacity_per_unit:  0.1,
-          number_of_units:           1,
-          availability:              0.89,
-          fixed_costs_per_unit:      222.9245208,
-          fixed_om_costs_per_unit:   35.775
-        ))
+        order.add(dispatchable)
+        order.add(dispatchable_two)
 
-        order.add(VolatileProducer.new(
-          key:                       :volatile,
-          marginal_costs:            19.999791,
-          load_profile_key:          :industry_chp,
-          output_capacity_per_unit:  0.1,
-          availability:              0.95,
-          number_of_units:           1,
-          fixed_costs_per_unit:      222.9245208,
-          fixed_om_costs_per_unit:   35.775,
-          full_load_hours:           1000
-        ))
-
-        order.add(VolatileProducer.new(
-          key:                       :volatile_two,
-          marginal_costs:            21.21,
-          load_profile_key:          :solar_pv,
-          output_capacity_per_unit:  0.1,
-          availability:              0.95,
-          number_of_units:           1,
-          fixed_costs_per_unit:      222.9245208,
-          fixed_om_costs_per_unit:   35.775,
-          full_load_hours:           1000
-        ))
+        order.add(volatile)
+        order.add(volatile_two)
 
         order.add(user)
       end
     end
 
-    let(:order)        { make_order }
-    let(:volatile)     { order.participants[:volatile] }
-    let(:volatile_two) { order.participants[:volatile_two] }
-    let(:dispatchable) { order.participants[:dispatchable] }
+    let(:volatile)         { VolatileProducer.new(vol_1_attrs) }
+    let(:volatile_two)     { VolatileProducer.new(vol_2_attrs) }
+    let(:dispatchable)     { DispatchableProducer.new(disp_1_attrs) }
+    let(:dispatchable_two) { DispatchableProducer.new(disp_2_attrs) }
 
     let(:user) { User.create(key: :total_demand, total_consumption: 6.4e6) }
 
@@ -74,15 +90,26 @@ module Merit
       end
 
       it 'assigns the price setting producer with nothing' do
-        expect(order.price_setting_producers).to eql Array.new(POINTS)
+        expect(order.price_setting_producers[0]).to be_nil
       end
     end
 
     context 'with an excess of supply' do
-      before { dispatchable.instance_variable_set(:@number_of_units, 2) }
+      let(:disp_1_attrs) { super().merge(number_of_units: 2) }
       before { order.calculate(Calculator.new) }
 
-      it 'sets the load profile values of the first producer' do
+      it 'sets the load profile values of the first dispatchable' do
+        load_value = dispatchable.load_curve.get(0)
+
+        demand = order.participants.users.first.load_at(0)
+        demand -= volatile.max_load_at(0)
+        demand -= volatile_two.max_load_at(0)
+
+        expect(load_value).to_not be_nil
+        expect(load_value).to be_within(0.01).of(demand)
+      end
+
+      it 'sets the load profile values of the second dispatchable' do
         load_value = dispatchable.load_curve.get(0)
 
         demand = order.participants.users.first.load_at(0)
@@ -107,9 +134,31 @@ module Merit
         expect(load_value).to eql(volatile_two.max_load_at(0))
       end
 
-      it 'assigns the price setting producer with nothing' do
-        expect(order.price_setting_producers).to eql Array.new(POINTS)
+      it 'assigns the price setting producer with the next dispatchable' do
+        expect(order.price_setting_producers[0]).to eql(dispatchable_two)
       end
+
+      context 'and the dispatchable is a cost-function producer' do
+        let(:disp_1_attrs) do
+          super().merge(cost_spread: 0.02, number_of_units: 2)
+        end
+
+        context 'with no remaining capacity' do
+          it 'assigns the next dispatchable as price-setting' do
+            expect(order.price_setting_producers[0]).to eql(dispatchable_two)
+          end
+        end # with no remaining capacity
+
+        context 'with > 1 unit of remaining capacity' do
+          let(:disp_1_attrs) do
+            super().merge(cost_spread: 0.02, number_of_units: 3)
+          end
+
+          it 'assigns the current dispatchable as price-setting' do
+            expect(order.price_setting_producers[0]).to eql(dispatchable)
+          end
+        end # with no remaining capacity
+      end # and the dispatchable is a cost-function producer
     end
 
     context 'with a huge excess of supply' do
@@ -158,31 +207,57 @@ module Merit
         Curve.new([[12.0] * 24, [24.0] * 24, [12.0] * 120].flatten * 52)
       end
 
+      let(:ic_attrs) {{
+        key:                       :interconnect,
+        cost_curve:                curve,
+        output_capacity_per_unit:  1.0,
+        availability:              1.0,
+        fixed_costs_per_unit:      1.0,
+        fixed_om_costs_per_unit:   1.0
+      }}
+
       let(:ic) do
-        SupplyInterconnect.new(
-          key:                       :interconnect,
-          cost_curve:                curve,
-          output_capacity_per_unit:  6.3e6,
-          availability:              1.0,
-          fixed_costs_per_unit:      1.0,
-          fixed_om_costs_per_unit:   1.0
-        )
+        SupplyInterconnect.new(ic_attrs)
       end
 
       # We need "dispatchable" to take all of the remaining demand when it is
       # competitive, so that none is assigned to the interconnector
-      before { dispatchable.instance_variable_set(:@number_of_units, 2) }
+      before { dispatchable.instance_variable_set(:@number_of_units, 30) }
 
       before { order.add(ic) }
       before { order.calculate(Calculator.new) }
 
-      it 'should be active when competitive' do
-        expect(ic.load_curve.get(0)).to_not be_zero
-      end
+      context 'when the producer is competitive' do
+        let(:ic_attrs) { super().merge(output_capacity_per_unit: 0.1) }
 
-      it 'should be inactive when uncompetitive' do
-        expect(ic.load_curve.get(24)).to be_zero
-      end
+        it 'should be active' do
+          expect(ic.load_curve.get(0)).to_not be_zero
+        end
+
+        it 'is price-setting' do
+          expect(order.price_setting_producers[0]).to_not eq(ic)
+        end
+      end # when the producer is competitive
+
+      context 'when the producer is the final producer' do
+        it 'should be active' do
+          expect(ic.load_curve.get(0)).to_not be_zero
+        end
+
+        it 'is price-setting' do
+          expect(order.price_setting_producers[0]).to eq(ic)
+        end
+      end # when the producer is competitive
+
+      context 'when the producer is uncompetitive' do
+        it 'should be inactive' do
+          expect(ic.load_curve.get(24)).to be_zero
+        end
+
+        it 'is not price-setting' do
+          expect(order.price_setting_producers[24]).to_not eq(ic)
+        end
+      end # when the producer is uncompetitive
     end # with a variable-marginal-cost producer
 
     describe 'with QuantizingCalculator' do

@@ -50,6 +50,19 @@ module Merit
         fail NotImplementedError
       end
 
+      # Public: Returns the price of the producer. This is subtly different from
+      # the cost in that the price is used to determine the price of an entire
+      # region in a particular hour. Only one producer is price-setting.
+      #
+      # Returns a Numeric.
+      def price_at(point)
+        unless price_setting?(point)
+          raise InsufficentCapacityForPrice.new(@producer, point)
+        end
+
+        marginal_cost
+      end
+
       # Public: Determines the marginal cost of the producer. In some cases,
       # this will differ from "marginal_cost" if the final marginal cost depends
       # on data from the merit order calculation.
@@ -65,6 +78,14 @@ module Merit
       # Returns a Numeric.
       def variable_cost
         marginal_cost * @producer.production(:mwh)
+      end
+
+      # Public: Returns if the producer may be used to set the price of the
+      # region for a given point. Note that this does not mean that this IS the
+      # price-setting producer; merely that it is valid to be used in such a
+      # way.
+      def price_setting?(point)
+        @producer.provides_price? || @producer.load_curve.get(point).zero?
       end
 
       # Public: Tells us if the price changes depending on the point in the year
@@ -145,6 +166,29 @@ module Merit
 
       def marginal_cost
         linear_cost_function(@producer.production(:mwh) / Merit::POINTS)
+      end
+
+      def price_at(point)
+        if @producer.provides_price?
+          linear_cost_function(@producer.load_curve.get(point))
+        else
+          super
+
+          linear_cost_function(
+            @producer.output_capacity_per_unit +
+            @producer.load_curve.get(point)
+          )
+        end
+      end
+
+      def price_setting?(point)
+        return true if super
+
+        pricing_load =
+          @producer.output_capacity_per_unit +
+          @producer.load_curve.get(point)
+
+        pricing_load < @producer.available_output_capacity
       end
 
       def sortable_cost(*)

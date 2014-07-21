@@ -15,5 +15,10 @@ module Merit
     def initialize(options)
       super(options.merge(number_of_units: 1))
     end
+
+    # Public: The marginal cost is in fact a final price.
+    def provides_price?
+      true
+    end
   end # SupplyInterconnect
 end # Merit

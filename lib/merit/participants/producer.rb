@@ -49,6 +49,27 @@ module Merit
       @cost_strategy.marginal_cost
     end
 
+    # Public: Tells you what the producer would cost if it were the
+    # price-setting producer for a particular +point+ in the merit order.
+    #
+    # point - The hour of the year in which to look up the price.
+    #
+    # Returns a numeric.
+    def price_at(point)
+      @cost_strategy.price_at(point)
+    end
+
+    # Public: Tells you if this producer's marginal cost is a price (the final
+    # price charged to the region), rather than a cost.
+    #
+    # A good example is an interconnect, where the cost is in fact a price
+    # charged by a foreign nation.
+    #
+    # Returns true or false.
+    def provides_price?
+      false
+    end
+
     # The full load hours are defined as the number of hours that the
     # producer were on AS IF it were producing at the +effective+ output
     # capacity. For any producer with availability < 1, this number is always
