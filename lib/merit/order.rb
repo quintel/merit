@@ -82,7 +82,7 @@ module Merit
       if producer = price_setting_producers[time]
         producer.price_at(time)
       elsif producer = participants.dispatchables.select { |p| p.number_of_units > 0 }.last
-        producer.price_at(time) * 7.22
+        producer.price_at(time, true) * 7.22
       else
         600
       end

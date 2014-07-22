@@ -52,11 +52,17 @@ module Merit
     # Public: Tells you what the producer would cost if it were the
     # price-setting producer for a particular +point+ in the merit order.
     #
-    # point - The hour of the year in which to look up the price.
+    # point        - The hour of the year in which to look up the price.
+    #
+    # allow_loaded - If the producer has insufficient remaining capacity to be
+    #                price setting, it will raise InsufficentCapacityForPrice.
+    #                Set +allow_loaded+ to be true if you wish to skip this
+    #                check, and know the price of the producer even if it isn't
+    #                price-setting.
     #
     # Returns a numeric.
-    def price_at(point)
-      @cost_strategy.price_at(point)
+    def price_at(point, allow_loaded = false)
+      @cost_strategy.price_at(point, allow_loaded)
     end
 
     # Public: Tells you if this producer's marginal cost is a price (the final

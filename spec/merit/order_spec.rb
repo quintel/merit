@@ -125,6 +125,15 @@ module Merit
             order.add(p2) # has lower marginal costs.
             expect(order.price_at(188)).to eql(p1.marginal_costs * 7.22)
           end
+
+          it 'is a multiple of most expensive installed plant (fully loaded)' do
+            order.add(p1)
+            order.add(p2) # has lower marginal costs.
+
+            p1.load_curve.set(188, p1.max_load_at(188))
+
+            expect(order.price_at(188)).to eql(p1.marginal_costs * 7.22)
+          end
         end
         context 'when there are no dispatachables' do
           it 'is 600' do

@@ -55,8 +55,8 @@ module Merit
       # region in a particular hour. Only one producer is price-setting.
       #
       # Returns a Numeric.
-      def price_at(point)
-        unless price_setting?(point)
+      def price_at(point, allow_loaded = false)
+        unless allow_loaded || price_setting?(point)
           raise InsufficentCapacityForPrice.new(@producer, point)
         end
 
@@ -168,7 +168,7 @@ module Merit
         cost_at_load(@producer.production(:mwh) / Merit::POINTS)
       end
 
-      def price_at(point)
+      def price_at(point, allow_loaded = false)
         if @producer.provides_price?
           cost_at_load(@producer.load_curve.get(point))
         else
