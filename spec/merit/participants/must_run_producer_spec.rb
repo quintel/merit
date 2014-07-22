@@ -13,7 +13,7 @@ module Merit
         availability:             0.98,
         fixed_costs_per_unit:     222.9245208,
         fixed_om_costs_per_unit:  35.775,
-        load_profile_key:         :solar_pv,
+        load_profile:             LoadProfile.new('', [0.05]),
         full_load_hours:          1050
       }
     end
@@ -31,7 +31,7 @@ module Merit
       context 'should raise an error when any of those' do
         attributes = [:key, :output_capacity_per_unit, :number_of_units,
          :availability, :fixed_costs_per_unit, :fixed_om_costs_per_unit,
-         :load_profile_key, :full_load_hours]
+         :load_profile, :full_load_hours]
         attributes.each do |attribute|
           it "should raise an error when #{attribute} is missing" do
             attrs.delete(attribute)

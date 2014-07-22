@@ -6,13 +6,12 @@
 
 module Merit
   class LoadProfile
-
-    attr_reader :key, :values
+    attr_reader :path, :values
 
     # Public: creates a new LoadProfile, and stores the accompanying values
     #         in an Array
-    def initialize(key, values)
-      @key    = key
+    def initialize(path, values)
+      @path   = path
       @values = scale_values(values)
     end
 
@@ -53,7 +52,7 @@ module Merit
       return values if values.length == Merit::POINTS
 
       unless Merit::POINTS % values.length == 0
-        raise IncorrectLoadProfileError.new(key, values.length)
+        raise IncorrectLoadProfileError.new(path, values.length)
       end
 
       factor = Merit::POINTS / values.length
@@ -83,39 +82,24 @@ module Merit
         @reader ||= Reader.new
       end
 
-      # Public: loads a stored LoadProfile for a given key
-      # @param - key [Symbol]
+      # Public: loads a stored LoadProfile for a given path
+      # @param - path [Symbol]
       #
       # returns new LoadProfile
-      def load(key)
-        new(key, reader.read(key))
+      def load(path)
+        new(path, reader.read(path))
       end
-
-      # Public: Returns Array with all the oad profiles stored
-      def all
-        Dir.glob("#{ data_path }/*.csv").map do |path|
-          key = File.basename(path, ".csv")
-          self.load(key)
-        end
-      end
-
-      # Returns the path where the CSV files can be found
-      def data_path
-        "#{ Merit.root }/load_profiles/#{ Merit.area }"
-      end
-
     end # class << self
 
     # Internal: Loads profile information from a "load_profiles" CSV file.
     class Reader
-      def read(key)
-        path   = "#{ LoadProfile.data_path }/#{ key }.csv"
+      def read(path)
         values = []
 
         begin
           File.foreach(path) { |line| values.push(line.to_f) }
         rescue Errno::ENOENT
-          raise Merit::MissingLoadProfileError.new(key)
+          raise Merit::MissingLoadProfileError.new(path)
         end
 
         values
@@ -130,7 +114,9 @@ module Merit
         @profiles ||= Hash.new
       end
 
-      def read(key)
+      def read(path)
+        key = path.to_s
+
         @profiles[key] ||= super
         @profiles[key].dup
       end

@@ -16,7 +16,10 @@ module Merit
 
   describe User::TotalConsumption do
     def tc_user(options = {})
-      User.create(options.merge(key: :total_demand))
+      User.create(options.merge(
+        key: :total_demand,
+        load_profile: LoadProfile.new('', [1.0])
+      ))
     end
 
     describe '#load_curve' do

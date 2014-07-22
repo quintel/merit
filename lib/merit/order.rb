@@ -37,12 +37,8 @@ module Merit
     attr_reader :price_setting_producers
 
     # Public: created a new Order
-    def initialize(total_demand = nil)
+    def initialize
       @price_setting_producers = Array.new(POINTS)
-
-      if total_demand
-        add(User.create(key: :total_demand, total_consumption: total_demand))
-      end
     end
 
     # ---------- Calculate! -----------

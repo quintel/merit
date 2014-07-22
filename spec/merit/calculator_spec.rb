@@ -25,7 +25,7 @@ module Merit
     let(:vol_1_attrs) {{
       key:                       :volatile,
       marginal_costs:            19.999791,
-      load_profile_key:          :industry_chp,
+      load_profile:              LoadProfile.new('', [3.1709791984e-08]),
       output_capacity_per_unit:  0.1,
       availability:              0.95,
       number_of_units:           1,
@@ -37,13 +37,19 @@ module Merit
     let(:vol_2_attrs) {{
       key:                       :volatile_two,
       marginal_costs:            21.21,
-      load_profile_key:          :solar_pv,
+      load_profile:              LoadProfile.new('', [0.0]),
       output_capacity_per_unit:  0.1,
       availability:              0.95,
       number_of_units:           1,
       fixed_costs_per_unit:      222.9245208,
       fixed_om_costs_per_unit:   35.775,
       full_load_hours:           1000
+    }}
+
+    let(:user_attrs) {{
+      key: :total_demand,
+      total_consumption: 6.4e6,
+      load_profile: LoadProfile.new('', [2.775668529550e-08])
     }}
 
     let(:order) do
@@ -62,8 +68,7 @@ module Merit
     let(:volatile_two)     { VolatileProducer.new(vol_2_attrs) }
     let(:dispatchable)     { DispatchableProducer.new(disp_1_attrs) }
     let(:dispatchable_two) { DispatchableProducer.new(disp_2_attrs) }
-
-    let(:user) { User.create(key: :total_demand, total_consumption: 6.4e6) }
+    let(:user)             { User.create(user_attrs) }
 
     context 'with an excess of demand' do
       before { Calculator.new.calculate(order) }
@@ -191,8 +196,9 @@ module Merit
 
     describe 'with sub-zero demand' do
       let(:curve) { Merit::Curve.new([0, 0, -1, 3].map(&:to_f) * 6 * 365) }
-      let(:user)  { User.create(key: :total_demand, total_consumption: 0) }
       let(:cuser) { User.create(key: :with_curve, load_curve: curve) }
+
+      let(:user_attrs) { super().merge(total_consumption: 0.0) }
 
       before { order.add(cuser) }
 
@@ -213,12 +219,10 @@ module Merit
         end
       end
 
-      let(:user) do
-        User.create(
-          key: :curve_demand,
-          load_curve: Curve.new([1.0] * Merit::POINTS)
-        )
-      end
+      let(:user_attrs) {{
+        key: :curve_demand,
+        load_curve: Curve.new([1.0] * Merit::POINTS)
+      }}
 
       let(:disp_1_attrs) { super().merge(
         cost_spread: 0.4, marginal_costs: 20.0, availability: 1.0,
@@ -302,7 +306,7 @@ module Merit
     describe 'with QuantizingCalculator' do
       # Set an excess of demand so that the dispatchable is running
       # all the time.
-      let(:user) { User.create(key: :total_demand, total_consumption: 6.4e7) }
+      let(:user_attrs) { super().merge(total_consumption: 6.4e7) }
 
       it 'should set a value for each load point' do
         QuantizingCalculator.new.calculate(order)
@@ -328,7 +332,7 @@ module Merit
       describe 'with an excess of demand' do
         # Set an excess of demand so that the dispatchable is running
         # all the time.
-        let(:user) { User.create(key: :total_demand, total_consumption: 6.4e7) }
+        let(:user_attrs) { super().merge(total_consumption: 6.4e7) }
 
         it 'should set a value for each nth load point' do
           AveragingCalculator.new.calculate(order)
@@ -341,7 +345,7 @@ module Merit
       end
 
       describe 'with less demand than capacity' do
-        let(:user) { User.create(key: :total_demand, total_consumption: 1.0e6) }
+        let(:user_attrs) { super().merge(total_consumption: 1e6) }
 
         it "doesn't over-assign load" do
           # Explicitly tests assigning the "remaining" demand in
@@ -355,7 +359,7 @@ module Merit
       describe 'with no demand' do
         # Set zero demand so that each producers receives zero. This
         # explicitly tests the "break" in AveragingCalculator#compute_point
-        let(:user) { User.create(key: :total_demand, total_consumption: 0.0) }
+        let(:user_attrs) { super().merge(total_consumption: 0.0) }
 
         it "only assigns demand when some is present" do
           expect {

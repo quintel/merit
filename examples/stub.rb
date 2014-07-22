@@ -1,8 +1,15 @@
 module Merit
 
   def self.stub
+    require 'pathname'
 
+    profile_dir = Pathname.new(__FILE__).dirname.dirname.join('load_profiles/nl')
     merit_order = Merit::Order.new
+
+    profiles = ->(name) do
+      LoadProfile.load(profile_dir.join("#{ name }.csv"))
+    end
+
     # Add 46 Converters which are examples taken from ETENgine
     merit_order.add(
       MustRunProducer.new(
@@ -13,7 +20,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 116478.4738,
         fixed_om_costs_per_unit: 13062.47379,
-        load_profile_key: :agriculture_chp,
+        load_profile: profiles['agriculture_chp'],
         full_load_hours: 3980.424144
       )
     )
@@ -27,7 +34,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 49847.77778,
         fixed_om_costs_per_unit: 0,
-        load_profile_key: :buildings_chp,
+        load_profile: profiles['buildings_chp'],
         full_load_hours: 3942
       )
     )
@@ -41,7 +48,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 18359173.13,
         fixed_om_costs_per_unit: 0,
-        load_profile_key: :buildings_chp,
+        load_profile: profiles['buildings_chp'],
         full_load_hours: 6097.777778
       )
     )
@@ -55,7 +62,7 @@ module Merit
         availability: 0.98,
         fixed_costs_per_unit: 2545.292412,
         fixed_om_costs_per_unit: 357.75,
-        load_profile_key: :solar_pv,
+        load_profile: profiles['solar_pv'],
         full_load_hours: 1050
       )
     )
@@ -165,7 +172,7 @@ module Merit
         availability: 0.98,
         fixed_costs_per_unit: 3000000,
         fixed_om_costs_per_unit: 320000,
-        load_profile_key: :river,
+        load_profile: profiles['river'],
         full_load_hours: 2702.702703
       )
     )
@@ -203,7 +210,7 @@ module Merit
         availability: 0.98,
         fixed_costs_per_unit: 4236515.36,
         fixed_om_costs_per_unit: 477000,
-        load_profile_key: :solar_pv,
+        load_profile: profiles['solar_pv'],
         full_load_hours: 1050
       )
     )
@@ -229,7 +236,7 @@ module Merit
         availability: 0.9,
         fixed_costs_per_unit: 26877150,
         fixed_om_costs_per_unit: 0,
-        load_profile_key: :industry_chp,
+        load_profile: profiles['industry_chp'],
         full_load_hours: 6190.47619
       )
     )
@@ -303,7 +310,7 @@ module Merit
         availability: 0.95,
         fixed_costs_per_unit: 531768.45,
         fixed_om_costs_per_unit: 147579.9,
-        load_profile_key: :wind_coastal,
+        load_profile: profiles['wind_coastal'],
         full_load_hours: 3000
       )
     )
@@ -317,7 +324,7 @@ module Merit
         availability: 0.95,
         fixed_costs_per_unit: 531768.45,
         fixed_om_costs_per_unit: 147579.9,
-        load_profile_key: :wind_inland,
+        load_profile: profiles['wind_inland'],
         full_load_hours: 2500
       )
     )
@@ -331,7 +338,7 @@ module Merit
         availability: 0.92,
         fixed_costs_per_unit: 1643536.011,
         fixed_om_costs_per_unit: 428882.8856,
-        load_profile_key: :wind_offshore,
+        load_profile: profiles['wind_offshore'],
         full_load_hours: 3500
       )
     )
@@ -345,7 +352,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 49847.77778,
         fixed_om_costs_per_unit: 0,
-        load_profile_key: :buildings_chp,
+        load_profile: profiles['buildings_chp'],
         full_load_hours: 3942
       )
     )
@@ -359,7 +366,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 18359173.13,
         fixed_om_costs_per_unit: 0,
-        load_profile_key: :buildings_chp,
+        load_profile: profiles['buildings_chp'],
         full_load_hours: 6097.777778
       )
     )
@@ -373,7 +380,7 @@ module Merit
         availability: 0.98,
         fixed_costs_per_unit: 222.9245208,
         fixed_om_costs_per_unit: 35.775,
-        load_profile_key: :solar_pv,
+        load_profile: profiles['solar_pv'],
         full_load_hours: 1050
       )
     )
@@ -387,7 +394,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 933,
         fixed_om_costs_per_unit: 110,
-        load_profile_key: :buildings_chp,
+        load_profile: profiles['buildings_chp'],
         full_load_hours: 0
       )
     )
@@ -401,7 +408,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 2453,
         fixed_om_costs_per_unit: 200,
-        load_profile_key: :buildings_chp,
+        load_profile: profiles['buildings_chp'],
         full_load_hours: 0
       )
     )
@@ -415,7 +422,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 933,
         fixed_om_costs_per_unit: 110,
-        load_profile_key: :buildings_chp,
+        load_profile: profiles['buildings_chp'],
         full_load_hours: 0
       )
     )
@@ -429,7 +436,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 2543878.235,
         fixed_om_costs_per_unit: 0,
-        load_profile_key: :industry_chp,
+        load_profile: profiles['industry_chp'],
         full_load_hours: 5442.834138
       )
     )
@@ -443,7 +450,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 9479267.598,
         fixed_om_costs_per_unit: 2913267.598,
-        load_profile_key: :industry_chp,
+        load_profile: profiles['industry_chp'],
         full_load_hours: 5247.813411
       )
     )
@@ -457,7 +464,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 4974342.555,
         fixed_om_costs_per_unit: 1301009.555,
-        load_profile_key: :industry_chp,
+        load_profile: profiles['industry_chp'],
         full_load_hours: 4204.8
       )
     )
@@ -471,15 +478,15 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 54068.71357,
         fixed_om_costs_per_unit: 6056.838239,
-        load_profile_key: :buildings_chp,
+        load_profile: profiles['buildings_chp'],
         full_load_hours: 4000
       )
     )
 
-    
     merit_order.add(
       User.create(
         key: :total_demand,
+        load_profile: profiles['total_demand'],
         total_consumption: 417946498897.5582
       )
     )

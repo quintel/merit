@@ -7,7 +7,7 @@ module Merit
     let(:producer) do
       MustRunProducer.new(
         key:                       :coal,
-        load_profile_key:          :industry_chp,
+        load_profile:              LoadProfile.new('', [0.1]),
         output_capacity_per_unit:  1,
         marginal_costs:            2,
         availability:              0.95,
@@ -62,10 +62,10 @@ module Merit
       context 'when the producer has >0 number of units and >0 capacity' do
         it 'should return the correct number' do
           allow(order).to receive(:price_curve).
-            and_return(Curve.new(Array.new(8760,1)))
+            and_return(Curve.new(Array.new(8760, 0.05)))
 
           producer.order = order
-          expect(producer.revenue).to be_within(0.1).of(1 * 2 * 4.0)
+          expect(producer.revenue).to eq((2880.0 * 0.05) * Merit::POINTS)
         end
       end
     end
@@ -73,12 +73,12 @@ module Merit
     describe '#revenue_curve' do
       it 'should return a Curve' do
         allow(order).to receive(:price_curve).
-         and_return(Curve.new(Array.new(8760,1)))
+          and_return(Curve.new(Array.new(8760, 0.05)))
 
         producer.order = order
+
         expect(producer.revenue_curve).to be_a(Curve)
-        expect(producer.revenue_curve.to_a.first).to \
-          be_within(0.01).of(8 / 8760.0)
+        expect(producer.revenue_curve.to_a.first).to eq(2880.0 * 0.05)
       end
     end
 

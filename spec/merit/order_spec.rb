@@ -27,7 +27,7 @@ module Merit
         availability:              0.89,
         fixed_costs_per_unit:      222.9245208,
         fixed_om_costs_per_unit:   35.775,
-        load_profile_key:          :solar_pv,
+        load_profile:              LoadProfile.new('', [0.01]),
         full_load_hours:           1000
       )
     end
@@ -41,7 +41,7 @@ module Merit
         availability:              0.89,
         fixed_costs_per_unit:      222.9245208,
         fixed_om_costs_per_unit:   35.775,
-        load_profile_key:          :solar_pv,
+        load_profile:              LoadProfile.new('', [0.01]),
         full_load_hours:           1000
       )
     end
@@ -174,10 +174,6 @@ module Merit
         expect(order.to_s).to match("0 producer")
         order.add(p1)
         expect(order.to_s).to match("1 producer")
-      end
-      it "shows the total demand"  do
-        expect(order.to_s).to match("0 user")
-        expect(Order.new(2000).to_s).to match("1 user")
       end
     end
 

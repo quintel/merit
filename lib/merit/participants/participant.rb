@@ -5,7 +5,7 @@ module Merit
   # or a CHP.
   class Participant
 
-    attr_reader   :key, :load_profile_key
+    attr_reader   :key, :load_profile
     attr_accessor :order
 
     # Public: creates a new participant
@@ -15,7 +15,7 @@ module Merit
       @opts             = opts
       require_attributes :key
       @key              = opts[:key]
-      @load_profile_key = opts[:load_profile_key]
+      @load_profile     = opts[:load_profile]
     end
 
     def to_s

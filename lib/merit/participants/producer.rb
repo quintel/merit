@@ -31,8 +31,6 @@ module Merit
       @fixed_om_costs_per_unit   = opts[:fixed_om_costs_per_unit]
 
       @load_curve    = Curve.new([], Merit::POINTS)
-      @load_profile  = load_profile_key && LoadProfile.load(load_profile_key)
-
       @cost_strategy = CostStrategy.create(self, opts)
     end
 

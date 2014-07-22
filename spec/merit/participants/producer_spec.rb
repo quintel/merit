@@ -13,7 +13,7 @@ module Merit
         availability:             0.95,
         fixed_costs_per_unit:     222.9245208,
         fixed_om_costs_per_unit:  35.775,
-        load_profile_key:         :solar_pv,
+        load_profile:             LoadProfile.new('', [0.05]),
         full_load_hours:          1050
        )
     end
@@ -21,7 +21,7 @@ module Merit
     describe '#new' do
       it 'should remember (more attributes than basic participants)' do
         expect(producer.key).to eql(:foo)
-        expect(producer.load_profile_key).to eql(:solar_pv)
+        expect(producer.load_profile).to be_kind_of(LoadProfile)
         expect(producer.output_capacity_per_unit).to eql(1)
         expect(producer.marginal_costs).to eql(11.1)
         expect(producer.availability).to eql(0.95)
@@ -177,23 +177,6 @@ module Merit
     describe '#load_profile' do
       it 'should contain the values' do
         expect(producer.load_profile.values.length).to eq(8760)
-      end
-
-      it 'should raise error if not available' do
-        init_code = -> {
-          Producer.new(
-              key:                      :foo,
-              marginal_costs:           11.1,
-              output_capacity_per_unit: 1,
-              number_of_units:          5,
-              availability:             0.95,
-              fixed_costs_per_unit:     222.9245208,
-              fixed_om_costs_per_unit:  35.775,
-              load_profile_key:         :weird_al,
-              full_load_hours:          1050
-            )
-        }
-        expect(init_code).to raise_error(MissingLoadProfileError)
       end
     end
 

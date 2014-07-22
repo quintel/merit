@@ -14,12 +14,6 @@ module Merit
         end)
       end
 
-      # Public: returns the LoadProfile of this participant. This basically
-      # tells you during what period in a year this technology is used/on.
-      def load_profile
-        @load_profile ||= LoadProfile.load(key)
-      end
-
       #######
       private
       #######
@@ -29,6 +23,8 @@ module Merit
       def initialize(options)
         super
         @total_consumption = options[:total_consumption]
+
+        require_attributes :load_profile
       end
     end # TotalConsumption
   end # User

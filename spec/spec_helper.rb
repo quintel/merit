@@ -17,6 +17,8 @@ RSpec.configure do |config|
   config.run_all_when_everything_filtered = true
 
   config.expose_dsl_globally = true
+
+  config.include Merit::Spec
 end
 
 def capture_stdout(&block)
