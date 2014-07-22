@@ -165,16 +165,16 @@ module Merit
       end
 
       def marginal_cost
-        linear_cost_function(@producer.production(:mwh) / Merit::POINTS)
+        cost_at_load(@producer.production(:mwh) / Merit::POINTS)
       end
 
       def price_at(point)
         if @producer.provides_price?
-          linear_cost_function(@producer.load_curve.get(point))
+          cost_at_load(@producer.load_curve.get(point))
         else
           super
 
-          linear_cost_function(
+          cost_at_load(
             @producer.output_capacity_per_unit +
             @producer.load_curve.get(point)
           )
@@ -195,10 +195,6 @@ module Merit
         @mean
       end
 
-      #######
-      private
-      #######
-
       # Internal: Calculates the cost of the producer according to a linear step
       # function, whereby the cost increases slightly as capacity increases.
       # Each "step" in the function corresponds with an increase in the number
@@ -207,7 +203,7 @@ module Merit
       # See https://github.com/quintel/merit/issues/109
       #
       # Returns a Numeric.
-      def linear_cost_function(capacity)
+      def cost_at_load(capacity)
         typical = @producer.output_capacity_per_unit
         avail   = @producer.available_output_capacity
 
