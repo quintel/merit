@@ -172,8 +172,8 @@ module Merit::CostStrategy ; describe Merit::CostStrategy do
         producer.load_curve.set(2, 40.0)
       end
 
-      it 'calculates the price to be equal to the marginal cost' do
-        expect(strategy.price_at(0)).to eq(100.0)
+      it 'gets the cost from the curve' do
+        expect(strategy.price_at(0)).to eq(250.0)
       end
 
       it 'raises an error when the producer has non-zero load' do
@@ -181,5 +181,5 @@ module Merit::CostStrategy ; describe Merit::CostStrategy do
           to raise_error(Merit::InsufficentCapacityForPrice)
       end
     end # price
-  end # LinearCostFunction
+  end # FromCurve
 end ; end # describe CostStrategy ; Merit::CostStrategy
