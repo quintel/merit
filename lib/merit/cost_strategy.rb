@@ -56,10 +56,7 @@ module Merit
       #
       # Returns a Numeric.
       def price_at(point, allow_loaded = false)
-        unless allow_loaded || price_setting?(point)
-          raise InsufficentCapacityForPrice.new(@producer, point)
-        end
-
+        assert_price_setting!(point, allow_loaded)
         marginal_cost
       end
 
@@ -96,6 +93,16 @@ module Merit
       # Returns true or false.
       def variable?
         false
+      end
+
+      #######
+      private
+      #######
+
+      def assert_price_setting!(point, allow_loaded)
+        unless allow_loaded || price_setting?(point)
+          fail InsufficentCapacityForPrice.new(@producer, point)
+        end
       end
     end # Base
 
@@ -135,6 +142,11 @@ module Merit
         @curve.get(point)
       end
 
+      def price_at(point, allow_loaded = false)
+        assert_price_setting!(point, allow_loaded)
+        sortable_cost(point)
+      end
+
       def marginal_cost
         variable_cost / @producer.production(:mwh)
       end
@@ -172,7 +184,7 @@ module Merit
         if @producer.provides_price?
           cost_at_load(@producer.load_curve.get(point))
         else
-          super
+          assert_price_setting!(point, allow_loaded)
 
           cost_at_load(
             @producer.output_capacity_per_unit +
