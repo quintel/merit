@@ -11,9 +11,17 @@ module Merit
   #
   # Any ":number_of_units" value will be ignored; we always assume a value of 1.
   class SupplyInterconnect < DispatchableProducer
+    # Attributes which are to be used on all SupplyInterconnect instances.
+    COMMON_ATTRIBUTES = {
+      number_of_units:         1,
+      availability:            1.0,
+      fixed_costs_per_unit:    0.0,
+      fixed_om_costs_per_unit: 0.0
+    }.freeze
+
     # Public: Creates a supply interconnect.
     def initialize(options)
-      super(options.merge(number_of_units: 1))
+      super(options.merge(COMMON_ATTRIBUTES))
     end
 
     # Public: The marginal cost is in fact a final price.
