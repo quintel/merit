@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.require_paths = [ 'lib' ]
 
   s.add_development_dependency 'rake',  '>= 0.9.0'
-  s.add_development_dependency 'rspec', '>= 2.11.0'
+  s.add_development_dependency 'rspec', '< 3.0'
 
   s.add_dependency 'terminal-table'
 end
