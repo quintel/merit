@@ -253,7 +253,25 @@ module Merit
           expect(c.to_a[2]).to be_within(0.01).of(6.0)
         end
       end
-    end
+    end # *
+
+    describe '.load_file' do
+      it 'reads the contents of the given path' do
+        curve   = Curve.load_file(fixture(:solar_pv))
+        content = fixture(:solar_pv).read.split("\n").map(&:to_f)
+
+        expect(curve.length).to eq(content.length)
+        expect(curve.to_a).to eq(content)
+      end
+
+      it 'accepts a "length" argument' do
+        expect(Curve.load_file(fixture(:solar_pv), 20).length).to eq(20)
+      end
+
+      it 'raises ENOENT when the path does not exist' do
+        expect { Curve.load_file(fixture(:nope)) }.to raise_error(Errno::ENOENT)
+      end
+    end # .load_file
   end
 
 end

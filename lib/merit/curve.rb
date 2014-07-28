@@ -80,6 +80,16 @@ module Merit
       Math.sqrt(variance)
     end
 
+    # Public: Reads a file, and produces a Curve representing the content.
+    #
+    # The assumption is that the file contains the value of each point on a new
+    # line.
+    #
+    # Returns a Curve.
+    def self.load_file(path, length = nil)
+      new(File.foreach(path).map(&:to_f), length)
+    end
+
     #######
     private
     #######
