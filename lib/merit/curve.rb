@@ -52,17 +52,17 @@ module Merit
 
     # Public: substract one load curve from the other
     def -(other)
-      self.class.new(transpose_other_curve(other.to_a, :-))
+      self.class.new(transpose_other_curve(other, :-))
     end
 
     # Public: substract one load curve from the other
     def +(other)
-      self.class.new(transpose_other_curve(other.to_a, :+))
+      self.class.new(transpose_other_curve(other, :+))
     end
 
     # Public: multiplies one load curve with the other
     def *(other)
-      self.class.new(transpose_other_curve(other.to_a, :*))
+      self.class.new(transpose_other_curve(other, :*))
     end
 
     # Public: returns the sample variance
@@ -95,7 +95,12 @@ module Merit
     #######
 
     def transpose_other_curve(other, method)
+      if other.is_a?(Numeric)
+        return @values.map { |value| value.public_send(method, other) }
+      end
+
       values = self.to_a
+      other  = other.to_a
 
       v_length = values.length
       o_length = other.length

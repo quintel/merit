@@ -169,6 +169,26 @@ module Merit
           expect(curve.to_a[2]).to eql(-3.0)
         end
       end # with a different-length left curve
+
+      context 'given a Numeric' do
+        let(:left)  { Curve.new([1, 5.2, 3]) }
+        let(:curve) { left - right }
+        let(:right) { 2.0 }
+
+        it 'returns a Curve' do
+          expect(curve).to be_a(Curve)
+        end
+
+        it 'has as many values as the originals' do
+          expect(curve.to_a.length).to eql(3)
+        end
+
+        it 'subtracts each value' do
+          expect(curve.to_a[0]).to eql(-1.0)
+          expect(curve.to_a[1]).to eql(3.2)
+          expect(curve.to_a[2]).to eql(1.0)
+        end
+      end # given a Numeric
     end # #-
 
     describe '#+' do
@@ -231,6 +251,26 @@ module Merit
           expect(curve.to_a[2]).to eql(3.0)
         end
       end # with different-length left curve
+
+      context 'given a Numeric' do
+        let(:left)  { Curve.new([1, 5.2, 3]) }
+        let(:curve) { left + right }
+        let(:right) { 2.0 }
+
+        it 'returns a Curve' do
+          expect(curve).to be_a(Curve)
+        end
+
+        it 'has as many values as the originals' do
+          expect(curve.to_a.length).to eql(3)
+        end
+
+        it 'subtracts each value' do
+          expect(curve.to_a[0]).to eql(3.0)
+          expect(curve.to_a[1]).to eql(7.2)
+          expect(curve.to_a[2]).to eql(5.0)
+        end
+      end # given a Numeric
     end # #+
 
     describe '#*' do
