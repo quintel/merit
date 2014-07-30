@@ -12,10 +12,6 @@ module Merit
       super(scale_values(values))
     end
 
-    def to_s
-      "<#{self.class} #{values.size} values>"
-    end
-
     # Public: checks wether the current Load Profile is valid: it should have a
     # length of 8.760, and the area below the curve should be equel to 1/3600
     #

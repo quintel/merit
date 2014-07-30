@@ -19,7 +19,7 @@ module Merit
     end
 
     def to_s
-      "<##{self.class} #{key}>"
+      "#<#{self.class} #{key}>"
     end
 
     alias_method :inspect, :to_s

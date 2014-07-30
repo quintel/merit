@@ -40,7 +40,7 @@ module Merit
     alias_method :size, :length
 
     def to_s
-      "<#{self.class}: #{length} values>"
+      "#<#{self.class}: #{length} values>"
     end
 
     alias_method :inspect, :to_s
