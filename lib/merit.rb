@@ -4,7 +4,6 @@ require 'terminal-table'
 require 'forwardable'
 
 # Merit order specific
-require_relative 'merit/root'
 require_relative 'merit/version'
 require_relative 'merit/errors'
 
