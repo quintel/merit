@@ -13,7 +13,7 @@ module Merit
         availability:             0.95,
         fixed_costs_per_unit:     222.9245208,
         fixed_om_costs_per_unit:  35.775,
-        load_profile:             LoadProfile.new('', [0.05]),
+        load_profile:             LoadProfile.new([0.05]),
         full_load_hours:          1050
        )
     end
@@ -197,7 +197,7 @@ module Merit
     describe '#max_load_at(point_in_time)' do
       context 'given a load profile' do
         it 'should return the load_profile\'s value' do
-          producer.load_profile = LoadProfile.new(:a, Array.new(8760, 1))
+          producer.load_profile = LoadProfile.new(Array.new(8760, 1))
 
           expect(producer.max_load_at(117)).to eql producer.max_production
         end
@@ -215,7 +215,7 @@ module Merit
     describe '#load_between' do
       context 'given a load profile' do
         it 'should return the total max load over the period' do
-          producer.load_profile = LoadProfile.new(:a, Array.new(8760, 1))
+          producer.load_profile = LoadProfile.new(Array.new(8760, 1))
 
           expect(producer.load_between(50, 52)).to eql(
             producer.max_load_at(50) +

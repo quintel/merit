@@ -18,7 +18,7 @@ module Merit
     def tc_user(options = {})
       User.create(options.merge(
         key: :total_demand,
-        load_profile: LoadProfile.new('', [1.0])
+        load_profile: LoadProfile.new([1.0])
       ))
     end
 

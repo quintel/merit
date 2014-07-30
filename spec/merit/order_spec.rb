@@ -27,7 +27,7 @@ module Merit
         availability:              0.89,
         fixed_costs_per_unit:      222.9245208,
         fixed_om_costs_per_unit:   35.775,
-        load_profile:              LoadProfile.new('', [0.01]),
+        load_profile:              LoadProfile.new([0.01]),
         full_load_hours:           1000
       )
     end
@@ -41,7 +41,7 @@ module Merit
         availability:              0.89,
         fixed_costs_per_unit:      222.9245208,
         fixed_om_costs_per_unit:   35.775,
-        load_profile:              LoadProfile.new('', [0.01]),
+        load_profile:              LoadProfile.new([0.01]),
         full_load_hours:           1000
       )
     end

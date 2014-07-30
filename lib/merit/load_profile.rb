@@ -6,12 +6,9 @@
 
 module Merit
   class LoadProfile < Curve
-    attr_reader :path
-
     # Public: creates a new LoadProfile, and stores the accompanying values
     #         in an Array
-    def initialize(path, values)
-      @path = path
+    def initialize(values)
       super(scale_values(values))
     end
 
@@ -51,7 +48,7 @@ module Merit
       return values if values.length == Merit::POINTS
 
       unless Merit::POINTS % values.length == 0
-        raise IncorrectLoadProfileError.new(path, values.length)
+        raise IncorrectLoadProfileError.new(values.length)
       end
 
       factor = Merit::POINTS / values.length
@@ -86,7 +83,10 @@ module Merit
       #
       # returns new LoadProfile
       def load(path)
-        new(path, reader.read(path))
+        new(reader.read(path))
+      rescue IncorrectLoadProfileError => ex
+        ex.message.gsub!(/^Load profile/, "Load profile at #{ path }")
+        raise ex
       end
     end # class << self
 

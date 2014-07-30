@@ -7,7 +7,7 @@ module Merit
     let(:producer) do
       MustRunProducer.new(
         key:                       :coal,
-        load_profile:              LoadProfile.new('', [0.1]),
+        load_profile:              LoadProfile.new([0.1]),
         output_capacity_per_unit:  1,
         marginal_costs:            2,
         availability:              0.95,

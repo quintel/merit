@@ -2,11 +2,16 @@ require 'spec_helper'
 
 module Merit
   describe LoadProfile do
-    let(:profile) { LoadProfile.new('data/foo', (1..8760).to_a) }
+    let(:profile) { LoadProfile.new((1..8760).to_a) }
 
     describe '#new' do
       it 'should be able to create a new one' do
-        LoadProfile.new('data/foo', [1,2,3])
+        LoadProfile.new([1,2,3])
+      end
+
+      it 'raises an error if the provided values are of incorrect length' do
+        expect { LoadProfile.new([1, 2, 3, 4, 5, 6, 7]) }.
+          to raise_error(IncorrectLoadProfileError, /profile is malformatted/)
       end
     end # new
 
@@ -24,7 +29,7 @@ module Merit
         allow(LoadProfile.reader).to receive(:read).with(:foo) { (1..7).to_a }
 
         expect { LoadProfile.load(:foo) }.
-          to raise_error(IncorrectLoadProfileError)
+          to raise_error(IncorrectLoadProfileError, /Load profile at foo/)
       end
 
       it 'should not raise IncorrectLoadProfileError if LoadProfile is a valid fraction' do
@@ -48,7 +53,7 @@ module Merit
 
     describe '#surface' do
       it 'should contain the surface below the values' do
-        profile = LoadProfile.new(:foo, [1])
+        profile = LoadProfile.new([1])
         expect(profile.surface).to eql(8760)
       end
     end # surface
