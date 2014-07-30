@@ -5,16 +5,15 @@
 # electricity (in MJ) yields the load at every point in time in units of MW.
 
 module Merit
-  class LoadProfile
-    attr_reader :path, :values
+  class LoadProfile < Curve
+    attr_reader :path
 
     # Public: creates a new LoadProfile, and stores the accompanying values
     #         in an Array
     def initialize(path, values)
-      @path   = path
-      @values = scale_values(values)
+      @path = path
+      super(scale_values(values))
     end
-
 
     def to_s
       "<#{self.class} #{values.size} values>"
