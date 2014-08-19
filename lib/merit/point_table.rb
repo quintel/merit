@@ -54,7 +54,8 @@ module Merit
 
     def producer_rows(type, point)
       producers = @order.participants.public_send(type).sort_by do |producer|
-        [ producer.cost_strategy.sortable_cost(point),
+        [ producer.max_load_curve.get(point).zero? ? 1 : 0,
+          producer.cost_strategy.sortable_cost(point),
           -producer.load_curve.get(point) ]
       end
 
@@ -72,11 +73,11 @@ module Merit
         producer.cost_strategy.sortable_cost(point)
       end
 
-      cap_used = (max.zero? ? 0.0 : (prod / max) * 100)
+      cap_used = max.zero? ? '-' : '%.01f' % ((prod / max) * 100)
 
       [ (producer.always_on? ? 'A' : 'T'),
         producer.key,
-        (prod.zero?) ? '0.0 %' : "#{ '%.01f' % cap_used } %",
+        (prod.zero? && ! max.zero?) ? '0.0 %' : "#{ cap_used } %",
         '%.02f' % prod,
         '%.02f' % cost ]
     end
