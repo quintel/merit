@@ -65,8 +65,6 @@ module Merit
       prod = producer.load_curve.get(point)
       max  = producer.max_load_curve.get(point)
 
-      return nil if max.zero?
-
       cost = if producer.cost_strategy.respond_to?(:cost_at_load)
         demand = producer.load_curve.get(point)
         producer.cost_strategy.cost_at_load(demand)
@@ -74,9 +72,11 @@ module Merit
         producer.cost_strategy.sortable_cost(point)
       end
 
+      cap_used = (max.zero? ? 0.0 : (prod / max) * 100)
+
       [ (producer.always_on? ? 'A' : 'T'),
         producer.key,
-        (prod.zero?) ? '0.0 %' : "#{ '%.01f' % ((prod / max) * 100) } %",
+        (prod.zero?) ? '0.0 %' : "#{ '%.01f' % cap_used } %",
         '%.02f' % prod,
         '%.02f' % cost ]
     end
