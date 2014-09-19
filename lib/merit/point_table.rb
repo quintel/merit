@@ -75,11 +75,17 @@ module Merit
 
       cap_used = max.zero? ? '-' : '%.01f' % ((prod / max) * 100)
 
+      if @order.price_setting_producers[point] == producer
+        price_setting = '* '
+      else
+        price_Setting = ''
+      end
+
       [ (producer.always_on? ? 'A' : 'T'),
         producer.key,
         (prod.zero? && ! max.zero?) ? '0.0 %' : "#{ cap_used } %",
         '%.02f' % prod,
-        '%.02f' % cost ]
+        '%s%.02f' % [price_setting, cost] ]
     end
   end # PointTable
 end # Merit
