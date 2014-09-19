@@ -16,13 +16,14 @@ module Merit
     #          elements (empty elements will be returned as 0.0).
     #
     # Returns a Curve.
-    def initialize(values = [], length = nil)
-      @values = values
-      @length = length
+    def initialize(values = [], length = nil, default = 0.0)
+      @values  = values
+      @length  = length
+      @default = default
     end
 
     def get(point)
-      @values[point] || 0.0
+      @values[point] || @default
     end
 
     def set(point, value)
@@ -106,9 +107,9 @@ module Merit
       o_length = other.length
 
       if v_length > o_length
-        other = other + ([0.0] * (v_length - o_length))
+        other = other + ([@default] * (v_length - o_length))
       elsif o_length > v_length
-        values = values + ([0.0] * (o_length - v_length))
+        values = values + ([@default] * (o_length - v_length))
       end
 
       # Optimization: using each_with_index is 100ms faster for the complete
