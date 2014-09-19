@@ -62,6 +62,13 @@ module Merit
         marginal_cost
       end
 
+      # Public: Returns the cost of the producer at a given point in time.
+      #
+      # Returns a numeric.
+      def cost_at(point)
+        marginal_cost
+      end
+
       # Public: Determines the marginal cost of the producer. In some cases,
       # this will differ from "marginal_cost" if the final marginal cost depends
       # on data from the merit order calculation.
@@ -161,6 +168,10 @@ module Merit
         sortable_cost(point)
       end
 
+      def cost_at(point)
+        sortable_cost(point)
+      end
+
       def marginal_cost
         variable_cost / @producer.production(:mwh)
       end
@@ -194,6 +205,10 @@ module Merit
         cost_at_load(@producer.production(:mwh) / Merit::POINTS)
       end
 
+      def cost_at(point)
+        cost_at_load(@producer.load_curve.get(point))
+      end
+
       def price_at(point, allow_loaded = false)
         if @producer.provides_price?
           cost_at_load(@producer.load_curve.get(point))
@@ -214,7 +229,7 @@ module Merit
           @producer.output_capacity_per_unit +
           @producer.load_curve.get(point)
 
-        pricing_load < @producer.available_output_capacity
+        pricing_load <= @producer.available_output_capacity
       end
 
       def sortable_cost(*)

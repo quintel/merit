@@ -54,10 +54,6 @@ module Merit
       producer.set_load(point, value)
     end
 
-    def assign_price_setting(order, producer, point)
-      order.price_setting_producers[point] = producer
-    end
-
     # Internal: Computes the total energy demand for a given +point+.
     #
     # order - The merit order.
@@ -122,17 +118,7 @@ module Merit
             end
           end
 
-          if produced > 0
-            # There is still an excess; the price-setting producer will
-            # therefore be the first transient which can provide a price.
-            price_setting = producers.transients(point).detect do |trans|
-              trans.cost_strategy.price_setting?(point)
-            end
-
-            assign_price_setting(order, price_setting, point)
-
-            break
-          end
+          break if produced > 0
         elsif produced < remaining
           # The producer is emitting less energy that demanded. Take it all and
           # continue with the next producer.
@@ -153,13 +139,7 @@ module Merit
           assign_load(producer, point, max_load)
         else
           assign_load(producer, point, remaining) if remaining > 0
-
-          # Cost-function producers with at least one unit of capacity available
-          # will be the price-setting producer.
-          if producer.cost_strategy.price_setting?(point)
-            assign_price_setting(order, producer, point)
-            break
-          end
+          break
         end
 
         # Subtract the production of the producer from the demand
@@ -344,8 +324,6 @@ module Merit
         elsif remaining > 0.0
           assign_load(producer, point, remaining)
         else
-          assign_price_setting(order, producer, point)
-
           # Optimisation: If all of the demand has been accounted for, there
           # is no need to waste time with further iterations and expensive
           # calls to Producer#max_load_at.

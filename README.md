@@ -403,7 +403,7 @@ much does a plant run?) and *profitability* (is it profitable?).
 You can get the electricity price in EUR/MWh for each hour in the year by
 running:
 
-    merit_order.price_curve
+    Merit::PriceCurves::FirstUnloaded.new(merit_order)
 
 The price is equal to the `marginal_costs` of the participant that is **the
 first one that is not running at all**. This reflects the assumption that a
@@ -417,6 +417,11 @@ with a factor 7.22 is taken to be the price in that market.
 
 If there are no dispatchable running plants defined, the fall back price is 600
 Euros.
+
+Alternatively, you can determine the pricing according to the most expensive
+running plant:
+
+    Merit::PriceCurves::LastLoaded.new(merit_order)
 
 ## For each Participant
 

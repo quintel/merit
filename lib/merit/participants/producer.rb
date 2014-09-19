@@ -58,6 +58,28 @@ module Merit
       @cost_strategy.price_at(point, allow_loaded)
     end
 
+    # Public: Tells you the actual marginal cost of a plant operating at a
+    # specific hour in the year. Accurate costs for cost-function producers
+    # require the merit order to have been calculated -- and loads set -- before
+    # requesting the cost.
+    #
+    # point - The hour of the year in which to look up the cost.
+    #
+    # Returns a numeric.
+    def cost_at(point)
+      @cost_strategy.cost_at(point)
+    end
+
+    # Public: Tells you the load on the producer for a given hour in the year.
+    # Assumes that the merit order has been calculated.
+    #
+    # point - The hour of the year in which to look up the cost.
+    #
+    # Returns a numeric.
+    def load_at(point)
+      @load_curve.get(point)
+    end
+
     # Public: Tells you if this producer's marginal cost is a price (the final
     # price charged to the region), rather than a cost.
     #

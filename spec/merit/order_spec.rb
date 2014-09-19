@@ -103,63 +103,14 @@ module Merit
       end
     end
 
-    describe '#price_at' do
-      context 'when there is a price setting producer' do
-        it 'should return the marginal cost of the price setting producer' do
-          allow(order).to receive(:price_setting_producers) do
-            Array.new(Merit::POINTS, p1)
-          end
-
-          expect(order.price_at(118)).to eql 13.999791
-        end
-      end
-      context 'when there is NO price setting producer' do
-        before do
-          allow(order).to receive(:price_setting_producers) do
-            Array.new(Merit::POINTS, nil)
-          end
-        end
-        context 'when there are dispatchables' do
-          it 'is a multiple of least expensive unloaded installed plant' do
-            order.add(p1)
-            order.add(p4) # has lower marginal costs, but has a load
-            expect(order.price_at(188)).to eql(p4.marginal_costs)
-          end
-
-          it 'is a multiple of least expensive unloaded installed plant' do
-            order.add(p1)
-            order.add(p4) # has lower marginal costs, and is unloaded
-
-            p4.load_curve.set(188, 0.0)
-            expect(order.price_at(188)).to eql(p4.marginal_costs)
-          end
-
-          it 'is a multiple of most expensive installed plant (fully loaded)' do
-            order.add(p1)
-            order.add(p2) # has lower marginal costs.
-
-            p1.load_curve.set(188, p1.max_load_at(188))
-
-            expect(order.price_at(188)).to eql(p1.marginal_costs * 7.22)
-          end
-        end
-        context 'when there are no dispatachables' do
-          it 'is 600' do
-            expect(order.price_at(188)).to eql(600)
-          end
-        end
-      end
-    end
-
     describe '#price_curve' do
-      before(:each) do
-        allow(order).to receive(:price_at) { 1 }
+      it 'should default to a FirstUnloaded' do
+        expect(order.price_curve).to be_a(PriceCurves::FirstUnloaded)
       end
-      it 'should be another instance of a Curve' do
-        expect(order.price_curve).to be_a(Curve)
-      end
-      it 'should have all ones' do
-        expect(order.price_curve.to_a[118]).to eql 1
+
+      it 'should accept other price curves during initialization' do
+        order.price_curve_class = PriceCurves::LastLoaded
+        expect(order.price_curve).to be_a(PriceCurves::LastLoaded)
       end
     end
 

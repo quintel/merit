@@ -34,13 +34,6 @@ module Merit
                      'full_load_hours',
                      'production' ]
 
-    attr_reader :price_setting_producers
-
-    # Public: created a new Order
-    def initialize
-      @price_setting_producers = Array.new(POINTS)
-    end
-
     # ---------- Calculate! -----------
 
     # Calculates the Merit Order and makes sure it happens only once.
@@ -72,43 +65,18 @@ module Merit
     # expensive **installed** producer multiplied with a factor 7.22.
     # If there is no dispatchable available, we just take 600.
     #
-    # See https://github.com/quintel/merit/issues/66#issuecomment-12317794
-    # for the rationale of this factor 7.22
     def price_at(time)
-      if producer = price_setting_producers[time]
-        return producer.price_at(time)
-      end
-
-      # TODO This doesn't account for participant sets which are Resortable.
-      @installed ||= participants.dispatchables.select do |dispatchable|
-        dispatchable.number_of_units > 0
-      end
-
-      multi    = 1.0
-      loaded   = false
-      producer = @installed.detect { |p| p.cost_strategy.price_setting?(time) }
-
-      if ! producer
-        producer = @installed.last
-        multi    = 7.22
-        loaded   = true
-      end
-
-      # TODO Remove hard-coded import key
-      if producer && producer.key != :energy_interconnector_imported_electricity
-        producer.price_at(time, loaded) * multi
-      else
-        600
-      end
+      price_curve.get(time)
     end
 
     # Public: Returns a Curve with all the (known) prices
     def price_curve
-      @price_curve ||= begin
-        prices = Curve.new
-        POINTS.times { |point| prices.set(point, price_at(point)) }
-        prices
-      end
+      @price_curve ||= PriceCurves::LastLoaded.new(self)
+    end
+
+    # Public: Sets a new price curve class.
+    def price_curve_class=(klass)
+      @price_curve = klass.new(self)
     end
 
     # Public: Returns a helper for calculating loss-of-load using the data given
