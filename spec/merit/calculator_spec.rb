@@ -139,8 +139,8 @@ module Merit
         expect(load_value).to eql(volatile_two.max_load_at(0))
       end
 
-      it 'assigns the price setting producer with the next dispatchable' do
-        expect(order.price_setting_producers[0]).to eql(dispatchable_two)
+      it 'assigns the price setting with the last-loaded producer' do
+        expect(order.price_setting_producers[0]).to eql(dispatchable)
       end
 
       context 'and the dispatchable is a cost-function producer' do
@@ -149,8 +149,8 @@ module Merit
         end
 
         context 'with no remaining capacity' do
-          it 'assigns the next dispatchable as price-setting' do
-            expect(order.price_setting_producers[0]).to eql(dispatchable_two)
+          it 'assigns the dispatchable as price-setting' do
+            expect(order.price_setting_producers[0]).to eql(dispatchable)
           end
         end # with no remaining capacity
 

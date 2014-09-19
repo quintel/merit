@@ -112,16 +112,9 @@ module Merit
 
         if max_load < remaining
           assign_load(producer, point, max_load)
-        elsif remaining > 0.0
-          assign_load(producer, point, remaining)
-
-          # Cost-function producers with at least one unit of capacity available
-          # will be the price-setting producer.
-          if producer.cost_strategy.price_setting?(point)
-            assign_price_setting(order, producer, point)
-            break
-          end
         else
+          assign_load(producer, point, remaining) if remaining > 0
+
           assign_price_setting(order, producer, point)
 
           # Optimisation: If all of the demand has been accounted for, there

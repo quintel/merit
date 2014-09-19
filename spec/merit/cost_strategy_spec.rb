@@ -50,11 +50,6 @@ module Merit::CostStrategy ; describe Merit::CostStrategy do
       it 'calculates the price to be equal to the marginal cost' do
         expect(strategy.price_at(0)).to eq(100.0)
       end
-
-      it 'raises an error when the producer has non-zero load' do
-        expect { strategy.price_at(1) }.
-          to raise_error(Merit::InsufficentCapacityForPrice)
-      end
     end # price
   end # Constant
 
@@ -104,16 +99,9 @@ module Merit::CostStrategy ; describe Merit::CostStrategy do
 
     describe '#price' do
       context 'when the producer does not provide a price' do
-        it 'calculates the price for one additional plant' do
-          expect(strategy.price_at(0)).to eq(99.6)
-          expect(strategy.price_at(1)).to eq(100.8)
-        end
-
-        it 'raises an error when there is insufficient remaining capacity' do
-          producer.load_curve.set(0, 91.0)
-
-          expect { strategy.price_at(0) }.
-            to raise_error(Merit::InsufficentCapacityForPrice)
+        it 'calculates the price using current production' do
+          expect(strategy.price_at(0)).to eq(99.4)
+          expect(strategy.price_at(1)).to eq(100.6)
         end
       end # when the producer does not provide a price
 
@@ -174,11 +162,6 @@ module Merit::CostStrategy ; describe Merit::CostStrategy do
 
       it 'gets the cost from the curve' do
         expect(strategy.price_at(0)).to eq(250.0)
-      end
-
-      it 'raises an error when the producer has non-zero load' do
-        expect { strategy.price_at(2) }.
-          to raise_error(Merit::InsufficentCapacityForPrice)
       end
     end # price
   end # FromCurve

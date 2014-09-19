@@ -56,7 +56,6 @@ module Merit
       #
       # Returns a Numeric.
       def price_at(point, allow_loaded = false)
-        assert_price_setting!(point, allow_loaded)
         marginal_cost
       end
 
@@ -77,14 +76,6 @@ module Merit
         marginal_cost * @producer.production(:mwh)
       end
 
-      # Public: Returns if the producer may be used to set the price of the
-      # region for a given point. Note that this does not mean that this IS the
-      # price-setting producer; merely that it is valid to be used in such a
-      # way.
-      def price_setting?(point)
-        @producer.provides_price? || @producer.load_curve.get(point).zero?
-      end
-
       # Public: Tells us if the price changes depending on the point in the year
       # being calculated. If the merit order has one or more producers with a
       # cost which varies by hour, the producer list has to be resorted prior to
@@ -93,16 +84,6 @@ module Merit
       # Returns true or false.
       def variable?
         false
-      end
-
-      #######
-      private
-      #######
-
-      def assert_price_setting!(point, allow_loaded)
-        unless allow_loaded || price_setting?(point)
-          fail InsufficentCapacityForPrice.new(@producer, point)
-        end
       end
     end # Base
 
@@ -143,7 +124,6 @@ module Merit
       end
 
       def price_at(point, allow_loaded = false)
-        assert_price_setting!(point, allow_loaded)
         sortable_cost(point)
       end
 
@@ -181,26 +161,7 @@ module Merit
       end
 
       def price_at(point, allow_loaded = false)
-        if @producer.provides_price?
-          cost_at_load(@producer.load_curve.get(point))
-        else
-          assert_price_setting!(point, allow_loaded)
-
-          cost_at_load(
-            @producer.output_capacity_per_unit +
-            @producer.load_curve.get(point)
-          )
-        end
-      end
-
-      def price_setting?(point)
-        return true if super
-
-        pricing_load =
-          @producer.output_capacity_per_unit +
-          @producer.load_curve.get(point)
-
-        pricing_load < @producer.available_output_capacity
+        cost_at_load(@producer.load_curve.get(point))
       end
 
       def sortable_cost(*)
