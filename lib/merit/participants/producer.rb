@@ -6,22 +6,17 @@ module Merit
 
     include Profitable
 
+    attr_accessor :load_curve, :load_profile, :position
+
     attr_reader   :output_capacity_per_unit, :availability, :number_of_units,
                   :fixed_costs_per_unit, :fixed_om_costs_per_unit,
-                  :cost_strategy
-
-    attr_accessor :load_curve, :load_profile, :position
+                  :full_load_hours, :cost_strategy
 
     # Public: creates a new producer
     # params opts[Hash] set the attributes
     # returns Participant
     def initialize(opts)
       super
-      require_attributes :output_capacity_per_unit,
-                         :number_of_units,
-                         :availability,
-                         :fixed_costs_per_unit,
-                         :fixed_om_costs_per_unit
 
       @full_load_hours           = opts[:full_load_hours]
       @output_capacity_per_unit  = opts[:output_capacity_per_unit]

@@ -93,6 +93,14 @@ module Merit
       end
     end
 
+    # Public: Returns a helper for calculating loss-of-load using the data given
+    # to this Merit::Order.
+    #
+    # Returns a Merit::LOLE.
+    def lole
+      LOLE.new(self)
+    end
+
     # Public: adds a participant to this order
     #
     # returns - participant
