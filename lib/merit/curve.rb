@@ -22,10 +22,6 @@ module Merit
       @default = default
     end
 
-    def to_a
-      @values.dup
-    end
-
     def get(point)
       @values[point] || @default
     end
