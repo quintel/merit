@@ -22,9 +22,9 @@ module Merit
       # instead of calling initialize directly.
       def initialize(options)
         super
-        @total_consumption = options[:total_consumption]
-
         require_attributes :load_profile
+
+        @total_consumption = options[:total_consumption]
       end
     end # TotalConsumption
   end # User

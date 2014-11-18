@@ -4,7 +4,6 @@ module Merit
   # in the Merit Order, such as a coal power plant, a wind turbine
   # or a CHP.
   class Participant
-
     attr_reader   :key, :load_profile
     attr_accessor :order
 
