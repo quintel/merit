@@ -125,6 +125,10 @@ module Merit
       puts CollectionTable.new(participants.producers, PROFIT_ATTRS).draw!
     end
 
+    def points
+      participants.map { |p| p.load_curve.length }.max || fail(UndefinedLength)
+    end
+
     # Public: Returns an Array containing a 'table' with all the producers
     # vertically, and horizontally the power per point in time.
     def load_curves

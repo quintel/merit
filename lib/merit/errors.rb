@@ -42,6 +42,11 @@ module Merit
     "Missing attribute #{attribute} for this instance of class #{class_name}."
   end
 
+  UndefinedLength = error_class do
+    "Could not determine the length of the Merit::Order as no participants " \
+    "have been added"
+  end
+
   LockedOrderError = error_class do |participant|
     "Cannot add #{ participant.key } participant since the order has " \
     "already been calcualted."

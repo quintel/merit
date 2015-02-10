@@ -8,8 +8,8 @@ module Merit
   class LoadProfile < Curve
     # Public: creates a new LoadProfile, and stores the accompanying values
     #         in an Array
-    def initialize(values)
-      super(scale_values(values))
+    def initialize(values, scaling = Merit::POINTS)
+      scaling ? super(scale_values(values, scaling)) : super
     end
 
     # Public: checks wether the current Load Profile is valid: it should have a
@@ -33,21 +33,22 @@ module Merit
     private
     #######
 
-    # Internal: Translates an array whose length is a fraction of
-    # Merit::POINTS to one that is precisely POINTS length. If the given
-    # +values+ already have the correct length, no changes will be made.
+    # Internal: Translates an array whose length is a fraction of the given
+    # scaling the same length as the scaling parameter. If the given +values+
+    # already have the correct length, no changes will be made.
     #
-    # values - An array of values to be scaled.
+    # values  - An array of values to be scaled.
+    # scaling - The required curve length.
     #
     # Returns an array of floats.
-    def scale_values(values)
-      return values if values.length == Merit::POINTS
+    def scale_values(values, scaling)
+      return values if values.length == scaling
 
-      unless Merit::POINTS % values.length == 0
+      unless scaling % values.length == 0
         raise IncorrectLoadProfileError.new(values.length)
       end
 
-      factor = Merit::POINTS / values.length
+      factor = scaling / values.length
 
       values.each_with_object([]) do |value, scaled|
         factor.times { scaled.push(value) }

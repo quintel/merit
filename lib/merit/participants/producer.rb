@@ -113,7 +113,7 @@ module Merit
       if @load_profile
         values = @load_profile.values.map { |v| v * max_production }
       else
-        values = Array.new(Merit::POINTS, available_output_capacity)
+        values = Array.new(@load_curve.length, available_output_capacity)
       end
 
       @max_load_curve ||= Curve.new(values)

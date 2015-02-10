@@ -235,11 +235,33 @@ module Merit
 
       context 'when the order has been calculated already' do
         it 'raises an error' do
+          order.add(p1)
           order.calculate
 
           expect { order.add(p1) }.
             to raise_error(Merit::LockedOrderError)
         end
+      end
+    end
+
+    describe '#points' do
+      it 'raises an error when no participants have been added' do
+        expect { order.points }.to raise_error(Merit::UndefinedLength)
+      end
+
+      it 'should return the maximum length of any participant curve' do
+        [p1, p2, p3, p4, p5].each(&order.method(:add))
+        expect(order.points).to eq(Merit::POINTS)
+      end
+
+      it 'allows a smaller curve' do
+        [p1, p2, p3, p4, p5].each do |part|
+          part.load_curve   = Curve.new([], 10)
+          part.load_profile = Curve.new([], 10) if part.load_profile
+          order.add(part)
+        end
+
+        expect(order.points).to eq(10)
       end
     end
 

@@ -24,7 +24,7 @@ module Merit
       order.participants.lock!
       producers = order.participants.producers_for_calculation
 
-      each_point { |point| compute_point(order, point, producers) }
+      each_point(order) { |point| compute_point(order, point, producers) }
 
       self
     end
@@ -39,8 +39,8 @@ module Merit
     # subset of the points.
     #
     # Returns nothing.
-    def each_point
-      Merit::POINTS.times { |point| yield point }
+    def each_point(order)
+      order.points.times { |point| yield point }
     end
 
     # Internal: This is called with a +producer+, +point+, and +value+ each
@@ -191,8 +191,11 @@ module Merit
     # Returns nothing.
     def assign_load(producer, point, value)
       @chunk_size.times do |position|
+        future_point = (position * PER_DAY) + point
+        max_point    = producer.load_curve.length
+
         # Don't set values beyond Dec 24th @ 23:00.
-        if (future_point = (position * PER_DAY) + point) < Merit::POINTS
+        if future_point < max_point
           producer.load_curve.set(future_point, value)
         end
       end
@@ -205,7 +208,7 @@ module Merit
     # continues until we have reached the end of the year.
     #
     # Returns nothing.
-    def each_point
+    def each_point(order)
       # The point being computed.
       point = 0
 
@@ -216,7 +219,7 @@ module Merit
       # computing a full day.
       day_incr = each_day - PER_DAY
 
-      while point < Merit::POINTS
+      while point < order.points
         yield point
 
         # Is this the end of the day (skip fowards), or are there still points
@@ -245,12 +248,21 @@ module Merit
     #
     # Returns an AveragingCalculator.
     def initialize(chunk_size = 8)
-      if chunk_size == 1 || Merit::POINTS.remainder(chunk_size).nonzero?
-        raise InvalidChunkSize.new(chunk_size)
+      if ! chunk_size || chunk_size < 2
+        fail InvalidChunkSize.new(chunk_size)
       end
 
       super()
       @chunk_size = chunk_size
+    end
+
+    # Public: Calculates the given Merit::Order.
+    def calculate(order)
+      if order.points.remainder(@chunk_size).nonzero?
+        fail InvalidChunkSize.new(chunk_size)
+      end
+
+      super
     end
 
     #######
@@ -263,8 +275,8 @@ module Merit
     # then jumps forwards by +@chunk_size+.
     #
     # Returns nothing.
-    def each_point
-      0.step(Merit::POINTS - 1, @chunk_size) { |point| yield point }
+    def each_point(order)
+      0.step(order.points - 1, @chunk_size) { |point| yield point }
     end
 
     # Internal: Calcuates the total demand for the period following the given
