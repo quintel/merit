@@ -95,9 +95,7 @@ module Merit
       # #always_on? in every iteration. This accounts for a 20% reduction in
       # the calculation runtime.
 
-      if (remaining = demand(order, point)) < 0
-        raise SubZeroDemand.new(point, remaining)
-      end
+      remaining = demand(order, point)
 
       producers.always_on(point).each do |producer|
         remaining -= producer.max_load_at(point)

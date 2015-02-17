@@ -73,10 +73,6 @@ module Merit
     "you forget to provide a :marginal_costs attribute?"
   end
 
-  SubZeroDemand = error_class do |point, demand|
-    "Merit order has a subzero demand (#{ demand.inspect }) in point #{ point }"
-  end
-
   MissingPriceCurve = error_class do |name|
     "You need to supply #{ name.inspect } with a :price_curve"
   end

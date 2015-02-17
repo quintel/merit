@@ -194,20 +194,6 @@ module Merit
       end
     end
 
-    describe 'with sub-zero demand' do
-      let(:curve) { Merit::Curve.new([0, 0, -1, 3].map(&:to_f) * 6 * 365) }
-      let(:cuser) { User.create(key: :with_curve, load_curve: curve) }
-
-      let(:user_attrs) { super().merge(total_consumption: 0.0) }
-
-      before { order.add(cuser) }
-
-      it 'should return raise SubZeroDemand' do
-        expect { Calculator.new.calculate(order) }
-          .to raise_error(Merit::SubZeroDemand, /in point 2/)
-      end
-    end # with sub-zero demand
-
     context 'with highly-competitive dispatchers' do
       before { order.calculate(Calculator.new) }
 
