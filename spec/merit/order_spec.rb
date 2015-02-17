@@ -74,6 +74,13 @@ module Merit
       )
     end
 
+    let(:u1) do
+      User.create(
+        key:        :user,
+        load_curve: Curve.new(1, Merit::POINTS)
+      )
+    end
+
     describe "#new" do
       it "should be able to create one" do
         Order.new
@@ -236,6 +243,7 @@ module Merit
       context 'when the order has been calculated already' do
         it 'raises an error' do
           order.add(p1)
+          order.add(u1)
           order.calculate
 
           expect { order.add(p1) }.
@@ -245,19 +253,21 @@ module Merit
     end
 
     describe '#points' do
-      it 'raises an error when no participants have been added' do
+      let(:user1) { User.create(key: :a, load_curve: [1] * 10) }
+      let(:user2) { User.create(key: :b, load_curve: [2] * 20) }
+
+      it 'raises an error when no users have been added' do
         expect { order.points }.to raise_error(Merit::UndefinedLength)
       end
 
       it 'should return the maximum length of any participant curve' do
-        [p1, p2, p3, p4, p5].each(&order.method(:add))
-        expect(order.points).to eq(Merit::POINTS)
+        [user1, user2].each(&order.method(:add))
+        expect(order.points).to eq(20)
       end
 
       it 'allows a smaller curve' do
-        [p1, p2, p3, p4, p5].each do |part|
-          part.load_curve   = Curve.new([], 10)
-          part.load_profile = Curve.new([], 10) if part.load_profile
+        [user1, user2].each do |part|
+          allow(part).to receive(:load_curve).and_return([1] * 10)
           order.add(part)
         end
 
