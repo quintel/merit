@@ -5,7 +5,7 @@ module Merit
     include Enumerable
     extend  Forwardable
 
-    def_delegators :@members, :[], :length, :key?
+    def_delegators :@members, :[], :length, :key?, :empty?
 
     # Creates a new ParticipantSet.
     def initialize

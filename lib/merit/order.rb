@@ -126,8 +126,11 @@ module Merit
     end
 
     def points
-      fail(UndefinedLength) if participants.users.empty?
-      participants.users.map { |user| user.load_curve.length }.max
+      fail(UndefinedLength) if participants.empty?
+
+      participants.map do |participant|
+        participant.load_curve ? participant.load_curve.length : 0
+      end.max
     end
 
     # Public: Returns an Array containing a 'table' with all the producers
