@@ -26,6 +26,8 @@ module Merit
       @values[point] || @default
     end
 
+    alias_method :at, :get
+
     def set(point, value)
       @values[point] = value
     end
