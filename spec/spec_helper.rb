@@ -1,6 +1,7 @@
 require 'rspec'
 require 'support/coverage' if ENV['COVERAGE']
 require 'merit'
+require 'tempfile'
 
 Dir['./spec/support/**/*.rb'].map do |file|
   require file unless file.end_with?('coverage.rb')

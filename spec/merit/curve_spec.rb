@@ -311,6 +311,55 @@ module Merit
       it 'raises ENOENT when the path does not exist' do
         expect { Curve.load_file(fixture(:nope)) }.to raise_error(Errno::ENOENT)
       end
+
+      describe 'line endings' do
+        # We use Tempfile here since Git can mess with CRLF line endings.
+        let(:file) do
+          Tempfile.new('curve').tap do |f|
+            f.write(content)
+            f.rewind
+          end
+        end
+
+        let(:curve) { Curve.load_file(file.path) }
+        after { file.close && file.unlink }
+
+        describe 'with 5 lines using \n line endings' do
+          let(:content) { "1.0\n2.0\n3.0\n4.0\n5.0\n" }
+
+          it 'has three values' do
+            expect(curve.length).to eq(5)
+          end
+
+          it 'parses each value' do
+            expect(curve.to_a).to eq([1.0, 2.0, 3.0, 4.0, 5.0])
+          end
+        end # with 5 lines using \n line endings
+
+        describe 'with 4 lines using \r\n line endings' do
+          let(:content) { "1.0\r\n2.0\r\n3.0\r\n4.0\r\n" }
+
+          it 'has three values' do
+            expect(curve.length).to eq(4)
+          end
+
+          it 'parses each value' do
+            expect(curve.to_a).to eq([1.0, 2.0, 3.0, 4.0])
+          end
+        end # with 4 lines using \r\n line endings
+
+        describe 'with 3 lines using \r line endings' do
+          let(:content) { "1.0\r2.0\r3.0\r" }
+
+          it 'has three values' do
+            expect(curve.length).to eq(3)
+          end
+
+          it 'parses each value' do
+            expect(curve.to_a).to eq([1.0, 2.0, 3.0])
+          end
+        end # with 3 lines using \r line endings
+      end # with line endings
     end # .load_file
   end
 

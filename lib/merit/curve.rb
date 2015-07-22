@@ -90,7 +90,29 @@ module Merit
     #
     # Returns a Curve.
     def self.load_file(path, length = nil)
-      new(File.foreach(path).map(&:to_f), length)
+      separator = nil
+      file = File.open(path)
+
+      # Detect line endings; from CSV library.
+      while separator.nil?
+        break unless sample = file.gets(nil, 1024)
+
+        if sample.end_with?("\r".freeze)
+          sample << (file.gets(nil, 1) || '')
+        end
+
+        if match = sample.match(%r{\r\n?|\n})
+          separator = match[0]
+          break
+        end
+      end
+
+      file.rewind
+
+      separator ||= $INPUT_RECORD_SEPARATOR
+      new(file.each_line(separator).map(&:to_f), length)
+    ensure
+      file.close if file && !file.closed?
     end
 
     #######
