@@ -126,11 +126,13 @@ module Merit
     end
 
     def points
-      fail(UndefinedLength) if participants.empty?
+      @points ||= begin
+        fail(UndefinedLength) if participants.empty?
 
-      participants.map do |participant|
-        participant.load_curve ? participant.load_curve.length : 0
-      end.max
+        participants.map do |participant|
+          participant.load_curve ? participant.load_curve.length : 0
+        end.max
+      end
     end
 
     # Public: Returns an Array containing a 'table' with all the producers
