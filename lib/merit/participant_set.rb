@@ -181,6 +181,8 @@ module Merit
     def split_producers
       producers = self.producers
 
+      return [], [] if producers.empty?
+
       # Not using Enumerable#partition allows us to quickly test that all the
       # always-on producers were before the first transient producer.
       unless partition = producers.index(&:transient?)
