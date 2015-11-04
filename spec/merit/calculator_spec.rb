@@ -367,5 +367,14 @@ module Merit
       end
     end
 
+    context 'when there are no dispatchables' do
+      it 'does not raise an error' do
+        allow(order.participants).to receive(:producers).and_return([
+          volatile, volatile_two])
+
+        expect { Calculator.new.calculate(order) }.to_not raise_error
+      end
+    end
+
   end # Calculator
 end # Merit
