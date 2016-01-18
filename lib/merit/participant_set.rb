@@ -41,7 +41,7 @@ module Merit
     # Returns something which responds to #always_on and #transients
     def producers_for_calculation
       if producers.any? { |p| p.cost_strategy.variable? }
-        producers = ParticipantSet::Resortable.new(self)
+        ParticipantSet::Resortable.new(self)
       else
         self
       end
