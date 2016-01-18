@@ -27,6 +27,8 @@ require_relative 'merit/participants/user'
 require_relative 'merit/participants/user/total_consumption'
 require_relative 'merit/participants/user/with_curve'
 
+require_relative 'merit/participants/storage/reserve'
+
 require_relative 'merit/lole'
 
 # Helpers
