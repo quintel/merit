@@ -193,7 +193,7 @@ module Merit
       @chunk_size.times do |position|
         # Don't set values beyond Dec 24th @ 23:00.
         if (future_point = (position * PER_DAY) + point) < Merit::POINTS
-          producer.load_curve.set(future_point, value)
+          producer.set_load(future_point, value)
         end
       end
     end
