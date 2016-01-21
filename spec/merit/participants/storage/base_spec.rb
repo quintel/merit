@@ -123,6 +123,25 @@ module Merit
           end
         end # with 9.0 already stored
 
+        context 'with an availability of 0.1' do
+          let(:attrs) { super().merge(availability: 0.1) }
+          let(:store_load) { storage.store(1, 2.0) }
+
+          it 'stores 1.0' do
+            expect { store_load }
+              .to change { storage.reserve.at(1) }.from(0.0).to(1.0)
+          end
+
+          it 'returns 1.0' do
+            expect(store_load).to eq(1.0)
+          end
+
+          it 'sets a load of -1.0' do
+            store_load
+            expect(storage.load_curve.get(1)).to eq(-1.0)
+          end
+        end
+
         context 'with 10.0 already stored' do
           before { storage.reserve.add(0, 10.0) }
 

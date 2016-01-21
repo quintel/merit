@@ -3,15 +3,19 @@ module Merit
     class Base < DispatchableProducer
       attr_reader :reserve
 
+      # Default attributes for all storage technologies. May be customised as
+      # needed.
+      DEFAULTS = { availability: 1.0 }.freeze
+
       def initialize(opts)
-        super(opts.merge(marginal_costs: 0.0, availability: 1.0))
+        super(DEFAULTS.merge(opts).merge(marginal_costs: 0.0))
 
         @capacity          = available_output_capacity
         @input_efficiency  = opts[:input_efficiency]  || 1.0
         @output_efficiency = opts[:output_efficiency] || 1.0
 
         @reserve = Reserve.new(
-          opts.fetch(:volume_per_unit) * opts.fetch(:number_of_units)
+          opts.fetch(:volume_per_unit) * number_of_units * availability
         )
       end
 
