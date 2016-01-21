@@ -73,7 +73,7 @@ module Merit
     #
     # Returns the load.
     def set_load(point, amount)
-      load_curve.set(future_point, amount)
+      load_curve.set(point, amount)
     end
 
     # The full load hours are defined as the number of hours that the

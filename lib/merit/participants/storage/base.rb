@@ -23,7 +23,9 @@ module Merit
         amount = (amount > @capacity ? @capacity : amount) * @input_efficiency
         stored = @reserve.add(point, amount) / @input_efficiency
 
-        load_curve.set(point, stored.zero? ? 0.0 : -stored)
+        load_curve.set(
+          point, load_curve.get(point) - stored
+        )
 
         stored
       end
@@ -42,8 +44,10 @@ module Merit
       # Public: Assigns a load to this storage technology. Subtracts the energy
       # from the reserve.
       #
-      # Returns nothing.
+      # Returns the load set.
       def set_load(point, value)
+        return if value.zero?
+
         @reserve.take(point, value / @output_efficiency)
         load_curve.set(point, value)
       end

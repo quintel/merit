@@ -51,7 +51,7 @@ module Merit
     #
     # Returns nothing.
     def assign_load(producer, point, value)
-      producer.load_curve.set(point, value)
+      producer.set_load(point, value)
     end
 
     def assign_price_setting(order, producer, point)
@@ -99,8 +99,31 @@ module Merit
         raise SubZeroDemand.new(point, remaining)
       end
 
+      storage = producers.storage
+
       producers.always_on(point).each do |producer|
-        remaining -= producer.max_load_at(point)
+        produced = producer.max_load_at(point)
+
+        if produced < remaining
+          remaining -= produced
+        else
+          produced -= remaining
+          remaining = 0.0
+
+          # Assign storage.
+          if produced > 0
+            storage.each do |storage|
+              produced -= storage.store(point, produced)
+            end
+          end
+
+          if produced > 0
+            # The first dispatchable producer is price-setting.
+            return assign_price_setting(
+              order, producers.transients(point).first, point
+            )
+          end
+        end
       end
 
       producers.transients(point).each do |producer|

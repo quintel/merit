@@ -73,6 +73,13 @@ module Merit
       end
     end
 
+    # Public: Returns all participants which are storage technologies.
+    #
+    # TODO Sort storage by user-preference.
+    def storage
+      @storage || select_participants(Storage::Base)
+    end
+
     # Public: Returns all the users of energy.
     def users
       @users || select_participants(User)
@@ -199,8 +206,11 @@ module Merit
     # a variable marginal cost, requiring the producers to be sorted in every
     # calculation point.
     class Resortable
+      attr_reader :storage
+
       def initialize(set)
-        @always_on, @transients = set.always_on, set.transients
+        @always_on, @transients, @storage =
+          set.always_on, set.transients, set.storage
       end
 
       def always_on(point)

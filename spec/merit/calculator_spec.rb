@@ -303,6 +303,131 @@ module Merit
       end # when the producer is uncompetitive
     end # with a variable-marginal-cost producer
 
+    describe 'with P2P storage' do
+      let(:p2p_attrs) {{
+        key: :p2p,
+        volume_per_unit: 0.05,
+        output_capacity_per_unit: 2.0,
+        availability: 1.0,
+        number_of_units: 1
+      }}
+
+      let(:user_attrs) {{
+        key: :total_demand,
+        total_consumption: 0.0,
+        load_profile: LoadProfile.new([0.0])
+      }}
+
+      let(:p2p) { Storage::Base.new(p2p_attrs) }
+
+      let(:order) do
+        Order.new.tap do |order|
+          order.add(volatile)
+          order.add(volatile_two)
+
+          order.add(p2p)
+          order.add(user)
+        end
+      end
+
+      context 'with an excess of production' do
+        before { order.calculate(Calculator.new) }
+
+        it 'charges while there is excess and available volume' do
+          # 0.01141552511424 is the excess
+          expect(p2p.load_curve.to_a.take(4))
+            .to eq([-0.01141552511424] * 4)
+        end
+
+        it 'charges when there is excess and partial volume remaining' do
+          # Remaining volume is 0.0043
+          expect(p2p.load_curve.get(4))
+            .to be_within(1e-6).of(-0.0043379)
+        end
+
+        it 'does not charge when the reserve is full' do
+          expect(p2p.load_curve.get(6)).to be_zero
+        end
+      end # with an excess of production
+
+      context 'when there is no excess' do
+        let(:vol_1_attrs) do
+          super().merge(load_profile: LoadProfile.new([0.0]))
+        end
+
+        let(:vol_2_attrs) do
+          super().merge(load_profile: LoadProfile.new([0.0]))
+        end
+
+        before { p2p.reserve.add(0, 0.01) }
+        before { order.calculate(Calculator.new) }
+
+        it 'does not charge' do
+          expect(p2p.load_curve.get(0)).to be_zero
+        end
+
+        it 'does not discharge' do
+          expect(p2p.reserve.at(1)).to_not be_zero
+          expect(p2p.reserve.at(1)).to eq(p2p.reserve.at(0))
+        end
+      end # when there is no excess
+
+      context 'with a deficit, and the P2P contains energy' do
+        let(:vol_1_attrs) do
+          super().merge(load_profile: LoadProfile.new([0.0]))
+        end
+
+        let(:vol_2_attrs) do
+          super().merge(load_profile: LoadProfile.new([0.0]))
+        end
+
+        let(:user_attrs) {{
+          key: :total_demand,
+          total_consumption: 6.4e6,
+          load_profile: LoadProfile.new([0.0] + ([2.775668529550e-08] * 8759))
+        }}
+
+        let(:p2p_attrs) do
+          super().merge(
+            volume_per_unit: 1.0,
+            output_capacity_per_unit: 0.15
+          )
+        end
+
+        before { p2p.reserve.add(0, 0.4) }
+        before { order.add(dispatchable) }
+        before { order.calculate(Calculator.new) }
+
+        it 'uses the P2P energy' do
+          expect(p2p.load_curve.get(0)).to be_zero
+
+          # Fulfil all demand
+          expect(p2p.load_curve.get(1)).to eq(0.15)
+          expect(p2p.load_curve.get(2)).to eq(0.15)
+
+          # Partially empty.
+          expect(p2p.load_curve.get(3)).to eq(0.1)
+
+          # Completely empty.
+          expect(p2p.load_curve.get(4)).to be_zero
+        end
+
+        it 'depletes the P2P reserve' do
+          expect(p2p.reserve.at(0)).to eq(0.4)
+          expect(p2p.reserve.at(1)).to eq(0.25)
+          expect(p2p.reserve.at(2)).to eq(0.1)
+          expect(p2p.reserve.at(3)).to be_zero
+        end
+
+        it 'reduces production from dispatchables' do
+          reduced = dispatchable.load_curve.get(2)
+          normal  = dispatchable.load_curve.get(9)
+
+          expect(reduced).to be < normal
+        end
+      end # with a deficit, and the P2P contains energy
+    end # with P2P storage
+
     describe 'with QuantizingCalculator' do
       # Set an excess of demand so that the dispatchable is running
       # all the time.
