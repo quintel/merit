@@ -29,6 +29,7 @@ require_relative 'merit/participants/user/with_curve'
 
 require_relative 'merit/participants/storage/reserve'
 require_relative 'merit/participants/storage/base'
+require_relative 'merit/participants/storage/black_hole'
 
 require_relative 'merit/lole'
 
