@@ -1,5 +1,5 @@
 module Merit
-  module Storage
+  module Flex
     # A consumer which will take as much excess energy as its capacity allows.
     # No energy is ever returned to the merit order in subsequent points.
     class BlackHole < Base
@@ -11,5 +11,5 @@ module Merit
         0.0
       end
     end # BlackHole
-  end # Storage
+  end # Flex
 end

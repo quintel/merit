@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Merit
-  describe Storage::Base do
+  describe Flex::Storage do
     let(:attrs) {{
       key: :p2p,
       number_of_units: 1,
@@ -11,30 +11,30 @@ module Merit
       volume_per_unit: 10.0
     }}
 
-    let(:storage) { Storage::Base.new(attrs) }
+    let(:storage) { Flex::Storage.new(attrs) }
 
     # --
 
-    describe 'available_at' do
+    describe 'max_load_at' do
       context 'when empty' do
         it 'returns zero' do
-          expect(storage.available_at(0)).to be_zero
+          expect(storage.max_load_at(0)).to be_zero
         end
       end # when empty
 
       context 'with 1.0 stored' do
-        before { storage.store(0, 1.0) }
+        before { storage.assign_excess(0, 1.0) }
 
         context 'and capacity: 10.0' do
           it 'returns 1.0' do
-            expect(storage.available_at(1)).to eq(1.0)
+            expect(storage.max_load_at(1)).to eq(1.0)
           end
 
           context 'and output_efficiency: 0.75' do
             let(:attrs) { super().merge(output_efficiency: 0.75) }
 
             it 'returns 0.75' do
-              expect(storage.available_at(1)).to eq(0.75)
+              expect(storage.max_load_at(1)).to eq(0.75)
             end
           end
         end # and capacity: 10.0
@@ -44,29 +44,29 @@ module Merit
 
           # We have to store 1.0x2 in order to store 1.0 (0.5 capacity is the
           # limiting factor for this tech).
-          before { storage.store(1, 1.0) }
+          before { storage.assign_excess(1, 1.0) }
 
           it 'returns 0.5' do
-            expect(storage.available_at(2)).to eq(0.5)
+            expect(storage.max_load_at(2)).to eq(0.5)
           end
 
           context 'and output_efficiency: 0.75' do
             let(:attrs) { super().merge(output_efficiency: 0.75) }
 
             it 'returns 0.5' do
-              expect(storage.available_at(2)).to eq(0.5)
+              expect(storage.max_load_at(2)).to eq(0.5)
             end
           end
         end # and capacity: 0.5
       end # with 1.0 stored
-    end # available_at
+    end # max_load_at
 
     # --
 
-    describe 'store' do
+    describe 'assign_excess' do
       context 'storing 2.0' do
         context 'with nothing stored' do
-          let(:store_load) { storage.store(0, 2.0) }
+          let(:store_load) { storage.assign_excess(0, 2.0) }
 
           it 'stores 2.0' do
             expect { store_load }
@@ -86,7 +86,7 @@ module Merit
         context 'with 8.0 already stored' do
           before { storage.reserve.add(0, 8.0) }
 
-          let(:store_load) { storage.store(1, 2.0) }
+          let(:store_load) { storage.assign_excess(1, 2.0) }
 
           it 'stores 2.0' do
             expect { store_load }
@@ -94,7 +94,7 @@ module Merit
           end
 
           it 'returns 2.0' do
-            expect(storage.store(1, 2.0)).to eq(2.0)
+            expect(storage.assign_excess(1, 2.0)).to eq(2.0)
           end
 
           it 'sets a load of -2.0' do
@@ -106,7 +106,7 @@ module Merit
         context 'with 9.0 already stored' do
           before { storage.reserve.add(0, 9.0) }
 
-          let(:store_load) { storage.store(1, 2.0) }
+          let(:store_load) { storage.assign_excess(1, 2.0) }
 
           it 'stores 1.0' do
             expect { store_load }
@@ -125,7 +125,7 @@ module Merit
 
         context 'with an availability of 0.1' do
           let(:attrs) { super().merge(availability: 0.1) }
-          let(:store_load) { storage.store(1, 2.0) }
+          let(:store_load) { storage.assign_excess(1, 2.0) }
 
           it 'stores 1.0' do
             expect { store_load }
@@ -145,7 +145,7 @@ module Merit
         context 'with 10.0 already stored' do
           before { storage.reserve.add(0, 10.0) }
 
-          let(:store_load) { storage.store(1, 2.0) }
+          let(:store_load) { storage.assign_excess(1, 2.0) }
 
           it 'stores nothing' do
             expect { store_load }
@@ -164,7 +164,7 @@ module Merit
 
         context 'with an input efficiency of 0.75' do
           let(:attrs) { super().merge(input_efficiency: 0.75) }
-          let(:store_load) { storage.store(1, 2.0) }
+          let(:store_load) { storage.assign_excess(1, 2.0) }
 
           it 'stores 1.5' do
             expect { store_load }
@@ -183,7 +183,7 @@ module Merit
 
         context 'with a capacity of 0.5' do
           let(:attrs) { super().merge(output_capacity_per_unit: 0.5) }
-          let(:store_load) { storage.store(1, 2.0) }
+          let(:store_load) { storage.assign_excess(1, 2.0) }
 
           it 'stores 0.5' do
             expect { store_load }
@@ -208,7 +208,7 @@ module Merit
             )
           end
 
-          let(:store_load) { storage.store(1, 2.0) }
+          let(:store_load) { storage.assign_excess(1, 2.0) }
 
           it 'stores 0.375' do
             expect { store_load }
@@ -270,5 +270,5 @@ module Merit
         end # with an output efficiency of 0.4
       end # setting 0.5
     end # set_load
-  end # Storage::Base
+  end # Flex::Storage
 end # Merit

@@ -73,11 +73,11 @@ module Merit
       end
     end
 
-    # Public: Returns all participants which are storage technologies.
+    # Public: Returns all participants which are flexible technologies.
     #
-    # TODO Sort storage by user-preference.
-    def storage
-      @storage || select_participants(Storage::Base)
+    # TODO Sort by user-preference.
+    def flex
+      @flex || select_participants(Flex::Base)
     end
 
     # Public: Returns all the users of energy.
@@ -206,11 +206,11 @@ module Merit
     # a variable marginal cost, requiring the producers to be sorted in every
     # calculation point.
     class Resortable
-      attr_reader :storage
+      attr_reader :flex
 
       def initialize(set)
-        @always_on, @transients, @storage =
-          set.always_on, set.transients, set.storage
+        @always_on, @transients, @flex =
+          set.always_on, set.transients, set.flex
       end
 
       def always_on(point)

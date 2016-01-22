@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 module Merit
-  RSpec.describe Storage::Reserve do
-    let(:reserve) { Storage::Reserve.new }
+  RSpec.describe Flex::Reserve do
+    let(:reserve) { Flex::Reserve.new }
 
     it 'starts empty' do
       expect(reserve.at(0)).to be_zero
@@ -77,7 +77,7 @@ module Merit
     end # adding 5 in frame 0
 
     context 'with a volume of 2.0' do
-      let(:reserve) { Storage::Reserve.new(2.0) }
+      let(:reserve) { Flex::Reserve.new(2.0) }
 
       context 'adding 1.0' do
         let!(:added) { reserve.add(0, 1.0) }
@@ -129,7 +129,7 @@ module Merit
     end # with a volume of 2.0
 
     describe 'with a decay which subtracts 2' do
-      let(:reserve) { Storage::Reserve.new { |*| 2 }}
+      let(:reserve) { Flex::Reserve.new { |*| 2 }}
 
       it 'has nothing in frame 0' do
         expect(reserve.at(0)).to be_zero
@@ -189,7 +189,7 @@ module Merit
     end # with a decay which subtracts 2
 
     describe 'with a decay which subtracts 10%' do
-      let(:reserve) { Storage::Reserve.new { |_, amt| amt * 0.1 }}
+      let(:reserve) { Flex::Reserve.new { |_, amt| amt * 0.1 }}
 
       context 'and 4.0 stored' do
         before { reserve.add(0, 4.0) }
@@ -210,7 +210,7 @@ module Merit
 
     describe 'with a decay which subtracts 2 in even-numbered frames' do
       let(:reserve) do
-        Storage::Reserve.new { |frame, _| frame % 2 == 0 ? 2.0 : 0 }
+        Flex::Reserve.new { |frame, _| frame % 2 == 0 ? 2.0 : 0 }
       end
 
       context 'and 4.0 stored' do

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 module Merit
-  describe Storage::BlackHole do
+  describe Flex::BlackHole do
     let(:attrs) {{
       key: :bh,
       number_of_units: 1,
@@ -10,7 +10,7 @@ module Merit
       output_efficiency: 1.0
     }}
 
-    let(:bh) { Storage::BlackHole.new(attrs) }
+    let(:bh) { Flex::BlackHole.new(attrs) }
 
     describe 'max_load_at' do
       it 'returns zero' do
@@ -19,7 +19,7 @@ module Merit
     end # max_load_at
 
     describe 'storing 2.0' do
-      let(:assign_load) { bh.store(1, 2.0) }
+      let(:assign_load) { bh.assign_excess(1, 2.0) }
 
       context 'with a capacity of 10.0' do
         it 'returns 2.0' do
@@ -58,5 +58,5 @@ module Merit
         end
       end # with an input efficiency of 0.75
     end # storing 2.0
-  end # Storage::BlackHole
+  end # Flex::BlackHole
 end

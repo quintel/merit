@@ -1,5 +1,5 @@
 module Merit
-  module Storage
+  module Flex
     # Stores energy for later use. Has an optional volume which may not be
     # exceeded.
     class Reserve
@@ -103,5 +103,5 @@ module Merit
         decay < start ? decay : start
       end
     end # Reserve
-  end # Storage
+  end # Flex
 end

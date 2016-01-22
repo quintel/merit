@@ -99,7 +99,7 @@ module Merit
         raise SubZeroDemand.new(point, remaining)
       end
 
-      storage = producers.storage
+      flex = producers.flex
 
       producers.always_on(point).each do |producer|
         produced = producer.max_load_at(point)
@@ -110,11 +110,9 @@ module Merit
           produced -= remaining
           remaining = 0.0
 
-          # Assign storage.
+          # Assign flexible technologies.
           if produced > 0
-            storage.each do |storage|
-              produced -= storage.store(point, produced)
-            end
+            flex.each { |tech| produced -= tech.assign_excess(point, produced) }
           end
 
           if produced > 0

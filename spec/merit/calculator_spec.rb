@@ -318,7 +318,7 @@ module Merit
         load_profile: LoadProfile.new([0.0])
       }}
 
-      let(:p2p) { Storage::Base.new(p2p_attrs) }
+      let(:p2p) { Flex::Storage.new(p2p_attrs) }
 
       let(:order) do
         Order.new.tap do |order|

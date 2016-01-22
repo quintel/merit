@@ -1,8 +1,6 @@
 module Merit
-  module Storage
+  module Flex
     class Base < DispatchableProducer
-      attr_reader :reserve
-
       # Default attributes for all storage technologies. May be customised as
       # needed.
       DEFAULTS = { availability: 1.0 }.freeze
@@ -13,48 +11,33 @@ module Merit
         @capacity          = available_output_capacity
         @input_efficiency  = opts[:input_efficiency]  || 1.0
         @output_efficiency = opts[:output_efficiency] || 1.0
-
-        @reserve = Reserve.new(
-          opts.fetch(:volume_per_unit) * number_of_units * availability
-        )
       end
 
       # Public: Stores a given amount of energy in the technology. Not all given
       # to the technology is guaranteed to be stored.
       #
       # Returns the amount of energy which was accepted by the storage device.
-      def store(point, amount)
-        amount = (amount > @capacity ? @capacity : amount) * @input_efficiency
-        stored = @reserve.add(point, amount) / @input_efficiency
+      def assign_excess(point, amount)
+        amount = amount > @capacity ? @capacity : amount
+        load_curve.set(point, load_curve.get(point) - amount)
 
-        load_curve.set(
-          point, load_curve.get(point) - stored
-        )
-
-        stored
+        amount
       end
 
       # Public: Describes how much energy is stored and may be emitted for
       # consumption in the chosen point.
       #
       # Returns a numeric.
-      def available_at(point)
-        in_reserve = @reserve.at(point) * @output_efficiency
-        in_reserve > @capacity ? @capacity : in_reserve
+      def max_load_at(point)
+        0.0
       end
 
-      alias_method :max_load_at, :available_at
-
-      # Public: Assigns a load to this storage technology. Subtracts the energy
-      # from the reserve.
+      # Public: Assigns a load to this technology.
       #
       # Returns the load set.
       def set_load(point, value)
-        return if value.zero?
-
-        @reserve.take(point, value / @output_efficiency)
-        load_curve.set(point, value)
+        load_curve.set(point, value) unless value.zero?
       end
     end # Base
-  end # Storage
+  end # Flex
 end
