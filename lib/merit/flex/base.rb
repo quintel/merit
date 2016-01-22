@@ -7,10 +7,7 @@ module Merit
 
       def initialize(opts)
         super(DEFAULTS.merge(opts).merge(marginal_costs: 0.0))
-
-        @capacity          = available_output_capacity
-        @input_efficiency  = opts[:input_efficiency]  || 1.0
-        @output_efficiency = opts[:output_efficiency] || 1.0
+        @capacity = available_output_capacity
       end
 
       # Public: Stores a given amount of energy in the technology. Not all given

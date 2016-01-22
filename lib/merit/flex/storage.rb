@@ -8,6 +8,9 @@ module Merit
       def initialize(opts)
         super
 
+        @input_efficiency  = opts[:input_efficiency]  || 1.0
+        @output_efficiency = opts[:output_efficiency] || 1.0
+
         @reserve = Reserve.new(
           opts.fetch(:volume_per_unit) * number_of_units * availability
         )
