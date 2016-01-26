@@ -270,5 +270,36 @@ module Merit
         end # with an output efficiency of 0.4
       end # setting 0.5
     end # set_load
+
+    # --
+
+    describe 'decay' do
+      context 'with 2.0 stored' do
+        before { storage.assign_excess(0, 2.0) }
+
+        context 'and no decay proc provided' do
+          it 'does not decay the stored energy' do
+            expect(storage.max_load_at(1)).to eq(2.0)
+          end
+        end
+
+        context 'and a decay proc returning 1.0' do
+          let(:attrs) { super().merge(decay: ->(*) { 1.0 }) }
+
+          it 'leaves 1.0 energy remaining in the next point' do
+            expect(storage.max_load_at(1)).to eq(1.0)
+          end
+        end
+
+        context 'and a decay proc returning 3.0' do
+          let(:attrs) { super().merge(decay: ->(*) { 3.0 }) }
+
+          it 'leaves no energy remaining in the next point' do
+            expect(storage.max_load_at(1)).to be_zero
+          end
+        end
+      end # with 2.0 stored
+    end # decay
+
   end # Flex::Storage
 end # Merit

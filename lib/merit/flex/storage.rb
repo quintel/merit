@@ -12,7 +12,8 @@ module Merit
         @output_efficiency = opts[:output_efficiency] || 1.0
 
         @reserve = Reserve.new(
-          opts.fetch(:volume_per_unit) * number_of_units * availability
+          opts.fetch(:volume_per_unit) * number_of_units * availability,
+          &opts[:decay]
         )
       end
 
