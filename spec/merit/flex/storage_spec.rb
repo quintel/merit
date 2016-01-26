@@ -291,6 +291,24 @@ module Merit
           end
         end
 
+        context '2 units' do
+          let(:attrs) { super().merge(number_of_units: 2) }
+
+          context 'and no decay proc' do
+            it 'does not decay the stored energy' do
+              expect(storage.max_load_at(1)).to eq(2.0)
+            end
+          end
+
+          context 'and a decay proc returning 0.75' do
+            let(:attrs) { super().merge(decay: ->(*) { 0.5 }) }
+
+            it 'leaves 0.5 energy remaining in the next point' do
+              expect(storage.max_load_at(1)).to eq(1.0)
+            end
+          end
+        end
+
         context 'and a decay proc returning 3.0' do
           let(:attrs) { super().merge(decay: ->(*) { 3.0 }) }
 
