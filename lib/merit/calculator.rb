@@ -115,7 +115,17 @@ module Merit
             flex.each { |tech| produced -= tech.assign_excess(point, produced) }
           end
 
-          return if produced > 0
+          if produced >= 0
+            # There is still an excess; the price-setting producer will
+            # therefore be the first transient which can provide a price.
+            price_setting = producers.transients(point).detect do |trans|
+              trans.cost_strategy.price_setting?(point)
+            end
+
+            assign_price_setting(order, price_setting, point)
+
+            break
+          end
         end
       end
 
@@ -128,27 +138,15 @@ module Merit
 
         if max_load < remaining
           assign_load(producer, point, max_load)
-        elsif remaining > 0.0
-          assign_load(producer, point, remaining)
+        else
+          assign_load(producer, point, remaining) if remaining > 0
 
           # Cost-function producers with at least one unit of capacity available
           # will be the price-setting producer.
           if producer.cost_strategy.price_setting?(point)
-            unless producer.is_a?(Merit::Flex::Base)
-              assign_price_setting(order, producer, point)
-            end
-
+            assign_price_setting(order, producer, point)
             break
           end
-        else
-          unless producer.is_a?(Merit::Flex::Base)
-            assign_price_setting(order, producer, point)
-          end
-
-          # Optimisation: If all of the demand has been accounted for, there
-          # is no need to waste time with further iterations and expensive
-          # calls to Producer#max_load_at.
-          break
         end
 
         # Subtract the production of the producer from the demand

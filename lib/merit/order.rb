@@ -76,10 +76,17 @@ module Merit
     # for the rationale of this factor 7.22
     def price_at(time)
       if producer = price_setting_producers[time]
+        return producer.price_at(time)
+      end
+
+      # TODO This doesn't account for participant sets which are Resortable.
+      @installed ||= participants.dispatchables.select do |dispatchable|
+        dispatchable.number_of_units > 0
+      end
+
+      if producer = @installed.detect { |p| p.cost_strategy.price_setting?(time) }
         producer.price_at(time)
-      elsif producer = participants.dispatchables.detect { |p| p.number_of_units > 0 && (! p.is_a?(Flex::Base)) && p.cost_strategy.price_setting?(time) }
-        producer.price_at(time)
-      elsif producer = participants.dispatchables.select { |p| p.number_of_units > 0 }.last
+      elsif producer = @installed.last
         producer.price_at(time, true) * 7.22
       else
         600

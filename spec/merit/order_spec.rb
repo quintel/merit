@@ -120,10 +120,18 @@ module Merit
           end
         end
         context 'when there are dispatchables' do
-          pending 'is a multiple of least expensive unloaded installed plant' do
+          it 'is a multiple of least expensive unloaded installed plant' do
             order.add(p1)
-            order.add(p2) # has lower marginal costs.
-            expect(order.price_at(188)).to eql(p2.marginal_costs)
+            order.add(p4) # has lower marginal costs, but has a load
+            expect(order.price_at(188)).to eql(p4.marginal_costs)
+          end
+
+          it 'is a multiple of least expensive unloaded installed plant' do
+            order.add(p1)
+            order.add(p4) # has lower marginal costs, and is unloaded
+
+            p4.load_curve.set(188, 0.0)
+            expect(order.price_at(188)).to eql(p4.marginal_costs)
           end
 
           it 'is a multiple of most expensive installed plant (fully loaded)' do

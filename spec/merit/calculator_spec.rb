@@ -188,9 +188,9 @@ module Merit
         expect(load_value).to be_within(0.001).of(0.0)
       end
 
-      it 'assigns the price setting producer with nothing' do
+      it 'assigns the price setting producer to be dispatchable' do
         expect(order.price_setting_producers).to eql \
-          Array.new(POINTS, nil)
+          Array.new(POINTS, dispatchable)
       end
     end
 
