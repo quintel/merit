@@ -164,6 +164,7 @@ module Merit
       @must_runs     = must_runs.freeze
       @dispatchables = dispatchables.freeze
       @producers     = producers.freeze
+      @flex          = flex.freeze
       @users         = users.freeze
 
       @always_on, @transients = split_producers.map(&:freeze)
