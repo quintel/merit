@@ -77,6 +77,8 @@ module Merit
     def price_at(time)
       if producer = price_setting_producers[time]
         producer.price_at(time)
+      elsif producer = participants.dispatchables.detect { |p| p.number_of_units > 0 && (! p.is_a?(Flex::Base)) && p.cost_strategy.price_setting?(time) }
+        producer.price_at(time)
       elsif producer = participants.dispatchables.select { |p| p.number_of_units > 0 }.last
         producer.price_at(time, true) * 7.22
       else

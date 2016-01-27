@@ -12,6 +12,16 @@ module Merit
 
     let(:bh) { Flex::BlackHole.new(attrs) }
 
+    describe 'cost strategy' do
+      it 'is Null' do
+        expect(bh.cost_strategy).to be_a(CostStrategy::Null)
+      end
+
+      it 'is not price-setting' do
+        expect(bh.cost_strategy.price_setting?(0)).to_not be
+      end
+    end # cost strategy
+
     describe 'max_load_at' do
       it 'returns zero' do
         expect(bh.max_load_at(0)).to be_zero

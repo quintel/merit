@@ -15,6 +15,8 @@ module Merit
       elsif options[:cost_spread]
         args = options.values_at(:marginal_costs, :cost_spread)
         LinearCostFunction.new(producer, *args)
+      elsif options[:marginal_costs] == :null
+        Null.new(producer)
       elsif options[:marginal_costs]
         Constant.new(producer, options[:marginal_costs])
       else
@@ -124,6 +126,18 @@ module Merit
         @cost
       end
     end # Constant
+
+    # A cost strategy which has no cost and whose producer will never be
+    # price-setting. For example, storage.
+    class Null < Constant
+      def initialize(producer)
+        super(producer, 0.0)
+      end
+
+      def price_setting?(*)
+        false
+      end
+    end # Null
 
     # Calculates the marginal cost of the producer by reading the value from a
     # curve. The cost may change depending on the hour.

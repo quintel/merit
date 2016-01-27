@@ -115,12 +115,7 @@ module Merit
             flex.each { |tech| produced -= tech.assign_excess(point, produced) }
           end
 
-          if produced > 0
-            # The first dispatchable producer is price-setting.
-            return assign_price_setting(
-              order, producers.transients(point).first, point
-            )
-          end
+          return if produced > 0
         end
       end
 
@@ -139,11 +134,16 @@ module Merit
           # Cost-function producers with at least one unit of capacity available
           # will be the price-setting producer.
           if producer.cost_strategy.price_setting?(point)
-            assign_price_setting(order, producer, point)
+            unless producer.is_a?(Merit::Flex::Base)
+              assign_price_setting(order, producer, point)
+            end
+
             break
           end
         else
-          assign_price_setting(order, producer, point)
+          unless producer.is_a?(Merit::Flex::Base)
+            assign_price_setting(order, producer, point)
+          end
 
           # Optimisation: If all of the demand has been accounted for, there
           # is no need to waste time with further iterations and expensive

@@ -190,7 +190,7 @@ module Merit
 
       it 'assigns the price setting producer with nothing' do
         expect(order.price_setting_producers).to eql \
-          Array.new(POINTS, dispatchable)
+          Array.new(POINTS, nil)
       end
     end
 

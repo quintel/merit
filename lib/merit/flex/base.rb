@@ -6,7 +6,7 @@ module Merit
       DEFAULTS = { availability: 1.0 }.freeze
 
       def initialize(opts)
-        super(DEFAULTS.merge(opts).merge(marginal_costs: 0.0))
+        super(DEFAULTS.merge(opts).merge(marginal_costs: :null))
         @capacity = available_output_capacity
       end
 
