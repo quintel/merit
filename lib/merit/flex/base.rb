@@ -35,6 +35,21 @@ module Merit
       def set_load(point, value)
         load_curve.set(point, value) unless value.zero?
       end
+
+      # Public: Determines the amount of energy the battery stored during the
+      # Merit order calculation. It is assumed that the same amount of energy
+      # will be emitted for use.
+      #
+      # Returns a float.
+      def production(unit = :mj)
+        mwh = (load_curve.select { |v| v < 0 }.reduce(:+) || 0.0).abs
+
+        case unit
+          when :mj  then mwh * 3600
+          when :mwh then mwh
+          else           fail "Unknown unit: #{unit}"
+        end
+      end
     end # Base
   end # Flex
 end

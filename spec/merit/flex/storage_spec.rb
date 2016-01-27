@@ -81,6 +81,12 @@ module Merit
             store_load
             expect(storage.load_curve.get(0)).to eq(-2.0)
           end
+
+          it 'has production of 7200 MJ' do
+            expect { store_load }
+              .to change { storage.production }
+              .from(0.0).to(2.0 * 3600)
+          end
         end # with nothing stored
 
         context 'with 8.0 already stored' do
@@ -101,6 +107,12 @@ module Merit
             store_load
             expect(storage.load_curve.get(1)).to eq(-2.0)
           end
+
+          it 'has production of 7200 MJ' do
+            expect { store_load }
+              .to change { storage.production }
+              .from(0.0).to(2.0 * 3600)
+          end
         end # with 8.0 already stored
 
         context 'with 9.0 already stored' do
@@ -120,6 +132,12 @@ module Merit
           it 'sets a load of -1.0' do
             store_load
             expect(storage.load_curve.get(1)).to eq(-1.0)
+          end
+
+          it 'has production of 3600 MJ' do
+            expect { store_load }
+              .to change { storage.production }
+              .from(0.0).to(3600)
           end
         end # with 9.0 already stored
 
@@ -248,6 +266,10 @@ module Merit
         it 'sets a load of 0.5' do
           set_load
           expect(storage.load_curve.get(1)).to eq(0.5)
+        end
+
+        it 'incurs no production' do
+          expect { set_load }.to_not change { storage.production }
         end
 
         context 'with an output efficiency of 0.4' do
