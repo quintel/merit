@@ -23,9 +23,9 @@ module Merit
       end # when empty
 
       context 'with 1.0 stored' do
-        before { storage.assign_excess(0, 1.0) }
+        before { storage.reserve.set(0, 1.0) }
 
-        context 'and capacity: 10.0' do
+        context 'and output capacity: 10.0' do
           it 'returns 1.0' do
             expect(storage.max_load_at(1)).to eq(1.0)
           end
@@ -37,9 +37,9 @@ module Merit
               expect(storage.max_load_at(1)).to eq(0.75)
             end
           end
-        end # and capacity: 10.0
+        end # and output capacity: 10.0
 
-        context 'and capacity: 0.5' do
+        context 'and output capacity: 0.5' do
           let(:attrs) { super().merge(output_capacity_per_unit: 0.5) }
 
           # We have to store 1.0x2 in order to store 1.0 (0.5 capacity is the
@@ -57,7 +57,16 @@ module Merit
               expect(storage.max_load_at(2)).to eq(0.5)
             end
           end
-        end # and capacity: 0.5
+        end # and output capacity: 0.5
+
+        context 'and input capacity: 0.25' do
+          # Output is unaffected by input capacity
+          let(:attrs) { super().merge(input_capacity_per_unit: 0.25) }
+
+          it 'returns 1.0' do
+            expect(storage.max_load_at(1)).to eq(1.0)
+          end
+        end # and output capacity: 10.0
       end # with 1.0 stored
     end # max_load_at
 
@@ -199,8 +208,8 @@ module Merit
           end
         end # with an input efficiency of 0.75
 
-        context 'with a capacity of 0.5' do
-          let(:attrs) { super().merge(output_capacity_per_unit: 0.5) }
+        context 'with an input capacity of 0.5' do
+          let(:attrs) { super().merge(input_capacity_per_unit: 0.5) }
           let(:store_load) { storage.assign_excess(1, 2.0) }
 
           it 'stores 0.5' do
@@ -216,12 +225,31 @@ module Merit
             store_load
             expect(storage.load_curve.get(1)).to eq(-0.5)
           end
-        end # with a capacity of 0.5
+        end # with an input capacity of 0.5
 
-        context 'with a capacity of 0.5 and input efficiency of 0.75' do
+        context 'with an output capacity of 0.25 and no input capacity' do
+          let(:attrs) { super().merge(output_capacity_per_unit: 0.25) }
+          let(:store_load) { storage.assign_excess(1, 2.0) }
+
+          it 'stores 0.25' do
+            expect { store_load }
+              .to change { storage.reserve.at(1) }.from(0.0).to(0.25)
+          end
+
+          it 'returns 0.25' do
+            expect(store_load).to eq(0.25)
+          end
+
+          it 'sets a load of -0.25' do
+            store_load
+            expect(storage.load_curve.get(1)).to eq(-0.25)
+          end
+        end # with an output capacity of 0.25 and no input capacity
+
+        context 'with an input capacity of 0.5 and input efficiency of 0.75' do
           let(:attrs) do
             super().merge(
-              output_capacity_per_unit: 0.5,
+              input_capacity_per_unit: 0.5,
               input_efficiency: 0.75
             )
           end
@@ -241,7 +269,7 @@ module Merit
             store_load
             expect(storage.load_curve.get(1)).to eq(-0.5)
           end
-        end # with a capacity of 0.5 and input efficiency of 0.75
+        end # with an input capacity of 0.5 and input efficiency of 0.75
       end # storing 2.0
     end # store
 

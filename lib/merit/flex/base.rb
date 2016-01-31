@@ -5,9 +5,31 @@ module Merit
       # needed.
       DEFAULTS = { availability: 1.0 }.freeze
 
+      # Public: Returns the input capacity of each unit of this technology.
+      #
+      # Input capacity determines the maxiumum amount of energy which may be
+      # consumed in each point. If no capacity is set, the output capacity is
+      # used.
+      #
+      # Returns a float.
+      attr_reader :input_capacity_per_unit
+
       def initialize(opts)
         super(DEFAULTS.merge(opts).merge(marginal_costs: :null))
-        @capacity = available_output_capacity
+
+        @input_capacity_per_unit =
+          opts[:input_capacity_per_unit] || opts[:output_capacity_per_unit]
+
+        @output_capacity = available_output_capacity
+        @input_capacity  = available_input_capacity
+      end
+
+      # Public: The total input capacity of all units of this technology.
+      #
+      # Returns a float.
+      def available_input_capacity
+        @available_input_capacity ||=
+          input_capacity_per_unit * availability * number_of_units
       end
 
       # Public: Stores a given amount of energy in the technology. Not all given
@@ -15,7 +37,7 @@ module Merit
       #
       # Returns the amount of energy which was accepted by the storage device.
       def assign_excess(point, amount)
-        amount = amount > @capacity ? @capacity : amount
+        amount = amount > @input_capacity ? @input_capacity : amount
         load_curve.set(point, load_curve.get(point) - amount)
 
         amount

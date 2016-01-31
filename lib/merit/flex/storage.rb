@@ -22,8 +22,10 @@ module Merit
       end
 
       def assign_excess(point, amount)
-        amount = (amount > @capacity ? @capacity : amount) * @input_efficiency
-        stored = @reserve.add(point, amount) / @input_efficiency
+        amount  = amount > @input_capacity ? @input_capacity : amount
+        amount *= @input_efficiency
+
+        stored  = @reserve.add(point, amount) / @input_efficiency
 
         load_curve.set(point, load_curve.get(point) - stored)
 
@@ -32,7 +34,7 @@ module Merit
 
       def max_load_at(point)
         in_reserve = @reserve.at(point) * @output_efficiency
-        in_reserve > @capacity ? @capacity : in_reserve
+        in_reserve > @output_capacity ? @output_capacity : in_reserve
       end
 
       # Public: Assigns the load to the storage technology and retains the
