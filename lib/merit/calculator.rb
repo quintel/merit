@@ -104,18 +104,17 @@ module Merit
       producers.always_on(point).each do |producer|
         produced = producer.max_load_at(point)
 
-        if produced < remaining
-          remaining -= produced
-        else
+        if produced > remaining
+          # The producer has enough to meet demand, and then have some left
+          # over for flex consumption.
           produced -= remaining
           remaining = 0.0
 
-          # Assign flexible technologies.
           if produced > 0
             flex.each { |tech| produced -= tech.assign_excess(point, produced) }
           end
 
-          if produced >= 0
+          if produced > 0
             # There is still an excess; the price-setting producer will
             # therefore be the first transient which can provide a price.
             price_setting = producers.transients(point).detect do |trans|
@@ -126,7 +125,13 @@ module Merit
 
             break
           end
+        elsif produced < remaining
+          # The producer is emitting less energy that demanded. Take it all and
+          # continue with the next producer.
+          remaining -= produced
         end
+
+        remaining = 0.0 if remaining < 0.0
       end
 
       producers.transients(point).each do |producer|

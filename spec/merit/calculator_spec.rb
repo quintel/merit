@@ -348,6 +348,21 @@ module Merit
         it 'does not charge when the reserve is full' do
           expect(p2p.load_curve.get(6)).to be_zero
         end
+
+        context 'on two producers' do
+          let(:vol_2_attrs) do
+            super().merge(
+              load_profile:             LoadProfile.new([3.1709791984e-08]),
+              output_capacity_per_unit: 0.1,
+            )
+          end
+
+          it "charges with both producers' output" do
+            # 0.01141552511424 is the excess
+            expect(p2p.load_curve.to_a.first)
+              .to eq(-0.01141552511424 * 2)
+          end
+        end
       end # with an excess of production
 
       context 'when there is no excess' do
