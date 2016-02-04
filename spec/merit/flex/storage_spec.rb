@@ -150,6 +150,22 @@ module Merit
           end
         end # with 9.0 already stored
 
+        context 'with a capacity of 3.0, 2.0 already stored' do
+          before { storage.assign_excess(1, 2.0) }
+
+          let(:attrs) { super().merge(output_capacity_per_unit: 3.0) }
+          let(:store_load) { storage.assign_excess(1, 2.0) }
+
+          it 'returns 1.0' do
+            expect(store_load).to eq(1.0)
+          end
+
+          it 'sets a load of -3.0' do
+            store_load
+            expect(storage.load_curve.get(1)).to eq(-3.0)
+          end
+        end # with a capacity of 3.0, 2.0 already stored
+
         context 'with an availability of 0.1' do
           let(:attrs) { super().merge(availability: 0.1) }
           let(:store_load) { storage.assign_excess(1, 2.0) }

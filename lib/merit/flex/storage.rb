@@ -22,7 +22,9 @@ module Merit
       end
 
       def assign_excess(point, amount)
-        amount  = amount > @input_capacity ? @input_capacity : amount
+        input_cap = @input_capacity + load_curve.get(point)
+
+        amount  = amount > input_cap ? input_cap : amount
         amount *= @input_efficiency
 
         stored  = @reserve.add(point, amount) / @input_efficiency

@@ -37,7 +37,9 @@ module Merit
       #
       # Returns the amount of energy which was accepted by the storage device.
       def assign_excess(point, amount)
-        amount = amount > @input_capacity ? @input_capacity : amount
+        input_cap = @input_capacity + load_curve.get(point)
+
+        amount = amount > input_cap ? input_cap : amount
         load_curve.set(point, load_curve.get(point) - amount)
 
         amount

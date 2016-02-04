@@ -55,6 +55,22 @@ module Merit
         end
       end # with a capacity of 1.0
 
+      context 'with a capacity of 3.0, 2.0 already stored' do
+        before { bh.assign_excess(1, 2.0) }
+
+        let(:attrs) { super().merge(output_capacity_per_unit: 3.0) }
+        let(:assign_load) { bh.assign_excess(1, 2.0) }
+
+        it 'returns 1.0' do
+          expect(assign_load).to eq(1.0)
+        end
+
+        it 'sets a load of -3.0' do
+          assign_load
+          expect(bh.load_curve.get(1)).to eq(-3.0)
+        end
+      end # with a capacity of 10.0
+
       context 'with an input efficiency of 0.75' do
         let(:attrs) { super().merge(input_efficiency: 0.75) }
 
@@ -66,6 +82,22 @@ module Merit
           assign_load
           expect(bh.load_curve.get(1)).to eq(-2.0)
         end
+
+        context 'with a capacity of 3.0, 2.0 already stored', :focus do
+          before { bh.assign_excess(1, 2.0) }
+
+          let(:attrs) { super().merge(output_capacity_per_unit: 3.0) }
+          let(:assign_load) { bh.assign_excess(1, 2.0) }
+
+          it 'returns 1.0' do
+            expect(assign_load).to eq(1.0)
+          end
+
+          it 'sets a load of -3.0' do
+            assign_load
+            expect(bh.load_curve.get(1)).to eq(-3.0)
+          end
+        end # with a capacity of 10.0
       end # with an input efficiency of 0.75
     end # storing 2.0
   end # Flex::BlackHole
