@@ -83,7 +83,7 @@ module Merit
           expect(bh.load_curve.get(1)).to eq(-2.0)
         end
 
-        context 'with a capacity of 3.0, 2.0 already stored', :focus do
+        context 'with a capacity of 3.0, 2.0 already stored' do
           before { bh.assign_excess(1, 2.0) }
 
           let(:attrs) { super().merge(output_capacity_per_unit: 3.0) }
