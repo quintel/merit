@@ -84,10 +84,19 @@ module Merit
         dispatchable.number_of_units > 0
       end
 
-      if producer = @installed.detect { |p| p.cost_strategy.price_setting?(time) }
-        producer.price_at(time)
-      elsif producer = @installed.last
-        producer.price_at(time, true) * 7.22
+      multi    = 1.0
+      loaded   = false
+      producer = @installed.detect { |p| p.cost_strategy.price_setting?(time) }
+
+      if ! producer
+        producer = @installed.last
+        multi    = 7.22
+        loaded   = true
+      end
+
+      # TODO Remove hard-coded import key
+      if producer && producer.key != :energy_interconnector_imported_electricity
+        producer.price_at(time, loaded) * multi
       else
         600
       end
