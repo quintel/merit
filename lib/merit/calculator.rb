@@ -111,7 +111,15 @@ module Merit
           remaining = 0.0
 
           if produced > 0
-            flex.each { |tech| produced -= tech.assign_excess(point, produced) }
+            flex.each do |tech|
+              produced -= tech.assign_excess(point, produced)
+
+              # If there is no energy remaining to be assigned we can exit early
+              # and, as an added bonus, prevent assigning tiny negatives
+              # resulting from floating point errors, which messes up
+              # technologies which have a Reserve with volume 0.0.
+              break if produced <= 1e-11
+            end
           end
 
           if produced > 0

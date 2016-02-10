@@ -36,6 +36,8 @@ module Merit
       # Return the amount of energy which was added; note that this may be less
       # than was set in the `amount` parameter.
       def add(point, amount)
+        return 0.0 if amount <= 0
+
         stored = at(point)
         amount = @volume - stored if (stored + amount) > @volume
 
@@ -56,10 +58,12 @@ module Merit
       # Returns the amount of energy subtracted from the reserve. This may be
       # less than you asked for if insufficient was stored.
       def take(point, amount)
+        return 0.0 if amount <= 0
+
         stored = at(point)
 
         if stored > amount
-          add(point, -amount)
+          set(point, at(point) - amount)
           amount
         else
           set(point, 0.0)

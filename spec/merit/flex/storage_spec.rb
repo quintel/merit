@@ -150,6 +150,21 @@ module Merit
           end
         end # with 9.0 already stored
 
+        context 'with a volume_per_unit of 0.0' do
+          let(:attrs) { super().merge(volume_per_unit: 0.0) }
+
+          let(:store_load) { storage.assign_excess(1, 2.0) }
+
+          it 'returns 0.0' do
+            expect(store_load).to be_zero
+          end
+
+          it 'sets no load' do
+            store_load
+            expect(storage.load_curve.get(1)).to be_zero
+          end
+        end
+
         context 'with a capacity of 3.0, 2.0 already stored' do
           before { storage.assign_excess(1, 2.0) }
 
@@ -287,6 +302,20 @@ module Merit
           end
         end # with an input capacity of 0.5 and input efficiency of 0.75
       end # storing 2.0
+
+      context 'storing -2.0' do
+        let(:store_load) { storage.assign_excess(1, -2.0) }
+
+        it 'returns 0.0' do
+          expect(store_load).to be_zero
+        end
+
+        it 'sets no load' do
+          store_load
+          expect(storage.load_curve.get(1)).to be_zero
+        end
+      end
+
     end # store
 
     # --
