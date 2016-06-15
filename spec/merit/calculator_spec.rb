@@ -99,6 +99,17 @@ module Merit
       end
     end
 
+    context 'with an excess of always-on supply', :focus do
+      let(:vol_1_attrs) { super().merge(number_of_units: 200) }
+      let(:vol_2_attrs) { vol_1_attrs.merge(key: :volatile_two) }
+
+      before { order.calculate(Calculator.new) }
+
+      it 'assigns the price setting producer to be next dispatchable' do
+        expect(order.price_setting_producers[0]).to eql(dispatchable)
+      end
+    end
+
     context 'with an excess of supply' do
       let(:disp_1_attrs) { super().merge(number_of_units: 2) }
       before { order.calculate(Calculator.new) }
