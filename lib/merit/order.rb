@@ -87,6 +87,10 @@ module Merit
       LOLE.new(self)
     end
 
+    def excess
+      Excess.new(self)
+    end
+
     # Public: adds a participant to this order
     #
     # returns - participant
