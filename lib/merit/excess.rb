@@ -1,7 +1,19 @@
 module Merit
   class Excess
-    def initialize(order)
-      @order = order
+    def initialize(order, excludes = [])
+      @order    = order
+      @excludes = excludes
+    end
+
+    # Public: event_groups
+    #
+    # Determines a chain of events by calling +number_of_events+ with
+    # a range of durations.
+    #
+    def event_groups(durations = [])
+      durations.map do |duration|
+        [ duration, number_of_events(duration) ]
+      end
     end
 
     # Public: number_of_events
@@ -18,7 +30,7 @@ module Merit
     private
 
     def events
-      @events ||= net_load.values.chunk { |point| point > 0 }.select(&:first)
+      @events ||= net_load.values.chunk { |point| point > 1e-10 }.select(&:first)
     end
 
     def net_load
@@ -26,7 +38,13 @@ module Merit
     end
 
     def production
-      @order.participants.producers.map(&:load_curve).reduce(:+)
+      @order.participants.producers
+        .reject(&method(:excluded_from_participating))
+        .map(&:load_curve).reduce(:+)
+    end
+
+    def excluded_from_participating(producer)
+      @excludes.include?(producer.key)
     end
 
     def consumption

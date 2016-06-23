@@ -6,11 +6,20 @@ module Merit
     let(:excess) { Excess.new(merit_order) }
 
     before do
-      expect(excess).to receive(:production)
-        .and_return(production)
+      merit_order.add(Merit::MustRunProducer.new(
+        key:                      :producer,
+        load_profile:             production,
+        marginal_costs:           0,
+        output_capacity_per_unit: 1,
+        number_of_units:          1,
+        full_load_hours:          (1.0 / 3600.0)
+      ))
 
-      expect(excess).to receive(:consumption)
-        .and_return(consumption)
+      merit_order.add(Merit::User.create(
+        key:               :total_consumption,
+        load_profile:      consumption,
+        total_consumption: 1
+      ))
     end
 
     context "empty curves" do
@@ -70,6 +79,17 @@ module Merit
 
       it 'determines the excess of a chart' do
         expect(excess.number_of_events(5)).to eq(1)
+      end
+    end
+
+    context "time group events" do
+      let(:production) {  Curve.new(Array.new(14, 1)) }
+      let(:consumption) { Curve.new(Array.new(14, 0)) }
+
+      it 'determines the correct set of groups' do
+        expect(excess.event_groups([1,2,4,8])).to eq([
+          [1,1], [2,1], [4,1], [8,1]
+        ])
       end
     end
   end
