@@ -34,6 +34,7 @@ require_relative 'merit/flex/reserve'
 require_relative 'merit/flex/storage'
 
 require_relative 'merit/lole'
+require_relative 'merit/excess'
 
 # Helpers
 require_relative 'merit/bar_chart'

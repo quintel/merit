@@ -87,7 +87,7 @@ module Merit
         expect(producer.production(:mwh)).to eql(60.0)
       end
       it 'should raise an error if unit is unknown' do
-        expect(->{ producer.production(:foo) }).to raise_error
+        expect(->{ producer.production(:foo) }).to raise_error(RuntimeError)
       end
     end
 
