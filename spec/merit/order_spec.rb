@@ -6,6 +6,20 @@ module Merit
 
     let(:order){ Order.new }
 
+    let(:u1) do
+      User.create(
+        key:                       :consumption_foo,
+        marginal_costs:            13.999791,
+        output_capacity_per_unit:  0.1,
+        number_of_units:           1,
+        availability:              0.89,
+        fixed_costs_per_unit:      222.9245208,
+        fixed_om_costs_per_unit:   35.775,
+        total_consumption:         1,
+        load_profile:              Curve.new([0] * 8760, 8760)
+      )
+    end
+
     let(:p1) do
       DispatchableProducer.new(
         key:                       :foo,
@@ -210,7 +224,7 @@ module Merit
 
       it 'returns one member per producer' do
         order.add(p1)
-        order.add(p2)
+        order.add(u1)
 
         expect(order.load_curves.first.length).to eq(2)
       end
