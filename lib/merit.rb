@@ -34,7 +34,9 @@ require_relative 'merit/flex/reserve'
 require_relative 'merit/flex/storage'
 
 require_relative 'merit/lole'
+require_relative 'merit/net_load_helper'
 require_relative 'merit/excess'
+require_relative 'merit/blackout'
 
 # Helpers
 require_relative 'merit/bar_chart'

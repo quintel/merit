@@ -87,8 +87,20 @@ module Merit
       LOLE.new(self)
     end
 
+    # Public: Returns a helper for calculating the excess of electricity
+    # for this Merit::Order
+    #
+    # Returns a Merit::Excess
     def excess(excludes = [])
       Excess.new(self, excludes)
+    end
+
+    # Public: Returns a helper for calculating the number of blackout hours
+    # for this Merit::Order
+    #
+    # Returns a Merit::Blackout
+    def blackout
+      Blackout.new(self)
     end
 
     # Public: adds a participant to this order
