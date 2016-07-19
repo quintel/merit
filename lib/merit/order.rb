@@ -130,16 +130,7 @@ module Merit
     # Public: Returns an Array containing a 'table' with all the producers
     # vertically, and horizontally the power per point in time.
     def load_curves
-      columns = []
-      participants.producers.each do |producer|
-        columns << [producer.key,
-                    producer.class,
-                    producer.output_capacity_per_unit,
-                    producer.number_of_units,
-                    producer.load_curve.to_a
-        ].flatten
-      end
-      columns.transpose
+      LoadCurvePresenter.present(self).transpose
     end
 
     class << self
