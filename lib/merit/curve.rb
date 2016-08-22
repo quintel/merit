@@ -109,8 +109,12 @@ module Merit
 
       file.rewind
 
-      separator ||= $INPUT_RECORD_SEPARATOR
-      new(file.each_line(separator).map(&:to_f), length)
+      if separator.nil? || separator == $INPUT_RECORD_SEPARATOR
+        # Passing no separator argument to `each_line` is 40% faster.
+        new(file.each_line.map(&:to_f), length)
+      else
+        new(file.each_line(separator).map(&:to_f), length)
+      end
     ensure
       file.close if file && !file.closed?
     end
