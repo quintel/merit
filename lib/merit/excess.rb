@@ -32,7 +32,7 @@ module Merit
     private
 
     def over_producing
-      -> (point) { point > 1e-10 }
+      -> (point) { point > 1e-5 }
     end
 
     def events
