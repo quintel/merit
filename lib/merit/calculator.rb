@@ -14,6 +14,11 @@ module Merit
   #                  demand which cannot be provided by an always-on producer.
   #
   class Calculator
+    # Floating-point arithmetic errors are common during merit calculations and
+    # it is practically impossible to check that a value is zero. Values less
+    # than this will be regarded as zero.
+    APPROX_ZERO = 1e-11
+
     # Public: Performs the calculation. This sets the load curve values for
     # each transient producer.
     #
@@ -114,11 +119,13 @@ module Merit
               # and, as an added bonus, prevent assigning tiny negatives
               # resulting from floating point errors, which messes up
               # technologies which have a Reserve with volume 0.0.
-              break if produced <= 1e-11
+              break if produced <= APPROX_ZERO
             end
           end
 
-          break if produced > 0
+          # Not all excess could be assigned; no point in trying to assign
+          # energy from any more must runs.
+          break if produced > APPROX_ZERO
         elsif produced < remaining
           # The producer is emitting less energy that demanded. Take it all and
           # continue with the next producer.
