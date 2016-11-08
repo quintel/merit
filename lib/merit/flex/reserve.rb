@@ -15,7 +15,13 @@ module Merit
       #
       # Returns a numeric.
       def at(point)
-        @store[point] ||= point.zero? ? 0.0 : at(point - 1) - decay_at(point)
+        @store[point] ||=
+          if point.zero?
+            0.0
+          else
+            fill_blanks!(point)
+            at(point - 1) - decay_at(point)
+          end
       end
 
       alias_method :[], :at
@@ -94,17 +100,38 @@ module Merit
         "#{ self.class.name }(#{ @volume })"
       end
 
+      private
+
       # Internal: Returns how much energy decayed in the reserve at the
       # beginning of the given point.
       #
       # Returns a numeric.
-      private def decay_at(point)
+      def decay_at(point)
         return 0.0 if point.zero? || ! @decay
 
         start = at(point - 1)
         decay = @decay.call(point, start)
 
         decay < start ? decay : start
+      end
+
+      # Internal: Fills computes the value of any `nil` points in the reserve up
+      # to the given point.
+      #
+      # If there are large numbers of points in the reserve for which there is
+      # no value, compute them iteratively rather than to avoid consuming
+      # excessive stack space (quintel/etmodel#2296).
+      #
+      # Returns nothing
+      def fill_blanks!(point)
+        return if point.zero?
+
+        if @store.empty?
+          # 5-10 times faster than next branch.
+          @store = Array.new(point - 1, 0.0)
+        elsif point > @store.length
+          @store.length.upto(point - 1) { |past| at(past) }
+        end
       end
     end # Reserve
   end # Flex

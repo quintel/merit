@@ -20,6 +20,28 @@ module Merit
       end
     end
 
+    describe 'computing frame 8760 with no prior values' do
+      it 'does not raise an error' do
+        expect { reserve.at(8760) }.not_to raise_error
+      end
+
+      it 'returns 0.0' do
+        expect(reserve.at(8760)).to eq(0)
+      end
+    end
+
+    describe 'computing frame 8760 with one prior value of 2.0' do
+      before { reserve.set(0, 2.0) }
+
+      it 'does not raise an error' do
+        expect { reserve.at(8760) }.not_to raise_error
+      end
+
+      it 'returns 2.0' do
+        expect(reserve.at(8760)).to eq(2.0)
+      end
+    end
+
     context 'adding 5 in frame 0' do
       before { reserve.add(0, 5.0) }
 
