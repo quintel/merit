@@ -1,13 +1,12 @@
-# The Load Profile contains the shape for the load of a technology/participant,
-# or the total demand.
-#
-# Profiles are normalized such that multiplying them with the total produced
-# electricity (in MJ) yields the load at every point in time in units of MW.
-
 module Merit
+  # The Load Profile contains the shape for the load of a technology,
+  # participant or the total demand.
+  #
+  # Profiles are normalized such that multiplying them with the total produced
+  # electricity (in MJ) yields the load at every point in time in units of MW.
   class LoadProfile < Curve
-    # Public: creates a new LoadProfile, and stores the accompanying values
-    #         in an Array
+    # Public: Creates a new LoadProfile, and stores the accompanying values
+    # in an Array.
     def initialize(values)
       super(scale_values(values))
     end
@@ -17,7 +16,8 @@ module Merit
     #
     # Returns true or false
     def valid?
-      values.size == Merit::POINTS && surface > 1/3601.0 && surface < 1/3599.0
+      values.size == Merit::POINTS &&
+        surface > 1 / 3601.0 && surface < 1 / 3599.0
     end
 
     # Public: returns the surface below the LoadProfile.
@@ -29,9 +29,7 @@ module Merit
       BarChart.new(@values).drawing
     end
 
-    #######
     private
-    #######
 
     # Internal: Translates an array whose length is a fraction of
     # Merit::POINTS to one that is precisely POINTS length. If the given
@@ -43,8 +41,8 @@ module Merit
     def scale_values(values)
       return values if values.length == Merit::POINTS
 
-      unless Merit::POINTS % values.length == 0
-        raise IncorrectLoadProfileError.new(values.length)
+      unless (Merit::POINTS % values.length).zero?
+        raise IncorrectLoadProfileError, values.length
       end
 
       factor = Merit::POINTS / values.length
@@ -94,7 +92,7 @@ module Merit
         begin
           File.foreach(path) { |line| values.push(line.to_f) }
         rescue Errno::ENOENT
-          raise Merit::MissingLoadProfileError.new(path)
+          raise Merit::MissingLoadProfileError, path
         end
 
         values
@@ -106,7 +104,7 @@ module Merit
     # Results in faster performance at the expensive of higher memory use.
     class CachingReader < Reader
       def initialize
-        @profiles ||= Hash.new
+        @profiles ||= {}
       end
 
       def read(path)
@@ -116,6 +114,5 @@ module Merit
         @profiles[key].dup
       end
     end
-
   end
 end

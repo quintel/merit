@@ -1,8 +1,5 @@
-# This class
 module Merit
-
   class CollectionTable
-
     attr_reader :collection, :attrs
 
     # Creates a new infotable
@@ -12,7 +9,7 @@ module Merit
     end
 
     def table
-      terminal_table = Terminal::Table.new do |table|
+      Terminal::Table.new do |table|
         table.headings = attrs
 
         collection.each do |element|
@@ -33,5 +30,4 @@ module Merit
       puts table
     end
   end
-
 end

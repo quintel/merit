@@ -102,19 +102,6 @@ module Merit
 
       private
 
-      # Internal: Returns how much energy decayed in the reserve at the
-      # beginning of the given point.
-      #
-      # Returns a numeric.
-      def decay_at(point)
-        return 0.0 if point.zero? || ! @decay
-
-        start = at(point - 1)
-        decay = @decay.call(point, start)
-
-        decay < start ? decay : start
-      end
-
       # Internal: Fills computes the value of any `nil` points in the reserve up
       # to the given point.
       #

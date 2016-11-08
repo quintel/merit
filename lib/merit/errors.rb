@@ -17,34 +17,38 @@ module Merit
   # Returns an exception class.
   def self.error_class(superclass = MeritError, &block)
     Class.new(superclass) do
-      def initialize(*args) ; super(make_message(*args)) ; end
+      def initialize(*args)
+        super(make_message(*args))
+      end
+
       define_method(:make_message, &block)
     end
   end
 
   # Added a node to a graph, when one already exists with the same key.
   UnknownDemandError = error_class do
-    "Cannot create a User without either :total_consumption or :load_curve"
+    'Cannot create a User without either :total_consumption or :load_curve'
   end
 
   MissingLoadProfileError = error_class do |key|
-    "#{key} is not known. Please add."
+    "#{ key } is not known. Please add."
   end
 
   IncorrectLoadProfileError = error_class do |size, key = nil|
     key = 'Load profile' unless key
 
-    "#{key} is malformatted. It needs to contain 8760 / n points." +
-    "It now has #{size} points."
+    "#{ key } is malformatted. It needs to contain 8760 / n points." \
+    "It now has #{ size } points."
   end
 
   MissingAttributeError = error_class do |attribute, class_name|
-    "Missing attribute #{attribute} for this instance of class #{class_name}."
+    "Missing attribute #{ attribute } for this instance of " \
+    "class #{ class_name }."
   end
 
   LockedOrderError = error_class do |participant|
     "Cannot add #{ participant.key } participant since the order has " \
-    "already been calcualted."
+    'already been calculated.'
   end
 
   IncorrectProducerOrder = error_class do
@@ -54,18 +58,18 @@ module Merit
 
   InvalidChunkSize = error_class do |size|
     "You supplied an invalid chunk size of #{ size.inspect }; please " \
-    "supply an integer greater than one. If you want to use a chunk size " \
-    "of 1, use the Calculator class instead."
+    'supply an integer greater than one. If you want to use a chunk size ' \
+    'of 1, use the Calculator class instead.'
   end
 
   DuplicateParticipant = error_class do |name|
     "You added a participant called #{ name.inspect }; but that participant " \
-    "had already been added"
+    'had already been added.'
   end
 
   NoCostData = error_class do |producer|
     "Couldn't determine how to calculate the cost for #{ producer }. Did " \
-    "you forget to provide a :marginal_costs attribute?"
+    'you forget to provide a :marginal_costs attribute?'
   end
 
   SubZeroDemand = error_class do |point, demand|
@@ -78,7 +82,7 @@ module Merit
 
   InsufficentCapacityForPrice = error_class do |producer, point|
     "Cannot calculate a price for #{ producer.key } in point ##{ point } " \
-    "since there is insufficient spare capacity for it to be price-setting."
+    'since there is insufficient spare capacity for it to be price-setting.'
   end
 
   VariableMarginalCost = error_class do |obj|
@@ -87,7 +91,6 @@ module Merit
     "#{ obj.class.name } has a variable marginal cost. Call " \
     "#{ class_only }#marginal_cost_at(point) to find the cost for a " \
     "particular point in time, or #{ class_only }#variable_costs to find " \
-    "the total (annual) marginal cost applied to the load curve."
+    'the total (annual) marginal cost applied to the load curve.'
   end
-
 end # Merit

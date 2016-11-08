@@ -1,5 +1,7 @@
 module Merit
   module Flex
+    # Base class for all flexible producers which may store or use excess
+    # energy from always-on producers.
     class Base < DispatchableProducer
       # Default attributes for all storage technologies. May be customised as
       # needed.
@@ -49,7 +51,7 @@ module Merit
       # consumption in the chosen point.
       #
       # Returns a numeric.
-      def max_load_at(point)
+      def max_load_at(_point)
         0.0
       end
 
@@ -69,9 +71,9 @@ module Merit
         mwh = (load_curve.select { |v| v < 0 }.reduce(:+) || 0.0).abs
 
         case unit
-          when :mj  then mwh * 3600
-          when :mwh then mwh
-          else           fail "Unknown unit: #{unit}"
+        when :mj  then mwh * 3600
+        when :mwh then mwh
+        else           raise "Unknown unit: #{ unit }"
         end
       end
     end # Base

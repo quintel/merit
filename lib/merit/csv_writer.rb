@@ -1,7 +1,4 @@
-require 'csv'
-
 class CSVWriter
-
   attr_reader :values
 
   def initialize(values)
@@ -12,8 +9,7 @@ class CSVWriter
     file_path = File.join(Merit.root, 'output', file_name)
 
     CSV.open(file_path, 'w') do |csv|
-      values.each{ |value| csv << value }
+      values.each { |value| csv << value }
     end
   end
-
 end

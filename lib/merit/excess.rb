@@ -1,4 +1,5 @@
 module Merit
+  # Computes the number of hours in which there is excess production.
   class Excess
     include NetLoadHelper
 

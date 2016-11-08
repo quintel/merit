@@ -11,14 +11,15 @@ module Merit
     # params opts[Hash] set the attributes
     # returns Participant
     def initialize(opts)
-      @opts             = opts
+      @opts = opts
       require_attributes :key
-      @key              = opts[:key]
-      @load_profile     = opts[:load_profile]
+
+      @key = opts[:key]
+      @load_profile = opts[:load_profile]
     end
 
     def to_s
-      "#<#{self.class} #{key}>"
+      "#<#{ self.class } #{ key }>"
     end
 
     alias_method :inspect, :to_s
@@ -34,16 +35,14 @@ module Merit
     # Public: The inverse of #always_on?. Determines if this participant may
     # sometimes be turned off.
     def transient?
-      not always_on?
+      ! always_on?
     end
 
-    #######
     private
-    #######
 
     def require_attributes(*attrs)
       attrs.each do |attr|
-        raise MissingAttributeError.new(attr,self.class) unless @opts[attr]
+        raise MissingAttributeError.new(attr, self.class) unless @opts[attr]
       end
     end
   end # Participant

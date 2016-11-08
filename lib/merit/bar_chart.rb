@@ -1,22 +1,23 @@
 module Merit
-
   class BarChart
 
     attr_reader :values, :height, :width
 
     WIDTH  = 72
     HEIGHT = 16
-    EMPTY  = '-'
-    MARKER = 'o'
+    EMPTY  = '-'.freeze
+    MARKER = 'o'.freeze
 
     def initialize(values, height = HEIGHT, width = WIDTH)
-      @height, @width = height, width
+      @height = height
+      @width  = width
       @values = values
     end
 
     # Outputs a String with line breaks that represents a Chart
     def draw
-      $stdout.puts drawing; nil
+      $stdout.puts(drawing)
+      nil
     end
 
     def drawing
@@ -26,7 +27,7 @@ module Merit
     # Holds the X and Y values for the Plot...
     def matrix
       # initialize a matrix to hold x and y values, all empty to start with
-      matrix = Array.new(width+1).map { Array.new(height, EMPTY) }
+      matrix = Array.new(width + 1).map { Array.new(height, EMPTY) }
 
       # calculated max y value
       max_y_value = reduced_values.max
@@ -35,21 +36,17 @@ module Merit
       reduced_values.each_with_index do |value, index|
         x_value = index
 
-        if max_y_value.zero?
-          y_value = 0
-        else
-          y_value = (value / max_y_value * height-1)
-        end
+        y_value = max_y_value.zero? ? 0 : (value / max_y_value * height - 1)
 
-        0.upto(y_value) do |value|
-          matrix[x_value][value] = MARKER unless matrix[x_value].nil?
+        0.upto(y_value) do |val|
+          matrix[x_value][val] = MARKER unless matrix[x_value].nil?
         end
       end
 
       # append each row with a tick value
       height.times do |index|
-        tick_value = max_y_value / ( height - index )
-        matrix[width][index] = " #{sprintf("%8.2e", tick_value)}"
+        tick_value = max_y_value / (height - index)
+        matrix[width][index] = " #{ format('%8.2e', tick_value) }"
       end
 
       matrix
@@ -70,7 +67,5 @@ module Merit
 
       reduced_values
     end
-
   end
-
 end

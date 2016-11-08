@@ -41,7 +41,7 @@ module Merit
     alias_method :size, :length
 
     def to_s
-      "#<#{self.class}: #{length} values>"
+      "#<#{ self.class }: #{ length } values>"
     end
 
     alias_method :inspect, :to_s
@@ -68,10 +68,10 @@ module Merit
 
     # Public: returns the sample variance
     def variance
-      as_array = self.to_a
+      as_array = to_a
 
       mean = as_array.reduce(:+) / length.to_f
-      sum  = as_array.reduce(0) { |accum, i| accum + (i - mean) ** 2 }
+      sum  = as_array.reduce(0) { |accum, i| accum + (i - mean)**2 }
 
       sum / (length - 1).to_f
     end
@@ -91,25 +91,23 @@ module Merit
       new(File.foreach(path).map(&:to_f), length)
     end
 
-    #######
     private
-    #######
 
     def transpose_other_curve(other, method)
       if other.is_a?(Numeric)
         return @values.map { |value| value.public_send(method, other) }
       end
 
-      values = self.to_a
+      values = to_a
       other  = other.to_a
 
       v_length = values.length
       o_length = other.length
 
       if v_length > o_length
-        other = other + ([@default] * (v_length - o_length))
+        other += [@default] * (v_length - o_length)
       elsif o_length > v_length
-        values = values + ([@default] * (o_length - v_length))
+        values += [@default] * (o_length - v_length)
       end
 
       # Optimization: using each_with_index is 100ms faster for the complete
@@ -122,6 +120,5 @@ module Merit
 
       new_values
     end
-
   end # Curve
 end # Merit

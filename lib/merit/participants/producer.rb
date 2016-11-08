@@ -3,14 +3,13 @@ module Merit
   # The Producer within the Merit Order is reponsible for producing electricity
   # to meet demand
   class Producer < Participant
-
     include Profitable
 
     attr_accessor :load_curve, :load_profile, :position
 
-    attr_reader   :output_capacity_per_unit, :availability, :number_of_units,
-                  :fixed_costs_per_unit, :fixed_om_costs_per_unit,
-                  :full_load_hours, :cost_strategy
+    attr_reader :output_capacity_per_unit, :availability, :number_of_units,
+      :fixed_costs_per_unit, :fixed_om_costs_per_unit, :full_load_hours,
+      :cost_strategy
 
     # Public: creates a new producer
     # params opts[Hash] set the attributes
@@ -126,24 +125,25 @@ module Merit
 
     # Public: Returns the number of times that the Producer is completely off
     def off_times
-      load_curve.select{ |v| v == 0 }.size
+      load_curve.select(&:zero?).size
     end
 
     # Public: Returns a Curve with the absolute increase/decrease of power from
     # one hour to the next
     def ramping_curve
-      Curve.new(load_curve.each_cons(2).map{ |a,b| (b-a).abs })
+      Curve.new(load_curve.each_cons(2).map { |a, b| (b - a).abs })
     end
 
     # Public: the load curve of a participant, tells us how much energy
     # is produced at what time. It is a product of the load_profile and
     # the total_production.
     def max_load_curve
-      if @load_profile
-        values = @load_profile.values.map { |v| v * max_production }
-      else
-        values = Array.new(Merit::POINTS, available_output_capacity)
-      end
+      values =
+        if @load_profile
+          @load_profile.values.map { |v| v * max_production }
+        else
+          Array.new(Merit::POINTS, available_output_capacity)
+        end
 
       @max_load_curve ||= Curve.new(values)
     end
@@ -166,7 +166,7 @@ module Merit
       elsif unit == :mwh
         load_curve.reduce(:+)
       else
-        raise "Unknown unit: #{unit}"
+        raise "Unknown unit: #{ unit }"
       end
     end
 
@@ -174,15 +174,16 @@ module Merit
     #
     # Returns Float: energy in MJ (difference between MWh and MJ is 3600)
     def max_production
-      @max_production ||= if @full_load_hours
-        # NOTE: effective output capacity must be used here because availability
-        # has been taken into account when providing the full_load_hours
-        output_capacity_per_unit * full_load_hours * number_of_units * 3600
-      else
-        # Available output capacity time seconds in a year takes into account
-        # that producers have some time that they are unavailable
-        available_output_capacity * 8760 * 3600
-      end
+      @max_production ||=
+        if @full_load_hours
+          # Effective output capacity must be used here because availability has
+          # been taken into account when providing the full_load_hours.
+          output_capacity_per_unit * full_load_hours * number_of_units * 3600
+        else
+          # Available output capacity time seconds in a year takes into account
+          # that producers have some time that they are unavailable.
+          available_output_capacity * 8760 * 3600
+        end
     end
 
     def available_output_capacity
@@ -223,22 +224,22 @@ Class: #{self.class}
 
 #{load_curve.draw if load_curve}
                        LOAD CURVE (x = time, y = MW)
-                       Min: #{load_curve.min}, Max: #{load_curve.max}
-                       SD: #{load_curve.sd}
+                       Min: #{ load_curve.min }, Max: #{ load_curve.max }
+                       SD: #{ load_curve.sd }
 
 Summary:
 --------
-Full load hours:           #{full_load_hours} hours
+Full load hours:           #{ full_load_hours } hours
 
-Production:                #{production / 10**9} PJ
-Max Production:            #{max_production / 10**9} PJ
+Production:                #{ production / 10**9 } PJ
+Max Production:            #{ max_production / 10**9 } PJ
 
-Average load:              #{average_load} MW
-Available_output_capacity: #{available_output_capacity} MW
+Average load:              #{ average_load } MW
+Available_output_capacity: #{ available_output_capacity } MW
 
-Number of units:           #{number_of_units} number of (typical) plants
-output_capacity_per_unit:  #{output_capacity_per_unit} (MW)
-Availability:              #{availability} (fraction)
+Number of units:           #{ number_of_units } number of (typical) plants
+output_capacity_per_unit:  #{ output_capacity_per_unit } (MW)
+Availability:              #{ availability } (fraction)
 
 EOF
       true

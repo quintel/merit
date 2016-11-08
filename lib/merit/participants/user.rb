@@ -15,7 +15,7 @@ module Merit
         elsif options.key?(:load_curve)
           WithCurve.new(options)
         else
-          fail UnknownDemandError.new
+          raise UnknownDemandError
         end
       end
     end # class << self

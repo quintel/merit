@@ -20,7 +20,7 @@ module Merit
       elsif options[:marginal_costs]
         Constant.new(producer, options[:marginal_costs])
       else
-        fail(NoCostData.new(producer))
+        raise NoCostData, producer
       end
     end
 
@@ -49,7 +49,7 @@ module Merit
       #
       # Returns a Numeric.
       def marginal_cost
-        fail NotImplementedError
+        raise NotImplementedError
       end
 
       # Public: Returns the price of the producer. This is subtly different from
@@ -65,7 +65,7 @@ module Merit
       # Public: Returns the cost of the producer at a given point in time.
       #
       # Returns a numeric.
-      def cost_at(point)
+      def cost_at(_point)
         marginal_cost
       end
 
@@ -74,7 +74,7 @@ module Merit
       # on data from the merit order calculation.
       #
       # Returns a Numeric.
-      def sortable_cost(*args)
+      def sortable_cost(*)
         marginal_cost
       end
 
@@ -104,13 +104,11 @@ module Merit
         false
       end
 
-      #######
       private
-      #######
 
       def assert_price_setting!(point, allow_loaded)
         unless allow_loaded || price_setting?(point)
-          fail InsufficentCapacityForPrice.new(@producer, point)
+          raise InsufficentCapacityForPrice.new(@producer, point)
         end
       end
     end # Base

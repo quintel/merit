@@ -34,8 +34,9 @@ module Merit
     # exceeded.
     def expectation(demand_curve, capacity, excludes = [])
       if excludes.any?
-        demand_curve = demand_curve -
-          excludes.map { |key| @order.participants[key].load_curve }.reduce(:+)
+        demand_curve -= excludes.map do |key|
+          @order.participants[key].load_curve
+        end.reduce(:+)
       end
 
       demand_curve.count { |point| point > capacity }
@@ -48,8 +49,8 @@ module Merit
     # you don't provide a custom-calculated demand, the sum of demands from all
     # Users will be used.
     #
-    # Returns an array, each value a Numeric representing the converter demand in
-    # a one-hour period.
+    # Returns an array, each value a Numeric representing the converter demand
+    # in a one-hour period.
     def demand_curve(profile, demand = nil)
       Curve.new(profile.to_a) *
         (demand || @order.participants.users.map(&:total_consumption))

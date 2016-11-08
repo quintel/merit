@@ -1,4 +1,6 @@
 module Merit
+  # Computes the number of hours in which there is insufficient production to
+  # meet demand.
   class Blackout
     include NetLoadHelper
 

@@ -34,9 +34,7 @@ module Merit
       self
     end
 
-    #######
     private
-    #######
 
     # Internal: Yields each point for which loads should be calcualted.
     #
@@ -188,17 +186,13 @@ module Merit
     #
     # Returns a Calculator.
     def initialize(chunk_size = 8)
-      if chunk_size == 1
-        raise InvalidChunkSize.new(chunk_size)
-      end
+      raise(InvalidChunkSize, chunk_size) if chunk_size == 1
 
       super()
       @chunk_size = chunk_size
     end
 
-    #######
     private
-    #######
 
     # Internal: This is called with a +producer+, +point+, and +value+ each
     # time +calculate+ computes a value for a transient producer.
@@ -240,7 +234,7 @@ module Merit
 
         # Is this the end of the day (skip fowards), or are there still points
         # left to be calculated for the current day?
-        point += (point % each_day == (PER_DAY - 1)) ? day_incr : 1
+        point += point % each_day == (PER_DAY - 1) ? day_incr : 1
       end
     end
   end # QuantizingCalculator
@@ -265,16 +259,14 @@ module Merit
     # Returns an AveragingCalculator.
     def initialize(chunk_size = 8)
       if chunk_size == 1 || Merit::POINTS.remainder(chunk_size).nonzero?
-        raise InvalidChunkSize.new(chunk_size)
+        raise InvalidChunkSize, chunk_size
       end
 
       super()
       @chunk_size = chunk_size
     end
 
-    #######
     private
-    #######
 
     # Internal: Yields each point for which loads should be calcualted.
     #

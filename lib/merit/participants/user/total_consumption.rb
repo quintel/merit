@@ -14,9 +14,7 @@ module Merit
         end)
       end
 
-      #######
       private
-      #######
 
       # Internal: Creates a new TotalConsumption user. Please use User.create
       # instead of calling initialize directly.

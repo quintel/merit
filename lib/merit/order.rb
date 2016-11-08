@@ -16,25 +16,26 @@ module Merit
   #   => 102812122.90
   #
   class Order
+    PROFIT_ATTRS = %w(
+      key
+      class
+      profitability
+      full_load_hours
+      profit
+      revenue
+      total_costs
+      fixed_costs
+      variable_costs
+      operating_costs
+    ).freeze
 
-    PROFIT_ATTRS = [ 'key',
-                     'class',
-                     'profitability',
-                     'full_load_hours',
-                     'profit',
-                     'revenue',
-                     'total_costs',
-                     'fixed_costs',
-                     'variable_costs',
-                     'operating_costs' ]
-
-    LOAD_ATTRS   = [ 'key',
-                     'class',
-                     'marginal_costs',
-                     'full_load_hours',
-                     'production' ]
-
-    # ---------- Calculate! -----------
+    LOAD_ATTRS = %w(
+      key
+      class
+      marginal_costs
+      full_load_hours
+      production
+    ).freeze
 
     # Calculates the Merit Order and makes sure it happens only once.
     # Optionally provide a Calculator instance if you want to use a faster, or
@@ -114,7 +115,7 @@ module Merit
     end
 
     def to_s
-      "<##{ self.class } (#{ participants.to_s })>"
+      "<##{ self.class } (#{ participants })>"
     end
 
     alias_method :inspect, :to_s
@@ -152,6 +153,5 @@ module Merit
         @calculator ||= Calculator.new
       end
     end # class << self
-
   end # Order
 end # Merit

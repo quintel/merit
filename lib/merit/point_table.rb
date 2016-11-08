@@ -19,7 +19,7 @@ module Merit
     def table_for(point)
       headings = ['', 'Key', '% Used', 'MWh Load', 'M.Cost']
 
-      table = Terminal::Table.new(headings: headings) do |table|
+      Terminal::Table.new(headings: headings) do |table|
         users(point).each(&table.method(:add_row))
         table.add_separator
 
@@ -34,13 +34,11 @@ module Merit
       end
     end
 
-    #######
     private
-    #######
 
     def users(point)
       @order.participants.users.map do |user|
-        [ 'U', user.key, '-', '%.02f' % user.load_at(point), '-' ]
+        ['U', user.key, '-', format('%.02f', user.load_at(point)), '-']
       end
     end
 
@@ -66,26 +64,24 @@ module Merit
       prod = producer.load_curve.get(point)
       max  = producer.max_load_curve.get(point)
 
-      cost = if producer.cost_strategy.respond_to?(:cost_at_load)
-        demand = producer.load_curve.get(point)
-        producer.cost_strategy.cost_at_load(demand)
-      else
-        producer.cost_strategy.sortable_cost(point)
-      end
+      cost =
+        if producer.cost_strategy.respond_to?(:cost_at_load)
+          demand = producer.load_curve.get(point)
+          producer.cost_strategy.cost_at_load(demand)
+        else
+          producer.cost_strategy.sortable_cost(point)
+        end
 
-      cap_used = max.zero? ? '-' : '%.01f' % ((prod / max) * 100)
+      cap_used = max.zero? ? '-' : format('%.01f', (prod / max) * 100)
 
-      if @order.price_setting_producers[point] == producer
-        price_setting = '* '
-      else
-        price_Setting = ''
-      end
+      price_setting =
+        @order.price_setting_producers[point] == producer ? '* ' : ''
 
       [ (producer.always_on? ? 'A' : 'T'),
         producer.key,
-        (prod.zero? && ! max.zero?) ? '0.0 %' : "#{ cap_used } %",
-        '%.02f' % prod,
-        '%s%.02f' % [price_setting, cost] ]
+        prod.zero? && ! max.zero? ? '0.0 %' : "#{ cap_used } %",
+        format('%.02f', prod),
+        format('%s%.02f', price_setting, cost) ]
     end
   end # PointTable
 end # Merit

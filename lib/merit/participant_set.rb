@@ -60,7 +60,7 @@ module Merit
           dispatchables.sort_by! { |p| p.cost_strategy.sortable_cost }
 
           dispatchables.each do |d|
-            if d.output_capacity_per_unit * d.number_of_units == 0
+            if (d.output_capacity_per_unit * d.number_of_units).zero?
               d.position = -1
             else
               d.position = position
@@ -117,8 +117,8 @@ module Merit
     # Public: Iterates through each participant in the order they were added.
     #
     # Returns nothing.
-    def each(&block)
-      @members.each { |_, participant| block.call(participant) }
+    def each
+      @members.each { |_, participant| yield participant }
     end
 
     # Internal: Adds a `participant` to the set. For the moment, please use
@@ -133,9 +133,9 @@ module Merit
       key = participant.key
 
       if @locked
-        fail LockedOrderError.new(participant)
+        raise LockedOrderError, participant
       elsif @members.key?(key) && @members[key] != participant
-        fail DuplicateParticipant.new(key)
+        raise DuplicateParticipant, key
       end
 
       @members[key] = participant
@@ -146,12 +146,10 @@ module Merit
     end
 
     def inspect
-      "#<#{ self.class.name } (#{ to_s })>"
+      "#<#{ self.class.name } (#{ self })>"
     end
 
-    #######
     private
-    #######
 
     # Internal: Stores each participant collection (must run, volatiles, etc)
     # for faster retrieval. This should only be done when all of the
@@ -196,11 +194,9 @@ module Merit
       always_on = producers[0...partition]
       transient = producers[partition..-1] || []
 
-      if transient.any?(&:always_on?)
-        raise Merit::IncorrectProducerOrder.new
-      end
+      raise Merit::IncorrectProducerOrder if transient.any?(&:always_on?)
 
-      return always_on, transient
+      [always_on, transient]
     end
 
     # A class used in the merit order calculation when one or more producer has
@@ -210,8 +206,9 @@ module Merit
       attr_reader :flex
 
       def initialize(set)
-        @always_on, @transients, @flex =
-          set.always_on, set.transients, set.flex
+        @always_on = set.always_on
+        @transients = set.transients
+        @flex = set.flex
       end
 
       def always_on(point)

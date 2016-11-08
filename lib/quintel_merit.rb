@@ -3,6 +3,7 @@
 # This file checks whether we are clashing with that existing gem and, if not
 # loads the code.
 if Kernel.const_defined?(:Merit)
-   raise RuntimeError.new("Merit class has already been definied, so cannot load the quintel_merit gem")
+  raise 'Merit class has already been defined; cannot load quintel_merit gem'
 end
+
 require 'merit'

@@ -54,9 +54,7 @@ module Merit
           .min_by { |producer| producer.cost_strategy.sortable_cost(point) }
       end
 
-      #######
       private
-      #######
 
       # Internal: Determines the price which should be used in the event that
       # all producers are fully-loaded.
@@ -84,7 +82,7 @@ module Merit
 
       # Internal: Returns the producer which should be used to calculate the
       # price in the event that all producers are fully-loaded.
-      def fallback_producer(point)
+      def fallback_producer(_point)
         @order.participants.dispatchables.reverse_each.detect do |producer|
           producer.number_of_units > 0
         end
@@ -120,9 +118,7 @@ module Merit
         max_producer ? max_producer : @dispatchables.first
       end
 
-      #######
       private
-      #######
 
       def fallback_producer(point)
         @dispatchables.reverse_each.detect do |producer|

@@ -7,7 +7,7 @@ module Merit
         super(opts.merge(volume_per_unit: Float::INFINITY))
       end
 
-      def max_load_at(point)
+      def max_load_at(_point)
         0.0
       end
     end # BlackHole
