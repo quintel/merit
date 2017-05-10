@@ -13,8 +13,7 @@ module Merit
 
         decay =
           if opts[:decay]
-            units = number_of_units
-            ->(point, amount) { opts[:decay].call(point, amount) * units }
+            ->(point, amount) { opts[:decay].call(point, amount) }
           end
 
         @reserve = Reserve.new(

@@ -399,7 +399,7 @@ module Merit
             let(:attrs) { super().merge(decay: ->(*) { 0.5 }) }
 
             it 'leaves 0.5 energy remaining in the next point' do
-              expect(storage.max_load_at(1)).to eq(1.0)
+              expect(storage.max_load_at(1)).to eq(1.5)
             end
           end
         end
