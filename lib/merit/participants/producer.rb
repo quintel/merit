@@ -138,14 +138,13 @@ module Merit
     # is produced at what time. It is a product of the load_profile and
     # the total_production.
     def max_load_curve
-      values =
+      @max_load_curve ||= Curve.new(
         if @load_profile
           @load_profile.values.map { |v| v * max_production }
         else
           Array.new(Merit::POINTS, available_output_capacity)
         end
-
-      @max_load_curve ||= Curve.new(values)
+      )
     end
 
     # Public: Returns a Curve with the difference between the max and the actual
