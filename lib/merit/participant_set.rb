@@ -57,7 +57,12 @@ module Merit
         dispatchables = select_participants(DispatchableProducer)
 
         unless dispatchables.any? { |p| p.cost_strategy.variable? }
-          dispatchables.sort_by! { |p| p.cost_strategy.sortable_cost }
+          dispatchables.sort_by! do |p|
+            [
+              p.cost_strategy.sortable_cost,
+              -(flex.index(p) || -Float::INFINITY)
+            ]
+          end
 
           dispatchables.each do |d|
             if (d.output_capacity_per_unit * d.number_of_units).zero?
