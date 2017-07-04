@@ -1,12 +1,10 @@
-# Merit
+<h1 align="center">Merit</h1>
+<p align="center">Time-resolved electricity production and consumption</p>
 
-The Merit module is used to calculate the
-[merit order](http://en.wikipedia.org/wiki/Merit_order) for the
-[Energy Transition Model](http://et-model.com).
-
-### Build Status
-
-**Master**: ![Master branch](https://semaphoreapp.com/api/v1/projects/2ae041ef26ece32798c70411422544b8f43a5919/14150/badge.png)
+<p align="center">
+  <a href="https://travis-ci.org/quintel/merit"><img alt="Master branch build status" src="https://img.shields.io/travis/quintel/merit/master.svg" /></a>
+  <a href="https://codecov.io/gh/quintel/merit"><img alt="Code coverage status" src="https://img.shields.io/codecov/c/github/quintel/merit/master.svg" /></a>
+</p>
 
 ### Introduction
 
