@@ -62,6 +62,14 @@ module Merit
     'of 1, use the Calculator class instead.'
   end
 
+  OutOfBounds = error_class do |point|
+    "Cannot use out-of-bounds point #{ point }"
+  end
+
+  InvalidCalculationOrder = error_class do |actual, expected|
+    "Cannot calculate point #{ actual } before #{ expected }"
+  end
+
   DuplicateParticipant = error_class do |name|
     "You added a participant called #{ name.inspect }; but that participant " \
     'had already been added.'

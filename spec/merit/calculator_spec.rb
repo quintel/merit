@@ -572,6 +572,34 @@ module Merit
       end
     end # with AveragingCalculator
 
+    describe 'with StepwiseCalculator' do
+      let(:calc) { StepwiseCalculator.new }
+
+      it 'returns a Proc when calculating' do
+        expect(calc.calculate(order)).to respond_to(:call)
+      end
+
+      it 'calculates one point at a time' do
+        calc_step = calc.calculate(order)
+        expect(calc_step.call(0)).to eq(0)
+      end
+
+      it 'does not permit calculating out-of-order' do
+        calc_step = calc.calculate(order)
+
+        expect { calc_step.call(1) }
+          .to raise_error('Cannot calculate point 1 before 0')
+      end
+
+      it 'does not permit beyond the length of the order' do
+        calc_step = calc.calculate(order)
+        8760.times { |point| calc_step.call(point) }
+
+        expect { calc_step.call(8760) }
+          .to raise_error('Cannot use out-of-bounds point 8760')
+      end
+    end
+
     context 'when producer order is incorrect' do
       # Impossible with the current Order class, but serves as a regression
       # test.

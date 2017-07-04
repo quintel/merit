@@ -153,6 +153,41 @@ module Merit
     end
   end # Calculator
 
+  # A calculator which behaves the same as the standard Calculator, but instead
+  # of calculating the order immediately, returns a Proc which may be used to
+  # calculate each point in turn.
+  #
+  # For example
+  #
+  #   calculate_point = StepwiseCalculator.new.calculate
+  #
+  #   calculate_point.call(0)
+  #   calculate_point.call(1)
+  #   # ...
+  #   calculate_point.call(8759)
+  #
+  class StepwiseCalculator < Calculator
+    def calculate(order)
+      order.participants.lock!
+
+      producers  = order.participants.producers_for_calculation
+      next_point = 0
+
+      lambda do |point|
+        if point != next_point
+          raise InvalidCalculationOrder.new(point, next_point)
+        elsif point >= Merit::POINTS
+          raise OutOfBounds, point
+        end
+
+        compute_point(order, point, producers)
+        next_point += 1
+
+        point
+      end
+    end
+  end
+
   # A calculator which skips points in order to compute the result faster.
   #
   # This works on the principle that days which are close to one another are
