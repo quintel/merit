@@ -375,6 +375,25 @@ module Merit
         end
       end # with an excess of production
 
+      context 'with an excess of production and excess_share of 0.25' do
+        let(:p2p_attrs) {{
+          key: :p2p,
+          volume_per_unit: 0.05,
+          output_capacity_per_unit: 2.0,
+          availability: 1.0,
+          number_of_units: 1,
+          excess_share: 0.25
+        }}
+
+        before { order.calculate(Calculator.new) }
+
+        it 'charges while there is excess and available volume' do
+          # 0.01141552511424 is the excess
+          expect(p2p.load_curve.to_a.take(4))
+            .to eq([-0.01141552511424 / 4.0] * 4)
+        end
+      end
+
       context 'when there is no excess' do
         let(:vol_1_attrs) do
           super().merge(load_profile: LoadProfile.new([0.0]))

@@ -16,11 +16,22 @@ module Merit
       # Returns a float.
       attr_reader :input_capacity_per_unit
 
+      # Public: Returns the share of excess which may be assigned.
+      #
+      # When a Flex producer belongs to a group of many other flex producers,
+      # assigning a share will limit how much excess may be assigned, so as to
+      # leave some for the other group members.
+      #
+      # Returns a float.
+      attr_reader :excess_share
+
       def initialize(opts)
         super(DEFAULTS.merge(opts).merge(marginal_costs: :null))
 
         @input_capacity_per_unit =
           opts[:input_capacity_per_unit] || opts[:output_capacity_per_unit]
+
+        @excess_share = opts[:excess_share] || 1.0
 
         @output_capacity = available_output_capacity
         @input_capacity  = available_input_capacity
