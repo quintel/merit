@@ -111,8 +111,7 @@ module Merit
 
           if produced > 0
             flex.each do |tech|
-              produced -=
-                tech.assign_excess(point, produced * tech.excess_share)
+              produced -= tech.assign_excess(point, produced)
 
               # If there is no energy remaining to be assigned we can exit early
               # and, as an added bonus, prevent assigning tiny negatives

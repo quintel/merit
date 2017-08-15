@@ -93,4 +93,9 @@ module Merit
     "particular point in time, or #{ class_only }#variable_costs to find " \
     'the total (annual) marginal cost applied to the load curve.'
   end
+
+  MissingGroup = error_class do |key|
+    "Flex participant #{ key.inspect } with an 'excess_share' must belong " \
+    "to a group."
+  end
 end # Merit

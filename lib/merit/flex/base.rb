@@ -25,16 +25,25 @@ module Merit
       # Returns a float.
       attr_reader :excess_share
 
+      # Public: The group of flexibles to which the participant optionally
+      # belongs.
+      #
+      # Returns a Symbol.
+      attr_reader :group
+
       def initialize(opts)
         super(DEFAULTS.merge(opts).merge(marginal_costs: :null))
 
         @input_capacity_per_unit =
           opts[:input_capacity_per_unit] || opts[:output_capacity_per_unit]
 
-        @excess_share = opts[:excess_share] || 1.0
-
         @output_capacity = available_output_capacity
         @input_capacity  = available_input_capacity
+
+        raise(MissingGroup, opts[:key]) if opts[:excess_share] && !opts[:group]
+
+        @excess_share = opts[:excess_share] || 1.0
+        @group = opts[:group]
       end
 
       # Public: The total input capacity of all units of this technology.

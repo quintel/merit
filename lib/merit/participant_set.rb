@@ -83,6 +83,17 @@ module Merit
     # TODO Sort by user-preference.
     def flex
       @flex || select_participants(Flex::Base)
+        .each_with_object([]) do |participant, set|
+          if participant.group
+            if set.last && set.last.key == participant.group
+              set.last.add(participant)
+            else
+              set.push(Flex::Group.new(participant))
+            end
+          else
+            set.push(participant)
+          end
+        end
     end
 
     # Public: Returns all the users of energy.
