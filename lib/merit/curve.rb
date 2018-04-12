@@ -26,9 +26,13 @@ module Merit
       @values[point] || @default
     end
 
+    alias [] get
+
     def set(point, value)
       @values[point] = value
     end
+
+    alias []= set
 
     def each
       length.times { |point| yield get(point) }

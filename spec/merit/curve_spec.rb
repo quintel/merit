@@ -100,11 +100,36 @@ module Merit
       end # when the curve has an explicit length
     end # get
 
+    describe '#[]' do
+      let(:curve) { Curve.new([3.0, nil]) }
+
+      it 'retrieves the value' do
+        expect(curve[0]).to eql(3.0)
+      end
+
+      it 'returns 0.0 if the value is nil' do
+        expect(curve[1]).to eql(0.0)
+      end
+
+      it 'returns 0.0 if no value is set' do
+        expect(curve[2]).to eql(0.0)
+      end
+    end
+
     describe '#set' do
       let(:curve) { Curve.new([3.0, nil]) }
 
       it 'sets the value' do
         curve.set(1, 1337)
+        expect(curve.get(1)).to eql(1337)
+      end
+    end # set
+
+    describe '#[]=' do
+      let(:curve) { Curve.new([3.0, nil]) }
+
+      it 'sets the value' do
+        curve[1] = 1337
         expect(curve.get(1)).to eql(1337)
       end
     end # set
