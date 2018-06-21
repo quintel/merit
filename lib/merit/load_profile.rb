@@ -108,7 +108,7 @@ module Merit
       end
 
       def read(path)
-        key = path.to_s
+        key = File.realpath(path.to_s)
 
         @profiles[key] ||= super
         @profiles[key].dup
