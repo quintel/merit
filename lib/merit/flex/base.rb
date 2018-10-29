@@ -88,7 +88,7 @@ module Merit
       #
       # Returns a float.
       def production(unit = :mj)
-        mwh = (load_curve.select(&:negative?).reduce(:+) || 0.0).abs
+        mwh = load_curve.select(&:negative?).sum(0.0).abs
 
         case unit
         when :mj  then mwh * 3600
