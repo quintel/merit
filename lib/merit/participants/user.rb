@@ -20,9 +20,11 @@ module Merit
       end
     end # class << self
 
+    attr_reader :load_curve
+
     # Public: Teels us load on the participant for a certain point in time.
     def load_at(point_in_time)
-      load_curve.values[point_in_time]
+      @load_curve.values[point_in_time]
     end
 
     # Public: What is the total supply between the two given points (inclusive
@@ -33,7 +35,7 @@ module Merit
     #
     # Returns a float.
     def load_between(start, finish)
-      load_curve.values[start..finish].reduce(:+)
+      @load_curve.values[start..finish].reduce(:+)
     end
   end # User
 end # Merit
