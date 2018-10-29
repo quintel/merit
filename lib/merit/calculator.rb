@@ -64,8 +64,7 @@ module Merit
     #
     # Returns a float.
     def demand(order, point)
-      # The total demand for energy at the point in time.
-      order.participants.users.map { |u| u.load_at(point) }.reduce(:+) || 0.0
+      order.participants.users.sum { |user| user.load_at(point) }
     end
 
     # Internal: For a given +point+ in time, calculates the load which should
