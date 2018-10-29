@@ -16,7 +16,7 @@ module Merit
             ->(point, amount) { opts[:decay].call(point, amount) }
           end
 
-        @reserve = Reserve.new(
+        @reserve = (opts[:reserve_class] || Reserve).new(
           opts.fetch(:volume_per_unit) * number_of_units * availability, &decay
         )
       end
