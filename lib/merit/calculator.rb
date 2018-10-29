@@ -93,7 +93,7 @@ module Merit
       # #always_on? in every iteration. This accounts for a 20% reduction in
       # the calculation runtime.
 
-      if (remaining = demand(order, point)) < 0
+      if (remaining = demand(order, point)).negative?
         raise SubZeroDemand.new(point, remaining)
       end
 
@@ -108,7 +108,7 @@ module Merit
           produced -= remaining
           remaining = 0.0
 
-          if produced > 0
+          if produced.positive?
             flex.each do |tech|
               produced -= tech.assign_excess(point, produced)
 
@@ -129,7 +129,7 @@ module Merit
           remaining -= produced
         end
 
-        remaining = 0.0 if remaining < 0.0
+        remaining = 0.0 if remaining.negative?
       end
 
       producers.transients(point).each do |producer|
@@ -142,7 +142,7 @@ module Merit
         if max_load < remaining
           assign_load(producer, point, max_load)
         else
-          assign_load(producer, point, remaining) if remaining > 0
+          assign_load(producer, point, remaining) if remaining.positive?
           break
         end
 
@@ -354,7 +354,7 @@ module Merit
 
         if max_load < remaining
           assign_load(producer, point, max_load)
-        elsif remaining > 0.0
+        elsif remaining.positive?
           assign_load(producer, point, remaining)
         else
           # Optimisation: If all of the demand has been accounted for, there
