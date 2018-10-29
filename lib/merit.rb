@@ -33,6 +33,7 @@ require_relative 'merit/flex/base'
 require_relative 'merit/flex/black_hole'
 require_relative 'merit/flex/group'
 require_relative 'merit/flex/reserve'
+require_relative 'merit/flex/simple_reserve'
 require_relative 'merit/flex/storage'
 
 require_relative 'merit/lole'
