@@ -3,7 +3,7 @@ module Merit
     module_function
 
     def present(order)
-      order.participants.map do |participant|
+      order.participants.sort_by(&:key).map do |participant|
         case participant
         when User
           user_to_row(participant)
