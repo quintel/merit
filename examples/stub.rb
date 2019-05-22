@@ -3,7 +3,7 @@ module Merit
   def self.stub
     require 'pathname'
 
-    profile_dir = Pathname.new(__FILE__).dirname.dirname.join('../etsource/datasets/nl/load_profiles')
+    profile_dir = Pathname.new(__FILE__).dirname.dirname.join('../etsource/datasets/nl/curves')
     merit_order = Merit::Order.new
 
     profiles = ->(name) do
