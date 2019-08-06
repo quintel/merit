@@ -1,4 +1,6 @@
 require 'rspec'
+require 'pathname'
+
 require 'support/coverage'
 require 'merit'
 

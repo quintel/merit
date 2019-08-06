@@ -34,9 +34,11 @@ module Merit
     # exceeded.
     def expectation(demand_curve, capacity, excludes = [])
       if excludes.any?
-        demand_curve -= excludes.map do |key|
-          @order.participants[key].load_curve
-        end.reduce(:+)
+        demand_curve -= CurveTools.add_curves(
+          excludes.map do |key|
+            @order.participants[key].load_curve
+          end
+        )
       end
 
       demand_curve.count { |point| point > capacity }

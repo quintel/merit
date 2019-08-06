@@ -10,10 +10,11 @@ module Merit
     end
 
     def production
-      @order.participants.producers
-        .reject(&method(:excluded_from_participating))
-        .map(&:load_curve)
-        .reduce(:+)
+      CurveTools.add_curves(
+        @order.participants.producers
+          .reject(&method(:excluded_from_participating))
+          .map(&:load_curve)
+      )
     end
 
     def excluded_from_participating(producer)
