@@ -70,6 +70,19 @@ module Merit
       price_curve.get(time)
     end
 
+    # Public: Returns the sum of demand in each hour of the year.
+    #
+    # Calling this prior to calculating is liable to result in an incorrect
+    # curve if any of the users contain a dynamic demand curve. No user in
+    # Merit provides this behaviour, but custom users (such as in ETEngine) may.
+    #
+    # Returns a Merit::Curve.
+    def demand_curve
+      @demand_curve ||= CurveTools.add_curves(
+        participants.users.map(&:load_curve)
+      )
+    end
+
     # Public: Returns a Curve with all the (known) prices
     def price_curve
       @price_curve ||= PriceCurves::LastLoaded.new(self)

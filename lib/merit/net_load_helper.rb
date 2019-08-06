@@ -22,7 +22,7 @@ module Merit
     end
 
     def consumption
-      @order.participants.users.map(&:load_curve).reduce(:+)
+      @order.demand_curve
     end
   end
 end
