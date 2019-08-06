@@ -600,17 +600,5 @@ module Merit
       end
     end
 
-    context 'when producer order is incorrect' do
-      # Impossible with the current Order class, but serves as a regression
-      # test.
-      it 'raises an error' do
-        allow(order.participants).to receive(:producers).and_return([
-          volatile, dispatchable, volatile_two])
-
-        expect { Calculator.new.calculate(order) }.
-          to raise_error(IncorrectProducerOrder)
-      end
-    end
-
   end # Calculator
 end # Merit

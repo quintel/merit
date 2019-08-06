@@ -205,12 +205,12 @@ module Merit
 
       # Not using Enumerable#partition allows us to quickly test that all the
       # always-on producers were before the first transient producer.
-      partition = producers.index(&:transient?) || producers.length - 1
+      partition = producers.index(&:transient?)
+
+      return [producers.dup, []] if partition.nil?
 
       always_on = producers[0...partition]
       transient = producers[partition..-1] || []
-
-      raise Merit::IncorrectProducerOrder if transient.any?(&:always_on?)
 
       [always_on, transient]
     end

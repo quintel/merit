@@ -51,11 +51,6 @@ module Merit
     'already been calculated.'
   end
 
-  IncorrectProducerOrder = error_class do
-    'Producers may not include any always-on producers after the first ' \
-    'producer which is not always-on.'
-  end
-
   InvalidChunkSize = error_class do |size|
     "You supplied an invalid chunk size of #{ size.inspect }; please " \
     'supply an integer greater than one. If you want to use a chunk size ' \
