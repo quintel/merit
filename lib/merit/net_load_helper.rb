@@ -2,7 +2,7 @@ module Merit
   module NetLoadHelper
     def initialize(order, excludes = [])
       @order    = order
-      @excludes = excludes
+      @excludes = Set.new(excludes)
     end
 
     def net_load
