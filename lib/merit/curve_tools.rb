@@ -16,11 +16,11 @@ module Merit
   #     end
   #   end
   #
-  # Where there exists no custom added method for the number of curves given,
-  # the curves will be partitioned into the largest groups possible in order to
-  # sum the curves optimally. For example, adding 10 curves will run
-  # `add_curves_10` on the first ten curves, `add_curves_5` on the remaining
-  # five, then `add_curves_2` to get the final summed curve.
+  # If there is no "adder" method for the number of curves given, the curves
+  # will be partitioned into the largest groups possible in order to sum the
+  # curves optimally. For example, adding 15 curves will run `add_curves_10` on
+  # the first ten curves, `add_curves_5` on the remaining five, then
+  # `add_curves_2` on the previous two results to get the final summed curve.
   #
   # Benchmarks:
   #
