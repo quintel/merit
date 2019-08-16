@@ -36,8 +36,8 @@ module Merit
       if excludes.any?
         demand_curve -= CurveTools.add_curves(
           excludes.map do |key|
-            @order.participants[key].load_curve
-          end
+            @order.participants[key]&.load_curve
+          end.compact
         )
       end
 
