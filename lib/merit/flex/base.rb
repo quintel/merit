@@ -59,10 +59,10 @@ module Merit
       #
       # Returns the amount of energy which was accepted by the storage device.
       def assign_excess(point, amount)
-        input_cap = @input_capacity + load_curve.get(point)
+        input_cap = @input_capacity + @load_curve.get(point)
 
         amount = amount > input_cap ? input_cap : amount
-        load_curve.set(point, load_curve.get(point) - amount)
+        @load_curve.set(point, @load_curve.get(point) - amount)
 
         amount
       end
@@ -79,7 +79,7 @@ module Merit
       #
       # Returns the load set.
       def set_load(point, value)
-        load_curve.set(point, value) unless value.zero?
+        @load_curve.set(point, value) unless value.zero?
       end
 
       # Public: Determines the amount of energy the battery stored during the
@@ -88,7 +88,7 @@ module Merit
       #
       # Returns a float.
       def production(unit = :mj)
-        mwh = load_curve.select(&:negative?).sum(0.0).abs
+        mwh = @load_curve.select(&:negative?).sum(0.0).abs
 
         case unit
         when :mj  then mwh * 3600
