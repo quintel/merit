@@ -132,6 +132,8 @@ module Merit
         remaining = 0.0 if remaining.negative?
       end
 
+      return if remaining.zero?
+
       producers.transients(point).each do |producer|
         max_load = producer.max_load_at(point)
 
