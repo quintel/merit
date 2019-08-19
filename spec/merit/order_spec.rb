@@ -184,18 +184,6 @@ module Merit
         expect(order.participants.dispatchables.first).to eql(p4)
         expect(order.participants.dispatchables.last).to  eql(p1)
       end
-
-      it "should be assigned the right position" do
-        order.add(p1)
-        order.add(p4)
-        expect(order.participants.dispatchables.first.position).to eql(1)
-        expect(order.participants.dispatchables.last.position).to  eql(2)
-      end
-
-      it "should assign -1 as position when capacity production is 0" do
-        order.add(p5) # producer with 0 units
-        expect(order.participants.dispatchables.first.position).to eql(-1)
-      end
     end
 
     describe '#add'do

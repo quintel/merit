@@ -52,8 +52,6 @@ module Merit
     # which starts with 1 and is set to -1 if the capacity production is zero
     def dispatchables
       @dispatchables || begin
-        position = 1
-
         dispatchables = select_participants(DispatchableProducer)
 
         unless dispatchables.any? { |p| p.cost_strategy.variable? }
@@ -62,15 +60,6 @@ module Merit
               p.cost_strategy.sortable_cost,
               -(flex.index(p) || -Float::INFINITY)
             ]
-          end
-
-          dispatchables.each do |d|
-            if (d.output_capacity_per_unit * d.number_of_units).zero?
-              d.position = -1
-            else
-              d.position = position
-              position += 1
-            end
           end
         end
 

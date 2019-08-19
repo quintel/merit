@@ -5,7 +5,7 @@ module Merit
   class Producer < Participant
     include Profitable
 
-    attr_accessor :load_curve, :load_profile, :position
+    attr_accessor :load_curve, :load_profile
 
     attr_reader :output_capacity_per_unit, :availability, :number_of_units,
       :fixed_costs_per_unit, :fixed_om_costs_per_unit, :full_load_hours,
