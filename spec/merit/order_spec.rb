@@ -184,6 +184,26 @@ module Merit
         expect(order.participants.dispatchables.first).to eql(p4)
         expect(order.participants.dispatchables.last).to  eql(p1)
       end
+
+      it 'should be ordered when given a variable priced dispatchable' do
+        order.add(p4)
+        variable = order.add(
+          DispatchableProducer.new(
+            key:                       :foo_cheapest,
+            cost_curve:            Curve.new([10.0]),
+            output_capacity_per_unit:  0.1,
+            number_of_units:           1,
+            availability:              0.89,
+            fixed_costs_per_unit:      222.9245208,
+            fixed_om_costs_per_unit:   35.775,
+            load_profile_key:          :solar_pv,
+            full_load_hours:           1000
+          )
+        )
+
+        expect(order.participants.dispatchables.first).to eql(variable)
+        expect(order.participants.dispatchables.last).to  eql(p4)
+      end
     end
 
     describe '#add'do

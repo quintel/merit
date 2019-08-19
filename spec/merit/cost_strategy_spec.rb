@@ -157,6 +157,10 @@ module Merit::CostStrategy ; describe Merit::CostStrategy do
       it 'returns the cost at a non-zero point' do
         expect(strategy.sortable_cost(1)).to eq(62.5)
       end
+
+      it 'calculates the average cost when no point is given' do
+        expect(strategy.sortable_cost).to eq(156.25)
+      end
     end # #sortable_cost
 
     describe '#variable_cost' do

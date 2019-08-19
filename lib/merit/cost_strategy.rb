@@ -157,8 +157,8 @@ module Merit
         @curve = curve
       end
 
-      def sortable_cost(point)
-        @curve.get(point)
+      def sortable_cost(point = nil)
+        point.nil? ? average_cost : @curve.get(point)
       end
 
       def price_at(point, allow_loaded = false)
@@ -180,6 +180,12 @@ module Merit
 
       def variable?
         true
+      end
+
+      private
+
+      def average_cost
+        @average_cost ||= @curve.sum / @curve.length
       end
     end # FromCurve
 
