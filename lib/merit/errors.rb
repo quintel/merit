@@ -30,14 +30,14 @@ module Merit
     'Cannot create a User without either :total_consumption or :load_curve'
   end
 
-  MissingLoadProfileError = error_class do |key|
-    "#{ key } is not known. Please add."
+  MissingFileError = error_class do |key|
+    "No curve file at #{key.inspect}"
   end
 
   IncorrectLoadProfileError = error_class do |size, key = nil|
     key = 'Load profile' unless key
 
-    "#{ key } is malformatted. It needs to contain 8760 / n points." \
+    "#{ key } is malformatted. It needs to contain 8760 / n points. " \
     "It now has #{ size } points."
   end
 

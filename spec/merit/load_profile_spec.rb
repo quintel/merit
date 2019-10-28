@@ -15,32 +15,27 @@ module Merit
       end
     end # new
 
-    describe '#load' do
+    describe '#load_file' do
       it 'should load a profile from file' do
-        profile = LoadProfile.load(fixture('solar_pv'))
-      end
-
-      it 'should raise a MissingLoadProfileError if load profile does not exist' do
-        expect(->{ LoadProfile.load(fixture('nope')) }).
-          to raise_error(MissingLoadProfileError)
+        profile = LoadProfile.load_file(fixture('solar_pv'))
       end
 
       it 'should raise IncorrectLoadProfileError if LoadProfile is not a valid fraction' do
         allow(LoadProfile.reader).to receive(:read).with(:foo) { (1..7).to_a }
 
-        expect { LoadProfile.load(:foo) }.
+        expect { LoadProfile.load_file(:foo) }.
           to raise_error(IncorrectLoadProfileError, /Load profile at foo/)
       end
 
       it 'should not raise IncorrectLoadProfileError if LoadProfile is a valid fraction' do
         allow(LoadProfile.reader).to receive(:read).with(:foo){ (1..2).to_a }
-        expect { LoadProfile.load(:foo) }.to_not raise_error
+        expect { LoadProfile.load_file(:foo) }.to_not raise_error
       end
     end # load
 
     describe '#values' do
       it 'should return the same values from file' do
-        profile = LoadProfile.load(fixture('solar_pv'))
+        profile = LoadProfile.load_file(fixture('solar_pv'))
         expect(profile.values.length).to eq(8760)
       end
     end # values
@@ -77,44 +72,20 @@ module Merit
     end # draw
 
     describe '.reader' do
-      after { LoadProfile.reader = LoadProfile::Reader.new }
+      it 'uses the Curve reader' do
+        allow(Curve).to receive(:reader).and_call_original
+        LoadProfile.reader
 
-      context 'when no reader has been set' do
-        before { LoadProfile.instance_variable_set(:@reader, nil) }
-
-        it 'returns the default Reader' do
-          expect(LoadProfile.reader).to     be_a(LoadProfile::Reader)
-          expect(LoadProfile.reader).to_not be_a(LoadProfile::CachingReader)
-        end
-      end # when no reader has been set
-
-      context 'when setting a custom reader' do
-        it 'sets the reader instance' do
-          reader = LoadProfile::CachingReader.new
-          LoadProfile.reader = reader
-
-          expect(LoadProfile.reader).to eql(reader)
-        end
-      end # when setting a custom reader
-    end # .reader
-
-    describe LoadProfile::CachingReader do
-      let(:reader) { LoadProfile::CachingReader.new }
-
-      it 'reads the source file' do
-        expect(reader.read(fixture('solar_pv'))).to_not be_empty
-
-        # Second call also works?
-        expect(reader.read(fixture('solar_pv'))).to_not be_empty
+        expect(Curve).to have_received(:reader).once
       end
+    end
 
-      it 'caches based on path, not filename' do
-        one = reader.read(fixture('solar_pv'))
-        two = reader.read(fixture('subdir/solar_pv'))
-
-        expect(one).to_not eql(two)
+    describe '.reader=' do
+      it 'raises an error' do
+        expect { LoadProfile.reader = nil }
+          .to raise_error(NotImplementedError, /Curve\.reader=/)
       end
-    end # LoadProfile::CachingReader
+    end
 
   end # LoadProfile
 end # Merit

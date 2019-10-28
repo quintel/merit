@@ -329,14 +329,31 @@ module Merit
         expect(curve.to_a).to eq(content)
       end
 
-      it 'accepts a "length" argument' do
-        expect(Curve.load_file(fixture(:solar_pv), 20).length).to eq(20)
-      end
-
       it 'raises ENOENT when the path does not exist' do
         expect { Curve.load_file(fixture(:nope)) }.to raise_error(Errno::ENOENT)
       end
     end # .load_file
-  end
 
+    describe '.reader' do
+      after { Curve.reader = Curve::Reader.new }
+
+      context 'when no reader has been set' do
+        before { Curve.instance_variable_set(:@reader, nil) }
+
+        it 'returns the default Reader' do
+          expect(Curve.reader).to     be_a(Curve::Reader)
+          expect(Curve.reader).not_to be_a(Curve::CachingReader)
+        end
+      end
+
+      context 'when setting a custom reader' do
+        it 'sets the reader instance' do
+          reader = Curve::CachingReader.new
+          Curve.reader = reader
+
+          expect(Curve.reader).to eql(reader)
+        end
+      end
+    end
+  end
 end

@@ -53,65 +53,24 @@ module Merit
     end
 
     class << self
-      # Internal: Sets which reader class to use for retrieving load profile
-      # data from disk. Anything which responds to "read" and returns an array
-      # of floats is acceptable.
-      #
-      # reader - The object to use to read the load profile data.
-      #
-      # Returns nothing.
-      def reader=(klass)
-        @reader = klass
+      # Public: Loads a CSV file into a LoadProfile. See Curve#load_file.
+      def load_file(path)
+        super
+      rescue IncorrectLoadProfileError => e
+        e.message.gsub!(/^Load profile/, "Load profile at #{path}")
+        raise e
       end
 
-      # Internal: Returns the class to use for reading load profile data. If
-      # none was set explicitly, the default Reader is used.
-      #
-      # Returns an object which responds to "read".
+      alias_method :load, :load_file
+
+      # See Curve.reader
       def reader
-        @reader ||= Reader.new
+        Curve.reader
       end
 
-      # Public: loads a stored LoadProfile for a given path
-      # @param - path [Symbol]
-      #
-      # returns new LoadProfile
-      def load(path)
-        new(reader.read(path))
-      rescue IncorrectLoadProfileError => ex
-        ex.message.gsub!(/^Load profile/, "Load profile at #{ path }")
-        raise ex
-      end
-    end # class << self
-
-    # Internal: Loads profile information from a "load_profiles" CSV file.
-    class Reader
-      def read(path)
-        values = []
-
-        begin
-          File.foreach(path) { |line| values.push(line.to_f) }
-        rescue Errno::ENOENT
-          raise Merit::MissingLoadProfileError, path
-        end
-
-        values
-      end
-    end
-
-    # Internal: A production-mode class for initializing load profile data
-    # which caches the information after the first time it is retrieved.
-    # Results in faster performance at the expensive of higher memory use.
-    class CachingReader < Reader
-      def initialize
-        @profiles ||= {}
-      end
-
-      def read(path)
-        key = File.realpath(path.to_s)
-
-        @profiles[key] ||= super
-        @profiles[key].dup
+      # See Curve.reader=
+      def reader=(*)
+        raise NotImplementedError, 'Set reader using Curve.reader='
       end
     end
   end

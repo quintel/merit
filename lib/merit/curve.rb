@@ -85,14 +85,33 @@ module Merit
       Math.sqrt(variance)
     end
 
+    # Internal: Sets which reader class to use for retrieving load profile
+    # data from disk. Anything which responds to "read" and returns an array
+    # of floats is acceptable.
+    #
+    # reader - The object to use to read the load profile data.
+    #
+    # Returns nothing.
+    def self.reader=(klass)
+      @reader = klass
+    end
+
+    # Internal: Returns the class to use for reading load profile data. If
+    # none was set explicitly, the default Reader is used.
+    #
+    # Returns an object which responds to "read".
+    def self.reader
+      @reader ||= Reader.new
+    end
+
     # Public: Reads a file, and produces a Curve representing the content.
     #
     # The assumption is that the file contains the value of each point on a new
     # line.
     #
     # Returns a Curve.
-    def self.load_file(path, length = nil)
-      new(File.foreach(path).map(&:to_f), length)
+    def self.load_file(path)
+      new(reader.read(path))
     end
 
     private
@@ -124,5 +143,28 @@ module Merit
 
       new_values
     end
-  end # Curve
-end # Merit
+
+    # Internal: Loads curve information from a CSV file into an array of
+    # numerics.
+    class Reader
+      def read(path)
+        File.foreach(path).map(&:to_f)
+      end
+    end
+
+    # Internal: A production-mode class for initializing curve data which caches
+    # the information after it is loaded.
+    class CachingReader < Reader
+      def initialize
+        @curves = {}
+      end
+
+      def read(path)
+        key = path.to_s
+
+        @curves[key] ||= super
+        @curves[key].dup
+      end
+    end
+  end
+end
