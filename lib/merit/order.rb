@@ -83,6 +83,10 @@ module Merit
       )
     end
 
+    def demand_calculator
+      @demand_calculator ||= DemandCalculator.create(participants.users)
+    end
+
     # Public: Returns a Curve with all the (known) prices
     def price_curve
       @price_curve ||= PriceCurves::LastLoaded.new(self)

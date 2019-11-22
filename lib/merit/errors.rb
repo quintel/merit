@@ -27,7 +27,8 @@ module Merit
 
   # Added a node to a graph, when one already exists with the same key.
   UnknownDemandError = error_class do
-    'Cannot create a User without either :total_consumption or :load_curve'
+    'Cannot create a User without :total_consumption, :load_curve, or ' \
+    ':consumption_share'
   end
 
   MissingFileError = error_class do |key|
