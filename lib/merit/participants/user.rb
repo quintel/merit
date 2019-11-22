@@ -22,7 +22,7 @@ module Merit
 
     attr_reader :load_curve
 
-    # Public: Teels us load on the participant for a certain point in time.
+    # Public: Returns the load on the participant for a certain point in time.
     def load_at(point_in_time)
       @load_curve.values[point_in_time]
     end
