@@ -128,6 +128,17 @@ module Merit
       end
     end
 
+    describe '#demand_calculator' do
+      it 'returns a DemandCalculator' do
+        expect(order.demand_calculator).to be_a(Merit::DemandCalculator)
+      end
+
+      it 'returns the same object each time' do
+        expect(order.demand_calculator.object_id).
+          to eq(order.demand_calculator.object_id)
+      end
+    end
+
     describe '#producers' do
       it 'returns "always on" participants first' do
         dispatchable = p1

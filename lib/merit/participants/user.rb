@@ -14,6 +14,8 @@ module Merit
           TotalConsumption.new(options)
         elsif options.key?(:load_curve)
           WithCurve.new(options)
+        elsif options.key?(:consumption_share)
+          ConsumptionLoss.new(options)
         else
           raise UnknownDemandError
         end
@@ -36,6 +38,12 @@ module Merit
     # Returns a float.
     def load_between(start, finish)
       @load_curve.values[start..finish].reduce(:+)
+    end
+
+    # Public: Determines if the demand of the user depends on the total demand
+    # of all other users in the order.
+    def dependent?
+      false
     end
   end # User
 end # Merit
