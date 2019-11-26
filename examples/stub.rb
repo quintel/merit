@@ -3,7 +3,7 @@ module Merit
   def self.stub
     require 'pathname'
 
-    profile_dir = Pathname.new(__FILE__).dirname.dirname.join('../etsource/datasets/nl/load_profiles')
+    profile_dir = Pathname.new(__FILE__).dirname.dirname.join('../etsource/datasets/nl/curves')
     merit_order = Merit::Order.new
 
     profiles = ->(name) do
@@ -310,7 +310,7 @@ module Merit
         availability: 0.95,
         fixed_costs_per_unit: 531768.45,
         fixed_om_costs_per_unit: 147579.9,
-        load_profile: profiles['wind_coastal'],
+        load_profile: profiles['wind_coastal_baseline'],
         full_load_hours: 3000
       )
     )
@@ -324,7 +324,7 @@ module Merit
         availability: 0.95,
         fixed_costs_per_unit: 531768.45,
         fixed_om_costs_per_unit: 147579.9,
-        load_profile: profiles['wind_inland'],
+        load_profile: profiles['wind_inland_baseline'],
         full_load_hours: 2500
       )
     )
@@ -338,7 +338,7 @@ module Merit
         availability: 0.92,
         fixed_costs_per_unit: 1643536.011,
         fixed_om_costs_per_unit: 428882.8856,
-        load_profile: profiles['wind_offshore'],
+        load_profile: profiles['wind_offshore_baseline'],
         full_load_hours: 3500
       )
     )
