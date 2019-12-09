@@ -158,17 +158,6 @@ module Merit
       load_curve.reduce(:+) / load_curve.length
     end
 
-    # Public: Returns the (actual) energy produced by this producer
-    def production(unit = :mj)
-      if unit == :mj
-        load_curve.reduce(:+) * 3600
-      elsif unit == :mwh
-        load_curve.reduce(:+)
-      else
-        raise "Unknown unit: #{ unit }"
-      end
-    end
-
     # Public: calculates how much energy is 'produced' by this participant
     #
     # Returns Float: energy in MJ (difference between MWh and MJ is 3600)
