@@ -38,6 +38,17 @@ module Merit
       ! always_on?
     end
 
+    # Public: Returns the (actual) energy produced by this participant.
+    def production(unit = :mj)
+      if unit == :mj
+        load_curve.sum * 3600
+      elsif unit == :mwh
+        load_curve.sum
+      else
+        raise "Unknown unit: #{unit}"
+      end
+    end
+
     private
 
     def require_attributes(*attrs)
