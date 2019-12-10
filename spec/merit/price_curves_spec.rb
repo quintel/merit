@@ -66,6 +66,16 @@ module Merit
         it 'sets the price using the first producer' do
           expect(curve.get(0)).to eq(10.0)
         end
+
+        describe '#to_a' do
+          it 'returns an array of 8760 entries' do
+            expect(curve.length).to eq(8760)
+          end
+
+          it 'returns an array of prices' do
+            expect(curve.to_a.take(2)).to eq([10.0, 20.0])
+          end
+        end
       end
 
       describe 'when one producer is loaded' do
