@@ -42,7 +42,7 @@ module Merit
     end
 
     describe '#to_a' do
-      let(:curve) { Curve.new([3.0, 4.0, nil, 2.0]) }
+      let(:curve) { Curve.new([3.0, 4.0, 0.0, 2.0]) }
       let(:array) { curve.to_a }
 
       it 'has the same length as the original values' do
@@ -53,10 +53,6 @@ module Merit
         expect(array[0]).to eql(3.0)
         expect(array[1]).to eql(4.0)
         expect(array[3]).to eql(2.0)
-      end
-
-      it 'converts nils to 0.0' do
-        expect(array[2]).to eql(0.0)
       end
 
       describe 'when the curve has an explicit length' do

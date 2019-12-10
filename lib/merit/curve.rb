@@ -85,6 +85,21 @@ module Merit
       Math.sqrt(variance)
     end
 
+    # Public: Returns the curve as an array.
+    #
+    # If the curve was initialized with a `length` which is longer than the
+    # length of the values currently stored, the resulting array will be right-
+    # padded with the default value.
+    #
+    # Returns an array.
+    def to_a
+      if @length && @values.length < @length
+        @values.dup.concat(Array.new(@length - @values.length, @default))
+      else
+        @values.dup
+      end
+    end
+
     # Internal: Sets which reader class to use for retrieving load profile
     # data from disk. Anything which responds to "read" and returns an array
     # of floats is acceptable.

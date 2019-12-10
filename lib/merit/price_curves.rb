@@ -36,6 +36,17 @@ module Merit
         end
       end
 
+      # Public: Returns the price curve as an array, computing each value if
+      # necessary.
+      def to_a
+        if @values.first.nil?
+          # Price curve hasn't been calculated.
+          Array.new(@length) { |index| get(index) }
+        else
+          super
+        end
+      end
+
       # Public: Gets the price for the given point in the year.
       #
       # If no price has been explicitly set, the price will be calculated, set,
