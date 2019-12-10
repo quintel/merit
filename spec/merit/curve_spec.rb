@@ -316,6 +316,58 @@ module Merit
       end
     end # *
 
+    describe '#rotate' do
+      context 'with a curve [1, 2, 3, 4]' do
+        let(:curve) { Merit::Curve.new([1, 2, 3, 4]) }
+
+        it 'returns a Curve' do
+          expect(curve.rotate(2)).to be_a(Merit::Curve)
+        end
+
+        it 'rotates the curve forwards' do
+          expect(curve.rotate(1).to_a).to eq([2, 3, 4, 1])
+        end
+
+        it 'rotates the curve backwards' do
+          expect(curve.rotate(-1).to_a).to eq([4, 1, 2, 3])
+        end
+
+        it 'may rotate by 0' do
+          expect(curve.rotate(0).to_a).to eq([1, 2, 3, 4])
+        end
+
+        it 'returns a copy of when rotating by nothing' do
+          rotated = curve.rotate(0)
+          expect(rotated.object_id).not_to eq(curve.object_id)
+        end
+      end
+
+      context 'when a curve [1, 2], length = 4, default = 0' do
+        let(:curve) { Merit::Curve.new([1, 2], 4, 0) }
+
+        it 'rotates the curve forwards' do
+          expect(curve.rotate(1).to_a).to eq([2, 0, 0, 1])
+        end
+
+        it 'rotates the curve backwards' do
+          expect(curve.rotate(-1).to_a).to eq([0, 1, 2, 0])
+        end
+
+        it 'may rotate by 0' do
+          expect(curve.rotate(0).to_a).to eq([1, 2, 0, 0])
+        end
+
+        it 'returns a copy of when rotating by nothing' do
+          rotated = curve.rotate(0)
+          expect(rotated.object_id).not_to eq(curve.object_id)
+        end
+
+        it 'retains the original length' do
+          expect(curve.rotate(1).length).to eq(4)
+        end
+      end
+    end
+
     describe '.load_file' do
       it 'reads the contents of the given path' do
         curve   = Curve.load_file(fixture(:solar_pv))

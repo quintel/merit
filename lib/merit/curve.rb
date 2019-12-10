@@ -100,6 +100,14 @@ module Merit
       end
     end
 
+    # Public: Returns a new curve by rotating `self` so that the element at
+    # `count` becomes the new first element of the new curve.
+    #
+    # Returns a Merit::Curve.
+    def rotate(count)
+      self.class.new(to_a.rotate(count))
+    end
+
     # Internal: Sets which reader class to use for retrieving load profile
     # data from disk. Anything which responds to "read" and returns an array
     # of floats is acceptable.
