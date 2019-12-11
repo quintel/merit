@@ -252,7 +252,7 @@ module Merit
     describe '.calculator=' do
       it 'sets the default calculator for calculations' do
         previous = Merit::Order.calculator
-        new      = Merit::AveragingCalculator.new
+        new      = Merit::StepwiseCalculator.new
 
         begin
           Merit::Order.calculator = new
