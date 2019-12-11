@@ -24,7 +24,7 @@ module Merit
       @fixed_costs_per_unit      = opts[:fixed_costs_per_unit]
       @fixed_om_costs_per_unit   = opts[:fixed_om_costs_per_unit]
 
-      @load_curve    = Curve.new([], Merit::POINTS)
+      @load_curve    = Curve.new(Array.new(Merit::POINTS, 0.0))
       @cost_strategy = CostStrategy.create(self, opts)
     end
 
