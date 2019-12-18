@@ -105,12 +105,12 @@ module Merit
 
       private
 
-      # Internal: Fills computes the value of any `nil` points in the reserve up
-      # to the given point.
+      # Internal: Fills the value of any `nil` points in the reserve up to the
+      # given point.
       #
       # If there are large numbers of points in the reserve for which there is
-      # no value, compute them iteratively rather than to avoid consuming
-      # excessive stack space (quintel/etmodel#2296).
+      # no value, compute them iteratively rather than recursively to avoid
+      # consuming excessive stack space (quintel/etmodel#2296).
       #
       # Returns nothing
       def fill_blanks!(point)
