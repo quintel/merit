@@ -26,15 +26,28 @@ module Merit
     class Dependent < self
       def initialize(users)
         super
-        @dependent, @static = users.partition(&:dependent?)
+        @dependent, static = users.partition(&:dependent?)
+
+        @flex = users.select { |user| user.is_a?(Flex::Base) }
+        @static = static - @flex
       end
 
       def demand_at(point)
-        demand = @static.sum { |user| user.load_at(point) }
+        # Energy which will definitely be consumed in this hour.
+        instantaneous = @static.sum { |user| user.load_at(point) }
 
-        @dependent.reduce(demand) do |sum, user|
-          sum + user.load_at(point, demand)
+        # Energy which will be produced in this hour, including that which may
+        # not be consumed immediately.
+        total = instantaneous + @flex.sum { |user| user.load_at(point) }
+
+        @dependent.each do |user|
+          amount = user.load_at(point, instantaneous)
+
+          instantaneous += amount
+          total += amount
         end
+
+        total
       end
     end
   end

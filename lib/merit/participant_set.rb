@@ -85,7 +85,7 @@ module Merit
 
     # Public: Returns all the users of energy.
     def users
-      @users || select_participants(User)
+      @users || (select_participants(User) + flex.select(&:user?))
     end
 
     # Public: Returns participants which may only be running sometimes.

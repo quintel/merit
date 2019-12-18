@@ -37,6 +37,7 @@ require_relative 'merit/flex/group'
 require_relative 'merit/flex/reserve'
 require_relative 'merit/flex/simple_reserve'
 require_relative 'merit/flex/storage'
+require_relative 'merit/flex/eager_storage'
 
 require_relative 'merit/lole'
 require_relative 'merit/net_load_helper'
