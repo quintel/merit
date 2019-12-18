@@ -85,6 +85,9 @@ module Merit
         return 0.0 if point.zero? || ! @decay
 
         start = at(point - 1)
+
+        return 0.0 if start.zero?
+
         decay = @decay.call(point, start)
 
         decay < start ? decay : start
