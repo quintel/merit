@@ -5,7 +5,7 @@ module Merit
     class Base < DispatchableProducer
       # Default attributes for all storage technologies. May be customised as
       # needed.
-      DEFAULTS = { availability: 1.0 }.freeze
+      DEFAULTS = { availability: 1.0, marginal_costs: :null }.freeze
 
       # Public: Returns the input capacity of each unit of this technology.
       #
@@ -32,7 +32,7 @@ module Merit
       attr_reader :group
 
       def initialize(opts)
-        super(DEFAULTS.merge(opts).merge(marginal_costs: :null))
+        super(DEFAULTS.merge(opts))
 
         @input_capacity_per_unit =
           opts[:input_capacity_per_unit] || opts[:output_capacity_per_unit]
