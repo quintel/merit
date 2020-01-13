@@ -30,7 +30,9 @@ module Merit
 
     # Public: Returns all the must_run participants
     def must_runs
-      @must_runs || select_participants(MustRunProducer)
+      @must_runs ||
+        select_participants(MustRunProducer) +
+          select_participants(CurveProducer)
     end
 
     # Public: Returns a ParticipantSet which can be used in a merit order
