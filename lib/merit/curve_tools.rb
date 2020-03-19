@@ -83,15 +83,15 @@ module Merit
       # Returns the name of the generated method.
       def define_curve_adder(num_curves)
         params = Array.new(num_curves) { |i| "c#{i}" }
+        param_list = params.join(', ')
         name = :"add_curves_#{num_curves}"
 
-        param_separator = ', '
-        add_separator = ' + '
-
         instance_eval <<-RUBY, __FILE__, __LINE__ + 1
-          def #{name}(#{params.join(param_separator)})
-            ::Merit::Curve.new(Array.new(c0.length) do |index|
-              #{params.map { |p| "#{p}[index]" }.join(add_separator)}
+          def #{name}(#{param_list})
+            length = curves_length(#{param_list})
+
+            ::Merit::Curve.new(Array.new(length) do |index|
+              #{params.map { |p| "(#{p}[index] || 0.0)" }.join(' + ')}
             end)
           end
 
@@ -108,6 +108,10 @@ module Merit
         return 10 if length > 10
 
         5
+      end
+
+      def curves_length(*curves)
+        curves.detect { |c| c.length.positive? }&.length || 0
       end
     end
 

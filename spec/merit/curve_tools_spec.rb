@@ -87,5 +87,29 @@ describe Merit::CurveTools do
         expect(result.take(4)).to eq([26, 52, 52, 78])
       end
     end
+
+    context 'with an array of [], [1, 2], and [10, 20]' do
+      let(:result) do
+        described_class.add_curves(
+          [
+            [],
+            [1.0, 2.0],
+            [10.0, 20.0]
+          ]
+        )
+      end
+
+      it 'returns a Merit::Curve' do
+        expect(result).to be_a(Merit::Curve)
+      end
+
+      it 'returns a curve with two elements' do
+        expect(result.length).to eq(2)
+      end
+
+      it 'returns a curve of [11, 22]' do
+        expect(result.take(2)).to eq([11, 22])
+      end
+    end
   end
 end
