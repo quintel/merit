@@ -55,11 +55,25 @@ module Merit
     def dispatchables
       @dispatchables || begin
         dispatchables = select_participants(DispatchableProducer)
+        flexibles = flex
 
-        dispatchables.sort_by! do |p|
+        # This ensures a stable sort: that if two participants have the same
+        # cost their original order will be preserved.
+        #
+        # This should already be the case in Ruby, but there was a situation
+        # where two import interconnectors had an identical cost and yet would
+        # be flipped after sorting. Attempts to reproduce outside of Merit, and
+        # in tests, were unsuccessful. Yet, `dispatchables` above would have
+        # the participants in the correct order, and after `sort_by!` the order
+        # would be flipped.
+        pos = 0
+
+        dispatchables.sort_by! do |participant|
+          flex_index = flexibles.index(participant)
+
           [
-            p.cost_strategy.sortable_cost,
-            -(flex.index(p) || -Float::INFINITY)
+            participant.cost_strategy.sortable_cost,
+            flex_index ? -flex_index : pos += 1
           ]
         end
 
