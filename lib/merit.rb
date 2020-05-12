@@ -3,6 +3,11 @@ require 'csv'
 require 'terminal-table'
 require 'forwardable'
 
+module Merit
+  POINTS = 8760
+  MJ_IN_MWH = 3600
+end
+
 # Merit order specific
 require_relative 'merit/version'
 require_relative 'merit/errors'
