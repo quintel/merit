@@ -48,17 +48,6 @@ module Merit
       Merit::POINTS.times { |point| yield point }
     end
 
-    # Internal: This is called with a +producer+, +point+, and +value+ each
-    # time +calculate+ computes a value for a transient producer.
-    #
-    # Combined with +each_point+, subclasses can override this to compute only
-    # a subset of the points
-    #
-    # Returns nothing.
-    def assign_load(producer, point, value)
-      producer.set_load(point, value)
-    end
-
     # Internal: Computes the total energy demand for a given +point+.
     #
     # order - The merit order.
@@ -134,7 +123,6 @@ module Merit
         remaining = 0.0 if remaining.negative?
       end
 
-      # return if remaining.zero?
       dispatchables = producers.transients(point)
       next_idx = 0
 
@@ -179,10 +167,10 @@ module Merit
         next if max_load.zero?
 
         if max_load < remaining
-          assign_load(producer, point, max_load)
+          producer.set_load(point, max_load)
           remaining -= max_load
         else
-          assign_load(producer, point, remaining) if remaining.positive?
+          producer.set_load(point, remaining) if remaining.positive?
           return index
         end
       end
