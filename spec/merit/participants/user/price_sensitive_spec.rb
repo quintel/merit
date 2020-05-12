@@ -107,7 +107,13 @@ RSpec.shared_examples 'a price-sensitive User' do
 end
 
 RSpec.describe Merit::User::PriceSensitive do
-  let(:ps) { described_class.new(user, price_curve) }
+  let(:ps) do
+    described_class.new(
+      user,
+      Merit::CostStrategy::FromCurve.new(nil, Merit::Curve.new(price_curve))
+    )
+  end
+
   let(:price_curve) { [5.0, 10.0] }
 
   describe 'wrapping a TotalConsumption' do

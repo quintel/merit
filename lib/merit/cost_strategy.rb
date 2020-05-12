@@ -158,7 +158,7 @@ module Merit
       end
 
       def sortable_cost(point = nil)
-        point.nil? ? average_cost : @curve.get(point)
+        point.nil? ? average_cost : @curve[point]
       end
 
       def price_at(point, allow_loaded = false)

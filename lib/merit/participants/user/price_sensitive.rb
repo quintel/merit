@@ -33,23 +33,23 @@ module Merit
       extend Forwardable
       def_delegators :@inner, :key, :group
 
-      attr_reader :group, :load_curve
+      attr_reader :pricing, :group, :load_curve
 
       # Public: Creates a new `PriceSensitive` which adds price-sensitivity to
       # the given `User`.
       #
-      # user        - The `User` being made price sensitive.
-      # price_curve - A curve describing the price the user is willing to pay
-      #               in each hour.
-      # group       - Allows the PriceSensitive to be included in a flexibility
-      #               group.
+      # user    - The `User` being made price sensitive.
+      # pricing - A `CostStrategy` instance, describing how to calculate the
+      #           price the user is willing to pay in each hour.
+      # group   - Allows the PriceSensitive to be included in a flexibility
+      #           group.
       #
       # Returns a PriceSensitive.
-      def initialize(user, price_curve, group = nil)
+      def initialize(user, pricing, group = nil)
         raise(IllegalPriceSensitiveUser, user) if user.dependent?
 
         @inner = user
-        @price_curve = price_curve
+        @pricing = pricing
         @group = group
         @load_curve = Curve.new(Array.new(Merit::POINTS, 0.0))
       end
@@ -61,7 +61,7 @@ module Merit
       #
       # Returns a numeric.
       def barter_at(point, amount, price)
-        if @price_curve[point] >= price
+        if @pricing.cost_at(point) >= price
           assign_excess(point, amount)
         else
           0.0
