@@ -96,6 +96,10 @@ module Merit
         else           raise "Unknown unit: #{ unit }"
         end
       end
+
+      def flex?
+        true
+      end
     end # Base
   end # Flex
 end

@@ -33,6 +33,7 @@ require_relative 'merit/participants/types'
 require_relative 'merit/participants/supply_interconnect'
 require_relative 'merit/participants/user'
 require_relative 'merit/participants/user/consumption_loss'
+require_relative 'merit/participants/user/price_sensitive'
 require_relative 'merit/participants/user/total_consumption'
 require_relative 'merit/participants/user/with_curve'
 

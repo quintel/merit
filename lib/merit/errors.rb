@@ -102,4 +102,8 @@ module Merit
     "Flex participant #{ key.inspect } with an 'excess_share' must belong " \
     "to a group."
   end
+
+  IllegalPriceSensitiveUser = error_class do |inner|
+    "#{inner.class.name} (#{inner.key}) cannot be made price-sensitive"
+  end
 end # Merit

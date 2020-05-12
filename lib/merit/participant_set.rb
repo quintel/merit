@@ -85,7 +85,7 @@ module Merit
     #
     # TODO Sort by user-preference.
     def flex
-      @flex || select_participants(Flex::Base)
+      @flex || select(&:flex?)
         .each_with_object([]) do |participant, set|
           if participant.group
             if set.last && set.last.key == participant.group
@@ -99,9 +99,15 @@ module Merit
         end
     end
 
-    # Public: Returns all the users of energy.
+    # Public: Returns all the users of energy except those which are price
+    # sensitive.
     def users
       @users || select_participants(User)
+    end
+
+    # Public: Returns users which are price sensitive.
+    def price_sensitive_users
+      @price_sensitive_users || select_participants(User::PriceSensitive)
     end
 
     # Public: Returns participants which may only be running sometimes.
@@ -183,6 +189,7 @@ module Merit
       @producers     = producers.freeze
       @flex          = flex.freeze
       @users         = users.freeze
+      @price_sensitive_users = price_sensitive_users.freeze
 
       @always_on, @transients = split_producers.map(&:freeze)
     end

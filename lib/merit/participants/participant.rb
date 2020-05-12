@@ -38,6 +38,13 @@ module Merit
       ! always_on?
     end
 
+    # Public: Is this participant a flexible technology.
+    #
+    # Flexible technologies receive excess energy from always-on production.
+    def flex?
+      false
+    end
+
     # Public: Returns the (actual) energy produced by this participant.
     def production(unit = :mj)
       if unit == :mj

@@ -134,9 +134,44 @@ module Merit
         remaining = 0.0 if remaining.negative?
       end
 
-      return if remaining.zero?
+      # return if remaining.zero?
+      dispatchables = producers.transients(point)
+      next_idx = 0
 
-      producers.transients(point).each do |producer|
+      if remaining.positive?
+        next_idx = compute_dispatchables(point, dispatchables, remaining)
+
+        # There was unmet demand after running all dispatchables. It is not
+        # possible to satisfy any price-sensitive demands (below).
+        return if next_idx.nil?
+      end
+
+      compute_price_sensitives(
+        point,
+        order.participants.price_sensitive_users,
+        dispatchables,
+        next_idx
+      )
+
+      nil
+    end
+
+    # Internal: Computes the dispatchables load.
+    #
+    # Takes an enumerable of dispatchable producers and the remaining demand to
+    # be satisifed, and sets the load on the producers needed to meet demand.
+    #
+    # Returns the amount of energy still to be satisfied after running
+    # dispatchables.
+    #
+    # Returns the `dispatchables` array, minus those producers which have no
+    # remaining capacity. Note that the original `dispatchables` is modified
+    # in place for performance reasons.
+    #
+    # Returns the index of the first dispatchable which has capacity remaining,
+    # or nil if there is no remaining capacity.
+    def compute_dispatchables(point, dispatchables, remaining)
+      dispatchables.each.with_index do |producer, index|
         max_load = producer.max_load_at(point)
 
         # Optimisation: Load points default to zero, skipping to the next
@@ -145,13 +180,64 @@ module Merit
 
         if max_load < remaining
           assign_load(producer, point, max_load)
+          remaining -= max_load
         else
           assign_load(producer, point, remaining) if remaining.positive?
-          break
+          return index
+        end
+      end
+
+      nil
+    end
+
+    # Internal: Computes demand for price-sensitive users.
+    #
+    # These users want energy, but only if the price of energy is less or equal
+    # to the price they are willing to pay. These are run after calculating
+    # dispatchable loads.
+    #
+    # Returns nothing.
+    def compute_price_sensitives(point, users, dispatchables, index)
+      length = dispatchables.length
+
+      return if length.zero?
+
+      # It's possible for the first dispatchable to have a current load exactly
+      # equal to the max load. If this is the case we can skip it. This enables
+      # the `break if initial_load == producer_load` optimisation after the
+      # `users.each` loop (otherwise the loop may terminate early).
+      first_disp = dispatchables[index]
+      index += 1 if first_disp.max_load_at(point) == first_disp.load_at(point)
+
+      # This is an attempt to loop through the dispatchables array a second
+      # time, starting where `compute_dispatchables` left off, without having
+      # to allocate another array or Enumerator.
+      #
+      # While `dispatchables[index..-1].each` would be more idiomatic, the
+      # while loop requires no extra allocations.
+      #
+      # Please forgive me Matz. :(
+      while index < length
+        producer = dispatchables[index]
+
+        max_producer_load = producer.max_load_at(point)
+        initial_load = producer_load = producer.load_at(point)
+        price = producer.cost_at(point)
+
+        users.each do |user|
+          available = max_producer_load - producer_load
+          break unless available.positive?
+
+          producer_load += user.barter_at(point, available, price)
         end
 
-        # Subtract the production of the producer from the demand
-        remaining -= max_load
+        # If nothing as assigned, we can stop iterating as it means that the
+        # current price is too high for any price-sensitive user. Subsequent
+        # dispatchables will be even more expensive.
+        break if initial_load == producer_load
+
+        producer.set_load(point, producer_load)
+        index += 1
       end
     end
   end
