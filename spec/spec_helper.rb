@@ -1,5 +1,8 @@
+# frozen_string_literal: true
+
 require 'rspec'
 require 'pathname'
+require 'factory_bot'
 
 require 'support/coverage'
 require 'merit'
@@ -20,7 +23,12 @@ RSpec.configure do |config|
 
   config.expose_dsl_globally = true
 
+  config.include FactoryBot::Syntax::Methods
   config.include Merit::Spec
+
+  config.before(:suite) do
+    FactoryBot.find_definitions
+  end
 end
 
 def capture_stdout(&block)
