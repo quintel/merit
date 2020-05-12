@@ -1,0 +1,28 @@
+require:
+  - rubocop-performance
+  - rubocop-rspec
+
+AllCops:
+  NewCops: enable
+
+# Calculator methods cannot be reduced in complexity (by splitting into smaller
+# methods) without a performance impact.
+Metrics/AbcSize:
+  Exclude:
+    - lib/merit/calculator.rb
+
+Metrics/BlockLength:
+  Exclude:
+    - spec/**/*_spec.rb
+
+# Calculator methods cannot be split into smaller methods without a performance
+# impact.
+Metrics/MethodLength:
+  Exclude:
+    - lib/merit/calculator.rb
+
+# Integration tests have human-readable descriptions and do not describe
+# specific classes.
+RSpec/DescribeClass:
+  Exclude:
+    - spec/integration/**/*_spec.rb
