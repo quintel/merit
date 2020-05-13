@@ -14,7 +14,7 @@ module Merit
       # Public: Adds a new component to the group.
       #
       # Returns self.
-      def add(component)
+      def insert(component)
         @components.push(component)
         self
       end

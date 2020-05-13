@@ -105,7 +105,7 @@ module Merit
         .each_with_object([]) do |participant, set|
           if participant.group
             if set.last && set.last.key == participant.group
-              set.last.add(participant)
+              set.last.insert(participant)
             else
               set.push(Flex::Group.new(participant))
             end

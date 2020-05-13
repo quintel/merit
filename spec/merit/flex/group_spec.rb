@@ -25,7 +25,7 @@ module Merit
     end
 
     let(:group) do
-      Flex::Group.new(participant_one).add(participant_two)
+      Flex::Group.new(participant_one).insert(participant_two)
     end
 
     context 'with two participants, share 0.25/0.75, cap 2.0' do
