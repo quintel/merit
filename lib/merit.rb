@@ -24,6 +24,7 @@ require_relative 'merit/order_attribute_groups'
 require_relative 'merit/load_profile'
 require_relative 'merit/price_curves'
 require_relative 'merit/load_curve_presenter'
+require_relative 'merit/sorting'
 
 require_relative 'merit/participant_set'
 

@@ -5,7 +5,12 @@ require 'spec_helper'
 RSpec.describe 'Calculation of price-sensitive demands' do
   def to_cost_strategy(pricing)
     if pricing.is_a?(Numeric)
-      Merit::CostStrategy::Constant.new(nil, pricing.to_f)
+      Merit::CostStrategy::Constant.new(nil, pricing)
+    elsif pricing.is_a?(Array)
+      Merit::CostStrategy::FromCurve.new(
+        nil,
+        Merit::Curve.new(pricing * (Merit::POINTS / pricing.length))
+      )
     else
       pricing
     end
@@ -107,6 +112,50 @@ RSpec.describe 'Calculation of price-sensitive demands' do
 
       it 'calculates the production of the second user to be zero' do
         expect(ps_2.production).to eq(0)
+      end
+    end
+
+    context 'when both always-ons provide 2 and the second price-sensitive ' \
+            'has a higher price threshold' do
+      let(:capacity_1) { 2 }
+      let(:capacity_2) { 2 }
+
+      let(:ps_2_price) { 20 }
+
+      before { order.calculate }
+
+      pending 'sets no demand on the first user' do
+        expect(ps_1.load_at(0)).to eq(0)
+      end
+
+      pending 'sets demand of the second user to 4' do
+        expect(ps_2.load_at(0)).to eq(4)
+      end
+    end
+
+    context 'when both always-ons provide 2 and the second price-sensitive ' \
+            'has a higher price threshold in frame 1' do
+      let(:capacity_1) { 2 }
+      let(:capacity_2) { 2 }
+
+      let(:ps_2_price) { [11, 20] }
+
+      before { order.calculate }
+
+      pending 'sets demand of the first user to 4 in frame 0' do
+        expect(ps_1.load_at(0)).to eq(0)
+      end
+
+      pending 'sets no demand on the second user in frame 0' do
+        expect(ps_2.load_at(0)).to eq(4)
+      end
+
+      pending 'sets no demand on the first user in frame 1' do
+        expect(ps_1.load_at(1)).to eq(0)
+      end
+
+      pending 'sets demand of the second user to 4 in frame 1' do
+        expect(ps_2.load_at(1)).to eq(4)
       end
     end
 
@@ -218,6 +267,82 @@ RSpec.describe 'Calculation of price-sensitive demands' do
 
       it 'sets the load of the second dispatchable to 10' do
         expect(di_2.load_at(0)).to eq(10)
+      end
+    end
+
+    context 'when the first dispatchable provides only 5.0 and the second ' \
+            'price-sensitive has a higher price threshold' do
+      let(:capacity_1) { 2 }
+      let(:capacity_2) { 2 }
+
+      let(:di_1) do
+        FactoryBot.build(:dispatchable, output_capacity_per_unit: 5.0)
+      end
+
+      let(:ps_2_price) { 20 }
+
+      before { order.calculate }
+
+      it 'sets demand of the first user to 5' do
+        expect(ps_1.load_at(0)).to eq(5)
+      end
+
+      it 'sets demand of the second user to 10' do
+        expect(ps_2.load_at(0)).to eq(10)
+      end
+
+      it 'sets the load of the first dispatchable to 5' do
+        expect(di_1.load_at(0)).to eq(5)
+      end
+
+      it 'sets the load of the second dispatchable to 10' do
+        expect(di_2.load_at(0)).to eq(10)
+      end
+    end
+
+    context 'when the first dispatchable provides only 5.0 and the second ' \
+        'price-sensitive has a higher price threshold in frame 1' do
+      let(:capacity_1) { 2 }
+      let(:capacity_2) { 2 }
+
+      let(:di_1) do
+        FactoryBot.build(:dispatchable, output_capacity_per_unit: 5.0)
+      end
+
+      let(:ps_2_price) { [11, 20] }
+
+      before { order.calculate }
+
+      it 'sets demand of the first user to 10 in frame 0' do
+        expect(ps_1.load_at(0)).to eq(10)
+      end
+
+      it 'sets demand of the second user to 5 in frame 0' do
+        expect(ps_2.load_at(0)).to eq(5)
+      end
+
+      it 'sets the load of the first dispatchable to 5 in frame 0' do
+        expect(di_1.load_at(0)).to eq(5)
+      end
+
+      it 'sets the load of the second dispatchable to 10 in frame 0' do
+        expect(di_2.load_at(0)).to eq(10)
+      end
+
+      it 'sets demand of the first user to 5 in frame 1' do
+        expect(ps_1.load_at(1)).to eq(5)
+      end
+
+      it 'sets demand of the second user to 10 in frame 1' do
+        expect(ps_2.load_at(1)).to eq(10)
+      end
+
+      it 'sets the load of the first dispatchable to 5 in frame 1' do
+        expect(di_1.load_at(1)).to eq(5)
+      end
+
+      it 'sets the load of the second dispatchable to 10 in frame 1' do
+        expect(di_2.load_at(1)).to eq(10)
       end
     end
 

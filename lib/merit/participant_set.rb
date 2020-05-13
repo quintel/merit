@@ -7,6 +7,9 @@ module Merit
 
     def_delegators :@members, :[], :length, :key?
 
+    ForCalculation =
+      Struct.new(:always_on, :dispatchables, :flex, :price_sensitive_users)
+
     # Creates a new ParticipantSet.
     def initialize
       @members = {}
@@ -40,13 +43,26 @@ module Merit
     # more producers has a cost which varies over time, a Resortable is returned
     # instead.
     #
+    # TODO: Update documentation.
+    #
     # Returns something which responds to #always_on and #transients
-    def producers_for_calculation
-      if producers.any? { |p| p.cost_strategy.variable? }
-        ParticipantSet::Resortable.new(self)
-      else
-        self
-      end
+    def for_calculation
+      dispatchables_collection =
+        Sorting.for_collection(dispatchables) do |part, point|
+          part.cost_strategy.sortable_cost(point)
+        end
+
+      price_sensitives_collection =
+        Sorting.for_collection(price_sensitive_users) do |part, point|
+          -part.cost_strategy.sortable_cost(point)
+        end
+
+      ForCalculation.new(
+        always_on,
+        dispatchables_collection,
+        flex,
+        price_sensitives_collection
+      )
     end
 
     # Public: Returns all the dispatchables participants, ordered
@@ -107,7 +123,9 @@ module Merit
 
     # Public: Returns users which are price sensitive.
     def price_sensitive_users
-      @price_sensitive_users || select_participants(User::PriceSensitive)
+      @price_sensitive_users ||
+        select_participants(User::PriceSensitive)
+          .sort_by { |u| -u.cost_strategy.sortable_cost }
     end
 
     # Public: Returns participants which may only be running sometimes.
@@ -224,26 +242,5 @@ module Merit
 
       [always_on, transient]
     end
-
-    # A class used in the merit order calculation when one or more producer has
-    # a variable marginal cost, requiring the producers to be sorted in every
-    # calculation point.
-    class Resortable
-      attr_reader :flex
-
-      def initialize(set)
-        @always_on = set.always_on
-        @transients = set.transients
-        @flex = set.flex
-      end
-
-      def always_on(point)
-        @always_on.sort_by { |p| p.cost_strategy.sortable_cost(point) }
-      end
-
-      def transients(point)
-        @transients.sort_by { |p| p.cost_strategy.sortable_cost(point) }
-      end
-    end
-  end # ParticipantSet
-end # Merit
+  end
+end

@@ -29,7 +29,7 @@ module Merit
     # Returns self.
     def calculate(order)
       order.participants.lock!
-      producers = order.participants.producers_for_calculation
+      producers = order.participants.for_calculation
 
       each_point { |point| compute_point(order, point, producers) }
 
@@ -68,13 +68,13 @@ module Merit
     # changes can have large effects on the time taken to run the calculation.
     # Therefore, always benchmark / profile your changes!
     #
-    # order     - The Merit::Order being calculated.
-    # point     - The point in time, as an integer. Should be a value between
-    #             zero and Merit::POINTS - 1.
-    # producers - An object supplying the always_on and transient producers.
+    # order        - The Merit::Order being calculated.
+    # point        - The point in time, as an integer. Should be a value between
+    #                zero and Merit::POINTS - 1.
+    # participants - An object supplying the participants in the merit order.
     #
     # Returns nothing.
-    def compute_point(order, point, producers)
+    def compute_point(order, point, participants)
       # Optimisation: This is order-dependent; it requires that always-on
       # producers are before the transient producers, otherwise "remaining"
       # load will not be correct.
@@ -88,9 +88,9 @@ module Merit
         raise SubZeroDemand.new(point, remaining)
       end
 
-      flex = producers.flex
+      flex = participants.flex
 
-      producers.always_on(point).each do |producer|
+      participants.always_on.each do |producer|
         produced = producer.max_load_at(point)
 
         if produced > remaining
@@ -123,7 +123,7 @@ module Merit
         remaining = 0.0 if remaining.negative?
       end
 
-      dispatchables = producers.transients(point)
+      dispatchables = participants.dispatchables.at_point(point)
       next_idx = 0
 
       if remaining.positive?
@@ -136,7 +136,7 @@ module Merit
 
       compute_price_sensitives(
         point,
-        order.participants.price_sensitive_users,
+        participants.price_sensitive_users.at_point(point),
         dispatchables,
         next_idx
       )
@@ -203,8 +203,6 @@ module Merit
       #
       # While `dispatchables[index..-1].each` would be more idiomatic, the
       # while loop requires no extra allocations.
-      #
-      # Please forgive me Matz. :(
       while index < length
         producer = dispatchables[index]
 
@@ -247,7 +245,7 @@ module Merit
     def calculate(order)
       order.participants.lock!
 
-      producers  = order.participants.producers_for_calculation
+      participants = order.participants.for_calculation
       next_point = 0
 
       lambda do |point|
@@ -257,7 +255,7 @@ module Merit
           raise OutOfBounds, point
         end
 
-        compute_point(order, point, producers)
+        compute_point(order, point, participants)
         next_point += 1
 
         point
