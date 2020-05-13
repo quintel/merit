@@ -10,10 +10,19 @@ module Merit
     ForCalculation =
       Struct.new(:always_on, :dispatchables, :flex, :price_sensitive_users)
 
+    # Contains pre-defined flexibility groups.
+    #
+    # This permits setting a custom configuration for a Flex::Group. If a
+    # flexibilty participant belongs to a group which isn't defined in
+    # `flex_groups`, ParticipantSet will fall back to the default group:
+    # Flex::Group (first-come, first-served) with Sorting::Fixed.
+    attr_reader :flex_groups
+
     # Creates a new ParticipantSet.
     def initialize
       @members = {}
-      @locked  = false
+      @locked = false
+      @flex_groups = Flex::GroupSet.new
     end
 
     # Public: returns an +ordered+ Array of all the producers
@@ -100,6 +109,7 @@ module Merit
     # Public: Returns all participants which are flexible technologies.
     #
     # TODO Sort by user-preference.
+    # TODO Extract to a separate module.
     def flex
       @flex || select(&:flex?)
         .each_with_object([]) do |participant, set|
@@ -107,12 +117,15 @@ module Merit
             if set.last && set.last.key == participant.group
               set.last.insert(participant)
             else
-              set.push(Flex::Group.new(participant))
+              group = @flex_groups.fetch_or_define(participant.group)
+
+              group.insert(participant)
+              set.push(group)
             end
           else
             set.push(participant)
           end
-        end
+        end.uniq
     end
 
     # Public: Returns all the users of energy except those which are price

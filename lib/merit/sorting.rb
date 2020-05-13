@@ -17,29 +17,6 @@ module Merit
 
     # Represents a collection of participants which are pre-sorted.
     class Fixed
-      def initialize(collection = [])
-        @collection = collection.dup
-        @seen = Hash[@collection.zip([])]
-      end
-
-      def insert(item)
-        unless @seen.key?(item)
-          @collection.push(item)
-          @seen[item] = nil
-        end
-
-        @collection
-      end
-
-      def at_point(*)
-        @collection
-      end
-    end
-
-    # Represents a collection of participants which are re-sorted each time
-    # at_point is called. Note that the collection is sorted in-place to avoid
-    # allocating new arrays.
-    class Variable < Fixed
       # Public: Creates a Variable sorting, set up to sort the members by their
       # sortable cost in ascending order.
       #
@@ -61,18 +38,56 @@ module Merit
       end
 
       def initialize(collection = [], &sorter)
-        super(collection)
-
+        @collection = collection.dup
         @sorter = sorter
+
+        @seen = Hash[@collection.zip([])]
+        @has_sorted = false
+      end
+
+      def insert(item)
+        unless @seen.key?(item)
+          @collection.push(item)
+          @seen[item] = nil
+        end
+
+        @collection
+      end
+
+      def at_point(*)
+        sort_collection(nil) if !@has_sorted && @sorter
+        @collection
+      end
+
+      def to_a
+        @collection.dup
+      end
+
+      private
+
+      def sort_collection(point)
+        @has_sorted = true
+
+        @collection.sort_by! do |participant|
+          @sorter.call(participant, point)
+        end
+      end
+    end
+
+    # Represents a collection of participants which are re-sorted each time
+    # at_point is called. Note that the collection is sorted in-place to avoid
+    # allocating new arrays.
+    class Variable < Fixed
+      def initialize(collection = [], &sorter)
+        raise SortBlockRequired if sorter.nil?
+
+        super
         @last_sorting_point = nil
       end
 
       def at_point(point)
         if point != @last_sorting_point
-          @collection.sort_by! do |participant|
-            @sorter.call(participant, point)
-          end
-
+          sort_collection(point)
           @last_sorting_point = point
         end
 

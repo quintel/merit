@@ -1,4 +1,25 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
+
+shared_examples_for 'a participant set with four flex options, two grouped' do
+  it 'has three flexibility technologies' do
+    expect(participants.flex.length).to eq(3)
+  end
+
+  it 'has flexibility options in the original order' do
+    expect(participants.flex.map(&:key)).to eq(%i[a b c])
+  end
+
+  it 'has the group as a flexibility technology' do
+    expect(participants.flex[1]).to be_a(Merit::Flex::Group)
+  end
+
+  it 'adds the flex technologies to the group' do
+    group = participants.flex[1]
+    expect(group.to_a).to eq([f2, f3])
+  end
+end
 
 describe Merit::ParticipantSet do
   let(:must_run) do
@@ -104,5 +125,62 @@ describe Merit::ParticipantSet do
     it 'has one transient' do
       expect(participants.transients).to eq([dispatchable])
     end
+  end
+
+  context 'with four flex options, two belonging to a defined share group' do
+    let(:f1) { FactoryBot.build(:flex, group: :a) }
+    let(:f2) { FactoryBot.build(:flex, group: :b) }
+    let(:f3) { FactoryBot.build(:flex, group: :b) }
+    let(:f4) { FactoryBot.build(:flex, group: :c) }
+
+    let(:group) { Merit::Flex::Group.new(:b) }
+
+    before do
+      participants.flex_groups.define(group)
+
+      participants.add(f1)
+      participants.add(f2)
+      participants.add(f3)
+      participants.add(f4)
+    end
+
+    include_examples 'a participant set with four flex options, two grouped'
+
+    it 'has the Group instance as a flexibility technology' do
+      expect(participants.flex[1]).to eq(group)
+    end
+  end
+
+  context 'with four flex options, two belonging to an undefined share group' do
+    let(:f1) { FactoryBot.build(:flex, group: :a) }
+    let(:f2) { FactoryBot.build(:flex, group: :b) }
+    let(:f3) { FactoryBot.build(:flex, group: :b) }
+    let(:f4) { FactoryBot.build(:flex, group: :c) }
+
+    before do
+      participants.add(f1)
+      participants.add(f2)
+      participants.add(f3)
+      participants.add(f4)
+    end
+
+    include_examples 'a participant set with four flex options, two grouped'
+  end
+
+  context 'with four flex options, two belonging to an undefined share group ' \
+          'out of order' do
+    let(:f1) { FactoryBot.build(:flex, group: :a) }
+    let(:f2) { FactoryBot.build(:flex, group: :b) }
+    let(:f3) { FactoryBot.build(:flex, group: :b) }
+    let(:f4) { FactoryBot.build(:flex, group: :c) }
+
+    before do
+      participants.add(f1)
+      participants.add(f2)
+      participants.add(f4)
+      participants.add(f3)
+    end
+
+    include_examples 'a participant set with four flex options, two grouped'
   end
 end

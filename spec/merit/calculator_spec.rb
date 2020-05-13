@@ -387,7 +387,16 @@ describe Merit::Calculator do
         group: :flex_group
       }}
 
-      before { order.calculate(described_class.new) }
+      before do
+        order.participants.flex_groups.define(
+          Merit::Flex::ShareGroup.new(
+            :flex_group,
+            Merit::Sorting::Fixed.new
+          )
+        )
+
+        order.calculate
+      end
 
       it 'charges while there is excess and available volume' do
         # 0.01141552511424 is the excess
@@ -416,7 +425,16 @@ describe Merit::Calculator do
         super().tap { |order| order.add(p2p_2) }
       end
 
-      before { order.calculate(described_class.new) }
+      before do
+        order.participants.flex_groups.define(
+          Merit::Flex::ShareGroup.new(
+            :flex_group,
+            Merit::Sorting::Fixed.new
+          )
+        )
+
+        order.calculate
+      end
 
       it 'charges the first flex' do
         expect(p2p.load_curve.to_a.take(4))

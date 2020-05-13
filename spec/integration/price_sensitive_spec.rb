@@ -23,19 +23,33 @@ RSpec.describe 'Calculation of price-sensitive demands' do
   let(:ps_2_price) { 15 }
 
   let(:ps_1) do
-    Merit::User::PriceSensitive.new(user_1, to_cost_strategy(ps_1_price))
+    Merit::User::PriceSensitive.new(
+      user_1,
+      to_cost_strategy(ps_1_price),
+      :a_group
+    )
   end
 
   let(:ps_2) do
-    Merit::User::PriceSensitive.new(user_2, to_cost_strategy(ps_2_price))
+    Merit::User::PriceSensitive.new(
+      user_2,
+      to_cost_strategy(ps_2_price),
+      :a_group
+    )
   end
 
   let(:order) do
     Merit::Order.new.tap do |order|
+      order.participants.flex_groups.define(
+        Merit::Flex::Group.new(ps_1.group, sorting)
+      )
+
       order.add(ps_1)
       order.add(ps_2)
     end
   end
+
+  let(:sorting) { Merit::Sorting::Fixed.by_sortable_cost_desc }
 
   # Supplied by always-ons
   # ----------------------
@@ -124,17 +138,19 @@ RSpec.describe 'Calculation of price-sensitive demands' do
 
       before { order.calculate }
 
-      pending 'sets no demand on the first user' do
+      it 'sets no demand on the first user' do
         expect(ps_1.load_at(0)).to eq(0)
       end
 
-      pending 'sets demand of the second user to 4' do
+      it 'sets demand of the second user to 4' do
         expect(ps_2.load_at(0)).to eq(4)
       end
     end
 
     context 'when both always-ons provide 2 and the second price-sensitive ' \
             'has a higher price threshold in frame 1' do
+      let(:sorting) { Merit::Sorting::Variable.by_sortable_cost_desc }
+
       let(:capacity_1) { 2 }
       let(:capacity_2) { 2 }
 
@@ -142,19 +158,19 @@ RSpec.describe 'Calculation of price-sensitive demands' do
 
       before { order.calculate }
 
-      pending 'sets demand of the first user to 4 in frame 0' do
-        expect(ps_1.load_at(0)).to eq(0)
+      it 'sets demand of the first user to 4 in frame 0' do
+        expect(ps_1.load_at(0)).to eq(4)
       end
 
-      pending 'sets no demand on the second user in frame 0' do
-        expect(ps_2.load_at(0)).to eq(4)
+      it 'sets no demand on the second user in frame 0' do
+        expect(ps_2.load_at(0)).to eq(0)
       end
 
-      pending 'sets no demand on the first user in frame 1' do
+      it 'sets no demand on the first user in frame 1' do
         expect(ps_1.load_at(1)).to eq(0)
       end
 
-      pending 'sets demand of the second user to 4 in frame 1' do
+      it 'sets demand of the second user to 4 in frame 1' do
         expect(ps_2.load_at(1)).to eq(4)
       end
     end
@@ -302,6 +318,8 @@ RSpec.describe 'Calculation of price-sensitive demands' do
 
     context 'when the first dispatchable provides only 5.0 and the second ' \
         'price-sensitive has a higher price threshold in frame 1' do
+      let(:sorting) { Merit::Sorting::Variable.by_sortable_cost_desc}
+
       let(:capacity_1) { 2 }
       let(:capacity_2) { 2 }
 

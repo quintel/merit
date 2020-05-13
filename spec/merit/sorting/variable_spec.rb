@@ -48,6 +48,10 @@ RSpec.describe Merit::Sorting::Variable do
     let(:source) { [p1, p2] }
     let(:sorting) { described_class.by_sortable_cost(source) }
 
+    it 'returns a Sorting::Variable' do
+      expect(sorting).to be_a(described_class)
+    end
+
     it 'sorts less expensive members first' do
       sorted = sorting.at_point(0)
       expect(sorted.index(p1)).to be > sorted.index(p2)
@@ -60,6 +64,10 @@ RSpec.describe Merit::Sorting::Variable do
 
     let(:source) { [p1, p2] }
     let(:sorting) { described_class.by_sortable_cost_desc(source) }
+
+    it 'returns a Sorting::Variable' do
+      expect(sorting).to be_a(described_class)
+    end
 
     it 'sorts less expensive members first' do
       sorted = sorting.at_point(0)

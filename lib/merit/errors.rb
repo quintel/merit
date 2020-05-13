@@ -106,4 +106,8 @@ module Merit
   IllegalPriceSensitiveUser = error_class do |inner|
     "#{inner.class.name} (#{inner.key}) cannot be made price-sensitive"
   end
+
+  SortBlockRequired = error_class do
+    "Cannot use Variable sorting without providing a block"
+  end
 end # Merit
