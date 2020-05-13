@@ -185,7 +185,8 @@ module Merit
     end
 
     def to_s
-      "#{ length - users.length } producers, #{ users.length } users"
+      "#{producers.length} producers, #{users.length} users, " \
+        "#{flex.length} flex, #{price_sensitive_users.length} price-sensitives"
     end
 
     def inspect
