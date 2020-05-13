@@ -17,8 +17,12 @@ module Merit
 
     # Represents a collection of participants which are pre-sorted.
     class Fixed
-      def initialize(collection)
+      def initialize(collection = [])
         @collection = collection.dup
+      end
+
+      def insert(item)
+        @collection.push(item)
       end
 
       def at_point(*)
@@ -29,9 +33,10 @@ module Merit
     # Represents a collection of participants which are re-sorted each time
     # at_point is called. Note that the collection is sorted in-place to avoid
     # allocating new arrays.
-    class Variable
-      def initialize(collection, &sorter)
-        @collection = collection.dup
+    class Variable < Fixed
+      def initialize(collection = [], &sorter)
+        super(collection)
+
         @sorter = sorter
         @last_sorting_point = nil
       end

@@ -13,4 +13,11 @@ RSpec.describe Merit::Sorting::Fixed do
   it 'returns the collection in the same order each time' do
     expect(sorting.at_point(1)).to eq(sorting.at_point(0))
   end
+
+  it 'accepts a new item with #add' do
+    expect { sorting.insert(6) }
+      .to change { sorting.at_point(0) }
+      .from([1, 2, 3, 4, 5])
+      .to([1, 2, 3, 4, 5, 6])
+  end
 end
