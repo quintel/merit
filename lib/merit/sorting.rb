@@ -40,6 +40,26 @@ module Merit
     # at_point is called. Note that the collection is sorted in-place to avoid
     # allocating new arrays.
     class Variable < Fixed
+      # Public: Creates a Variable sorting, set up to sort the members by their
+      # sortable cost in ascending order.
+      #
+      # Returns a Variable.
+      def self.by_sortable_cost(collection = [])
+        new(collection) do |part, point|
+          part.cost_strategy.sortable_cost(point)
+        end
+      end
+
+      # Public: Creates a Variable sorting, set up to sort the members by their
+      # sortable cost in descending order.
+      #
+      # Returns a Variable.
+      def self.by_sortable_cost_desc(collection = [])
+        new(collection) do |part, point|
+          -part.cost_strategy.sortable_cost(point)
+        end
+      end
+
       def initialize(collection = [], &sorter)
         super(collection)
 
