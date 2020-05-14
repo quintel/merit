@@ -19,10 +19,16 @@ module Merit
     class Fixed
       def initialize(collection = [])
         @collection = collection.dup
+        @seen = Hash[@collection.zip([])]
       end
 
       def insert(item)
-        @collection.push(item)
+        unless @seen.key?(item)
+          @collection.push(item)
+          @seen[item] = nil
+        end
+
+        @collection
       end
 
       def at_point(*)

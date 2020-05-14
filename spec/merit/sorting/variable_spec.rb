@@ -34,5 +34,10 @@ RSpec.describe Merit::Sorting::Variable do
     it 'sorts the item correctly in point 1' do
       expect(sorting.at_point(1)).to eq([6, 5, 4, 3, 2, 1])
     end
+
+    it 'ignores duplicate items' do
+      sorting.insert(6)
+      expect(sorting.at_point(0)).to eq([1, 2, 3, 4, 5, 6])
+    end
   end
 end

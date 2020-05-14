@@ -20,4 +20,9 @@ RSpec.describe Merit::Sorting::Fixed do
       .from([1, 2, 3, 4, 5])
       .to([1, 2, 3, 4, 5, 6])
   end
+
+  it 'ignores duplicate items' do
+    sorting.insert(1)
+    expect(sorting.at_point(0)).to eq([1, 2, 3, 4, 5])
+  end
 end
