@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Merit
   module Flex
     # Some Flexible participants may belong to a group, such that receive excess
@@ -26,8 +28,10 @@ module Merit
       # Public: Creates a new group.
       #
       # key        - Unique key to identify this group in the merit order.
-      # collection - A Sorting instance, so the group know if and how to resort
-      #              the members of the collection in each frame. May be empty.
+      # collection - An optional Sorting instance containing members of the
+      #              group. If none is provided, the group will start empty with
+      #              Fixed sorting, swapping to Variable if any new group member
+      #              has variable-priced cost strategy.
       #
       # Returns a Group.
       def initialize(key, collection = Sorting::Fixed.new)
@@ -39,6 +43,10 @@ module Merit
       #
       # Returns self.
       def insert(participant)
+        if must_become_variable?(participant)
+          @collection = @collection.to_variable
+        end
+
         @collection.insert(participant)
         self
       end
@@ -67,6 +75,16 @@ module Merit
       end
 
       alias_method :to_s, :inspect
+
+      private
+
+      def must_become_variable?(participant)
+        return false if @collection.is_a?(Sorting::Variable)
+        return false unless @collection.sortable?
+        return false unless participant.cost_strategy.variable?
+
+        true
+      end
     end
 
     # Some flexible participants may belong to a group. These participants need

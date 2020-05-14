@@ -41,15 +41,16 @@ RSpec.describe 'Calculation of price-sensitive demands' do
   let(:order) do
     Merit::Order.new.tap do |order|
       order.participants.flex_groups.define(
-        Merit::Flex::Group.new(ps_1.group, sorting)
+        Merit::Flex::Group.new(
+          ps_1.group,
+          Merit::Sorting.by_sortable_cost_desc
+        )
       )
 
       order.add(ps_1)
       order.add(ps_2)
     end
   end
-
-  let(:sorting) { Merit::Sorting::Fixed.by_sortable_cost_desc }
 
   # Supplied by always-ons
   # ----------------------
@@ -149,8 +150,6 @@ RSpec.describe 'Calculation of price-sensitive demands' do
 
     context 'when both always-ons provide 2 and the second price-sensitive ' \
             'has a higher price threshold in frame 1' do
-      let(:sorting) { Merit::Sorting::Variable.by_sortable_cost_desc }
-
       let(:capacity_1) { 2 }
       let(:capacity_2) { 2 }
 
@@ -318,8 +317,6 @@ RSpec.describe 'Calculation of price-sensitive demands' do
 
     context 'when the first dispatchable provides only 5.0 and the second ' \
         'price-sensitive has a higher price threshold in frame 1' do
-      let(:sorting) { Merit::Sorting::Variable.by_sortable_cost_desc}
-
       let(:capacity_1) { 2 }
       let(:capacity_2) { 2 }
 

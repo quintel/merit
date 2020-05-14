@@ -24,13 +24,12 @@ describe Merit::Flex::ShareGroup do
   end
 
   let(:group) do
-    collection = [participant_one, participant_two]
+    sorting = Merit::Sorting.by_sortable_cost
 
-    sorting = Merit::Sorting.for_collection(collection) do |part, point|
-      part.cost_strategy.sortable_cost(point)
+    Merit::Flex::Group.new(:a, sorting).tap do |group|
+      group.insert(participant_one)
+      group.insert(participant_two)
     end
-
-    Merit::Flex::Group.new(:a, sorting)
   end
 
   context 'with two participants cap 2.0' do

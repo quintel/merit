@@ -11,32 +11,32 @@ module Merit
       if collection.any? { |p| p.cost_strategy.variable? }
         Variable.new(collection, &sorter)
       else
-        Fixed.new(collection)
+        Fixed.new(collection, &sorter)
+      end
+    end
+
+    # Public: Creates a Variable sorting, set up to sort the members by their
+    # sortable cost in ascending order.
+    #
+    # Returns a Variable.
+    def self.by_sortable_cost(collection = [])
+      for_collection(collection) do |part, point|
+        part.cost_strategy.sortable_cost(point)
+      end
+    end
+
+    # Public: Creates a Variable sorting, set up to sort the members by their
+    # sortable cost in descending order.
+    #
+    # Returns a Variable.
+    def self.by_sortable_cost_desc(collection = [])
+      for_collection(collection) do |part, point|
+        -part.cost_strategy.sortable_cost(point)
       end
     end
 
     # Represents a collection of participants which are pre-sorted.
     class Fixed
-      # Public: Creates a Variable sorting, set up to sort the members by their
-      # sortable cost in ascending order.
-      #
-      # Returns a Variable.
-      def self.by_sortable_cost(collection = [])
-        new(collection) do |part, point|
-          part.cost_strategy.sortable_cost(point)
-        end
-      end
-
-      # Public: Creates a Variable sorting, set up to sort the members by their
-      # sortable cost in descending order.
-      #
-      # Returns a Variable.
-      def self.by_sortable_cost_desc(collection = [])
-        new(collection) do |part, point|
-          -part.cost_strategy.sortable_cost(point)
-        end
-      end
-
       def initialize(collection = [], &sorter)
         @collection = collection.dup
         @sorter = sorter
@@ -59,9 +59,25 @@ module Merit
         @collection
       end
 
+      def sortable?
+        !@sorter.nil?
+      end
+
       def to_a
         @collection.dup
       end
+
+      # Converts the Fixed to a Variable.
+      def to_variable
+        Variable.new(@collection, &@sorter)
+      end
+
+      def inspect
+        "#<#{self.class.name} sorter=#{@sorter.inspect} " \
+          "collection=#{@collection.inspect}>"
+      end
+
+      alias_method :to_s, :inspect
 
       private
 
