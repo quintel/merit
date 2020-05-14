@@ -47,11 +47,13 @@ module Merit
       #
       # Returns the total amount of energy taken by the participants.
       def assign_excess(point, amount)
-        @collection.at_point(point).sum do |part|
+        @collection.at_point(point).reduce(0.0) do |memo, part|
+          break memo unless amount.positive?
+
           taken = part.assign_excess(point, amount)
           amount -= taken
 
-          taken
+          memo + taken
         end
       end
 
