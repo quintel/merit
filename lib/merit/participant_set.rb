@@ -111,21 +111,7 @@ module Merit
     # TODO Sort by user-preference.
     # TODO Extract to a separate module.
     def flex
-      @flex || select(&:flex?)
-        .each_with_object([]) do |participant, set|
-          if participant.group
-            if set.last && set.last.key == participant.group
-              set.last.insert(participant)
-            else
-              group = @flex_groups.fetch_or_define(participant.group)
-
-              group.insert(participant)
-              set.push(group)
-            end
-          else
-            set.push(participant)
-          end
-        end.uniq
+      @flex || FlexListBuilder.build(self)
     end
 
     # Public: Returns all the users of energy except those which are price

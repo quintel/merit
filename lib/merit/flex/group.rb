@@ -65,6 +65,16 @@ module Merit
         end
       end
 
+      # Public: Reduces the group to the simplest possible participant.
+      #
+      # A group with only one member has no special assignment or sorting
+      # behavior, and can therefore be replaced by the member.
+      #
+      # Returns a Group or Participant.
+      def simplify
+        @collection.length == 1 ? @collection.first : self
+      end
+
       def to_a
         @collection.to_a
       end

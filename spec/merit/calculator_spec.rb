@@ -315,13 +315,7 @@ describe Merit::Calculator do
   end # with a variable-marginal-cost producer
 
   describe 'with P2P storage' do
-    let(:p2p_attrs) {{
-      key: :p2p,
-      volume_per_unit: 0.05,
-      output_capacity_per_unit: 2.0,
-      availability: 1.0,
-      number_of_units: 1
-    }}
+    let(:p2p_attrs) { FactoryBot.attributes_for(:storage) }
 
     let(:user_attrs) {{
       key: :total_demand,
@@ -377,17 +371,23 @@ describe Merit::Calculator do
     end # with an excess of production
 
     context 'with an excess of production and excess_share of 0.25' do
-      let(:p2p_attrs) {{
-        key: :p2p,
-        volume_per_unit: 0.05,
-        output_capacity_per_unit: 2.0,
-        availability: 1.0,
-        number_of_units: 1,
-        excess_share: 0.25,
-        group: :flex_group
-      }}
+      let(:p2p_attrs) do
+        FactoryBot.attributes_for(
+          :storage,
+          excess_share: 0.25,
+          group: :flex_group
+        )
+      end
 
       before do
+        order.add(
+          FactoryBot.build(
+            :storage,
+            excess_share: 0.75,
+            group: :flex_group
+          )
+        )
+
         order.participants.flex_groups.define(
           Merit::Flex::ShareGroup.new(
             :flex_group,

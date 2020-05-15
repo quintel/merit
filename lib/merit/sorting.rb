@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 module Merit
   module Sorting
     # Public: Receives a collection of participants, the method name which
@@ -37,6 +39,9 @@ module Merit
 
     # Represents a collection of participants which are pre-sorted.
     class Fixed
+      extend Forwardable
+      def_delegators :@collection, :first, :length
+
       def initialize(collection = [], &sorter)
         @collection = collection.dup
         @sorter = sorter

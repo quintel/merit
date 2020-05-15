@@ -27,6 +27,7 @@ require_relative 'merit/load_curve_presenter'
 require_relative 'merit/sorting'
 
 require_relative 'merit/participant_set'
+require_relative 'merit/participant_set/flex_list_builder'
 
 require_relative 'merit/participants/participant'
 require_relative 'merit/participants/producer'

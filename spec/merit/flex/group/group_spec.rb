@@ -32,6 +32,36 @@ describe Merit::Flex::ShareGroup do
     end
   end
 
+  describe '#simplify' do
+    context 'with no participants' do
+      it 'returns itself' do
+        group = Merit::Flex::Group.new(:a)
+        expect(group.simplify).to eq(group)
+      end
+    end
+
+    context 'with one participant' do
+      it 'returns the participant' do
+        group = Merit::Flex::Group.new(:a)
+        part = FactoryBot.build(:flex)
+
+        group.insert(part)
+
+        expect(group.simplify).to eq(part)
+      end
+    end
+
+    context 'with two participants' do
+      it 'returns itself' do
+        group = Merit::Flex::Group.new(:a)
+        group.insert(FactoryBot.build(:flex))
+        group.insert(FactoryBot.build(:flex))
+
+        expect(group.simplify).to eq(group)
+      end
+    end
+  end
+
   context 'with two participants cap 2.0' do
     context 'when assigning 2.0' do
       let!(:assign) { group.assign_excess(0, 2.0) }
