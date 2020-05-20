@@ -127,6 +127,8 @@ module Merit
         end
       end
 
+      alias_method :total_consumption, :production
+
       def inspect
         "#<#{self.class.name} #{key} (#{@inner.class.name})>"
       end

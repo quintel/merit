@@ -37,7 +37,7 @@ module Merit
     private
 
     def users(point)
-      @order.participants.users.map do |user|
+      @order.participants.all_users.map do |user|
         ['U', user.key, '-', format('%.02f', user.load_at(point)), '-']
       end
     end

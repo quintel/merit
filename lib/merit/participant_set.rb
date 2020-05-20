@@ -127,6 +127,11 @@ module Merit
           .sort_by { |u| -u.cost_strategy.sortable_cost }
     end
 
+    # Public: Returns all normal users, plus price-sensitive users.
+    def all_users
+      users + price_sensitive_users
+    end
+
     # Public: Returns participants which may only be running sometimes.
     #
     # Accepts (and discards) an optional "point" parameter for API compatibility

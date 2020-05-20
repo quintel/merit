@@ -55,7 +55,7 @@ module Merit
     # in a one-hour period.
     def demand_curve(profile, demand = nil)
       Curve.new(profile.to_a) *
-        (demand || @order.participants.users.map(&:total_consumption))
+        (demand || @order.participants.all_users.sum(&:total_consumption))
     end
   end # LOLE
 end # Merit
