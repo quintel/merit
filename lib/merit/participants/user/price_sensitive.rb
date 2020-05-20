@@ -61,7 +61,10 @@ module Merit
       #
       # Returns a numeric.
       def barter_at(point, amount, price)
-        if @cost_strategy.cost_at(point) >= price
+        # "gt" rather than "gte" so that the participant does not provide energy
+        # to itself. This avoids having to do this check explicitly in
+        # Calculator avoiding many extra comparisons.
+        if @cost_strategy.cost_at(point) > price
           assign_excess(point, amount)
         else
           0.0

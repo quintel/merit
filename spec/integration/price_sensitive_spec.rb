@@ -261,6 +261,30 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       end
     end
 
+    context 'when both dispatchables have the same price as the ' \
+            'price-sensitives' do
+      let(:ps_1_price) { 10 }
+      let(:ps_2_price) { 10 }
+
+      before { order.calculate }
+
+      it 'sets no demand on the first user' do
+        expect(ps_1.load_at(0)).to eq(0)
+      end
+
+      it 'sets no demand on the second user' do
+        expect(ps_2.load_at(0)).to eq(0)
+      end
+
+      it 'sets no demand on the first dispatchable' do
+        expect(di_1.load_at(0)).to eq(0)
+      end
+
+      it 'sets no demand on the second dispatchable' do
+        expect(di_2.load_at(0)).to eq(0)
+      end
+    end
+
     context 'when the first dispatchable provides only 5.0' do
       let(:di_1) do
         FactoryBot.build(:dispatchable, output_capacity_per_unit: 5.0)
@@ -563,7 +587,7 @@ RSpec.describe 'Calculation of price-sensitive demands' do
         expect(ps_1.load_at(0)).to eq(5)
       end
 
-      it 'sets no demand demand on the second user' do
+      it 'sets no demand on the second user' do
         expect(ps_2.load_at(0)).to eq(0)
       end
 
@@ -620,7 +644,7 @@ RSpec.describe 'Calculation of price-sensitive demands' do
         expect(ps_1.load_at(0)).to eq(0)
       end
 
-      it 'sets no demand demand on the second user' do
+      it 'sets no demand on the second user' do
         expect(ps_2.load_at(0)).to eq(0)
       end
 
@@ -639,7 +663,7 @@ RSpec.describe 'Calculation of price-sensitive demands' do
         expect(ps_1.load_at(0)).to eq(4)
       end
 
-      it 'sets no demand demand on the second user' do
+      it 'sets no demand on the second user' do
         expect(ps_2.load_at(0)).to eq(0)
       end
 

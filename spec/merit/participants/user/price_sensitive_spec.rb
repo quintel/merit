@@ -8,8 +8,8 @@ require 'spec_helper'
 #   point 1 = 2.0
 #
 RSpec.shared_examples 'a price-sensitive User' do
-  context 'when the "want" price is 10' do
-    let(:price_curve) { [10, 10] }
+  context 'when the "want" price is 15' do
+    let(:price_curve) { [15, 15] }
 
     context 'when the "offer" price is 2.5 and amount is 0.5' do
       it 'accepts 0.5 energy when desiring 1' do
@@ -51,13 +51,13 @@ RSpec.shared_examples 'a price-sensitive User' do
       end
     end
 
-    context 'when the "offer" price is 11 and amount is 1' do
+    context 'when the "offer" price is 20 and amount is 1' do
       it 'accepts no energy when desiring 1' do
-        expect(ps.barter_at(0, 1.0, 11.0)).to eq(0)
+        expect(ps.barter_at(0, 1.0, 20.0)).to eq(0)
       end
 
       it 'accepts no energy when desiring 2' do
-        expect(ps.barter_at(1, 1.0, 11.0)).to eq(0)
+        expect(ps.barter_at(1, 1.0, 20.0)).to eq(0)
       end
     end
   end
