@@ -12,6 +12,8 @@ module Merit
     def self.for_collection(collection, &sorter)
       if collection.any? { |p| p.cost_strategy.variable? }
         Variable.new(collection, &sorter)
+      elsif sorter.nil?
+        Unsorted.new(collection)
       else
         Fixed.new(collection, &sorter)
       end
@@ -37,17 +39,14 @@ module Merit
       end
     end
 
-    # Represents a collection of participants which are pre-sorted.
-    class Fixed
+    # Represents a collection of participants with no explicit order.
+    class Unsorted
       extend Forwardable
       def_delegators :@collection, :first, :length
 
-      def initialize(collection = [], &sorter)
+      def initialize(collection = [])
         @collection = collection.dup
-        @sorter = sorter
-
         @seen = Hash[@collection.zip([])]
-        @has_sorted = false
       end
 
       def insert(item)
@@ -60,29 +59,49 @@ module Merit
       end
 
       def at_point(*)
-        sort_collection(nil) if !@has_sorted && @sorter
         @collection
       end
 
       def sortable?
-        !@sorter.nil?
+        false
       end
 
       def to_a
         @collection.dup
       end
 
+      def inspect
+        "#<#{self.class.name} collection=#{@collection.inspect}>"
+      end
+
+      alias_method :to_s, :inspect
+    end
+
+    # Represents a collection of participants which are will be sorted once,
+    # with that order reused for every point in the calculation.
+    class Fixed < Unsorted
+      def initialize(collection = [], &sorter)
+        raise(SortBlockRequired, self.class.name) unless sorter
+
+        super(collection)
+
+        @sorter = sorter
+        @has_sorted = false
+      end
+
+      def at_point(*)
+        sort_collection(nil) if !@has_sorted
+        @collection
+      end
+
+      def sortable?
+        true
+      end
+
       # Converts the Fixed to a Variable.
       def to_variable
         Variable.new(@collection, &@sorter)
       end
-
-      def inspect
-        "#<#{self.class.name} sorter=#{@sorter.inspect} " \
-          "collection=#{@collection.inspect}>"
-      end
-
-      alias_method :to_s, :inspect
 
       private
 
@@ -100,8 +119,6 @@ module Merit
     # allocating new arrays.
     class Variable < Fixed
       def initialize(collection = [], &sorter)
-        raise SortBlockRequired if sorter.nil?
-
         super
         @last_sorting_point = nil
       end

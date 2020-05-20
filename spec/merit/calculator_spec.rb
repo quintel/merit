@@ -391,7 +391,7 @@ describe Merit::Calculator do
         order.participants.flex_groups.define(
           Merit::Flex::ShareGroup.new(
             :flex_group,
-            Merit::Sorting::Fixed.new
+            Merit::Sorting.by_sortable_cost
           )
         )
 
@@ -429,7 +429,7 @@ describe Merit::Calculator do
         order.participants.flex_groups.define(
           Merit::Flex::ShareGroup.new(
             :flex_group,
-            Merit::Sorting::Fixed.new
+            Merit::Sorting.by_sortable_cost
           )
         )
 

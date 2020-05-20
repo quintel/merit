@@ -29,12 +29,12 @@ module Merit
       #
       # key        - Unique key to identify this group in the merit order.
       # collection - An optional Sorting instance containing members of the
-      #              group. If none is provided, the group will start empty with
-      #              Fixed sorting, swapping to Variable if any new group member
-      #              has variable-priced cost strategy.
+      #              group. If none is provided, the group will be unsorted. If
+      #              a Sorting::Fixed is provided, it will be swapped out for a
+      #              Sorting::Variable if any variably-priced members are added.
       #
       # Returns a Group.
-      def initialize(key, collection = Sorting::Fixed.new)
+      def initialize(key, collection = Sorting::Unsorted.new)
         @key = key
         @collection = collection
       end

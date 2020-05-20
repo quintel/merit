@@ -40,4 +40,11 @@ RSpec.describe Merit::Sorting::Variable do
       expect(sorting.at_point(0)).to eq([1, 2, 3, 4, 5, 6])
     end
   end
+
+  context 'when initialized without a sort block' do
+    it 'raises a SortBlockRequired error' do
+      expect { described_class.new([]) }
+        .to raise_error(Merit::SortBlockRequired)
+    end
+  end
 end

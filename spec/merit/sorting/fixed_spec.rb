@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Merit::Sorting::Fixed do
   let(:source) { [1, 2, 3, 4, 5] }
-  let(:sorting) { described_class.new(source) }
+  let(:sorting) { described_class.new(source) { |el, _| el } }
 
   it 'returns the collection' do
     expect(sorting.at_point(0)).to eq(source)
@@ -26,20 +26,25 @@ RSpec.describe Merit::Sorting::Fixed do
     expect(sorting.at_point(0)).to eq([1, 2, 3, 4, 5])
   end
 
-  context 'when given a sorting block' do
-    it 'sorts the items the first time at_point is called' do
-      sorting = described_class.new([5, 4, 3, 2, 1]) { |item, _| item }
-      expect(sorting.at_point(0)).to eq([1, 2, 3, 4, 5])
-    end
+  it 'sorts the items the first time at_point is called' do
+    sorting = described_class.new([5, 4, 3, 2, 1]) { |item, _| item }
+    expect(sorting.at_point(0)).to eq([1, 2, 3, 4, 5])
+  end
 
-    it 'does not resort each item on subsequent calls to the same point' do
-      sorting = described_class.new((1..1000).to_a) { |*| rand }
-      expect(sorting.at_point(0)).to eq(sorting.at_point(0))
-    end
+  it 'does not resort each item on subsequent calls to the same point' do
+    sorting = described_class.new((1..1000).to_a) { |*| rand }
+    expect(sorting.at_point(0)).to eq(sorting.at_point(0))
+  end
 
-    it 'does not resort the collection when calling with different points' do
-      sorting = described_class.new((1..1000).to_a) { |*| rand }
-      expect(sorting.at_point(1)).to eq(sorting.at_point(0))
+  it 'does not resort the collection when calling with different points' do
+    sorting = described_class.new((1..1000).to_a) { |*| rand }
+    expect(sorting.at_point(1)).to eq(sorting.at_point(0))
+  end
+
+  context 'when initialized without a sort block' do
+    it 'raises a SortBlockRequired error' do
+      expect { described_class.new([]) }
+        .to raise_error(Merit::SortBlockRequired)
     end
   end
 end

@@ -107,7 +107,7 @@ module Merit
     "#{inner.class.name} (#{inner.key}) cannot be made price-sensitive"
   end
 
-  SortBlockRequired = error_class do
-    "Cannot use Variable sorting without providing a block"
+  SortBlockRequired = error_class do |class_name|
+    "Cannot use #{class_name} sorting without providing a block"
   end
 end # Merit
