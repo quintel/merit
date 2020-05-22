@@ -159,7 +159,12 @@ module Merit
     # Returns the index of the first dispatchable which has capacity remaining,
     # or nil if there is no remaining capacity.
     def compute_dispatchables(point, dispatchables, remaining)
-      dispatchables.each.with_index do |producer, index|
+      # Hold and increment the index rather than using Enumerable#with_index, to
+      # avoid allocating an Enumerator.
+      index = -1
+
+      dispatchables.each do |producer|
+        index += 1
         max_load = producer.max_load_at(point)
 
         # Optimisation: Load points default to zero, skipping to the next
