@@ -58,7 +58,7 @@ module Merit
         @collection
       end
 
-      def at_point(*)
+      def at_point(_point)
         @collection
       end
 
@@ -89,8 +89,8 @@ module Merit
         @has_sorted = false
       end
 
-      def at_point(*)
-        sort_collection(nil) if !@has_sorted
+      def at_point(_point)
+        sort_collection(nil) unless @has_sorted
         @collection
       end
 
