@@ -62,7 +62,7 @@ module Merit
         availability: 0.98,
         fixed_costs_per_unit: 2545.292412,
         fixed_om_costs_per_unit: 357.75,
-        load_profile: profiles['solar_pv'],
+        load_profile: profiles['weather/default/solar_pv'],
         full_load_hours: 1050
       )
     )
@@ -210,7 +210,7 @@ module Merit
         availability: 0.98,
         fixed_costs_per_unit: 4236515.36,
         fixed_om_costs_per_unit: 477000,
-        load_profile: profiles['solar_pv'],
+        load_profile: profiles['weather/default/solar_pv'],
         full_load_hours: 1050
       )
     )
@@ -310,7 +310,7 @@ module Merit
         availability: 0.95,
         fixed_costs_per_unit: 531768.45,
         fixed_om_costs_per_unit: 147579.9,
-        load_profile: profiles['wind_coastal_baseline'],
+        load_profile: profiles['weather/default/wind_coastal_baseline'],
         full_load_hours: 3000
       )
     )
@@ -324,7 +324,7 @@ module Merit
         availability: 0.95,
         fixed_costs_per_unit: 531768.45,
         fixed_om_costs_per_unit: 147579.9,
-        load_profile: profiles['wind_inland_baseline'],
+        load_profile: profiles['weather/default/wind_inland_baseline'],
         full_load_hours: 2500
       )
     )
@@ -338,7 +338,7 @@ module Merit
         availability: 0.92,
         fixed_costs_per_unit: 1643536.011,
         fixed_om_costs_per_unit: 428882.8856,
-        load_profile: profiles['wind_offshore_baseline'],
+        load_profile: profiles['weather/default/wind_offshore_baseline'],
         full_load_hours: 3500
       )
     )
@@ -380,7 +380,7 @@ module Merit
         availability: 0.98,
         fixed_costs_per_unit: 222.9245208,
         fixed_om_costs_per_unit: 35.775,
-        load_profile: profiles['solar_pv'],
+        load_profile: profiles['weather/default/solar_pv'],
         full_load_hours: 1050
       )
     )
