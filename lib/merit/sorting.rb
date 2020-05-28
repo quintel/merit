@@ -107,9 +107,10 @@ module Merit
 
       def sort_collection(point)
         @has_sorted = true
+        i = 0
 
         @collection.sort_by! do |participant|
-          @sorter.call(participant, point)
+          [@sorter.call(participant, point), i += 1]
         end
       end
     end
