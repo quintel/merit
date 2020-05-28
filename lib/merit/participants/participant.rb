@@ -56,6 +56,17 @@ module Merit
       end
     end
 
+    # Public: Used as the hash key when the participant is stored in a hash.
+    #
+    # This significantly improves the performance of
+    # `Sorting::Unsorted#initialize`, wherein each participant is stored in a
+    # hash to ensure no duplicates.
+    #
+    # Returns an Integer.
+    def hash
+      self.class.name.hash ^ @key.hash
+    end
+
     private
 
     def require_attributes(*attrs)
