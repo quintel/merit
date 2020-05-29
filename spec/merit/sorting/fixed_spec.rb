@@ -43,7 +43,7 @@ RSpec.describe Merit::Sorting::Fixed do
 
   context 'when initialized without a sort block' do
     it 'raises a SortBlockRequired error' do
-      expect { described_class.new([]) }
+      expect { described_class.new([], Merit::Sorting::Config.new) }
         .to raise_error(Merit::SortBlockRequired)
     end
   end

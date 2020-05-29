@@ -56,21 +56,11 @@ module Merit
     #
     # Returns something which responds to #always_on and #transients
     def for_calculation
-      dispatchables_collection =
-        Sorting.for_collection(dispatchables) do |part, point|
-          part.cost_strategy.sortable_cost(point)
-        end
-
-      price_sensitives_collection =
-        Sorting.for_collection(price_sensitive_users) do |part, point|
-          -part.cost_strategy.sortable_cost(point)
-        end
-
       ForCalculation.new(
         always_on,
-        dispatchables_collection,
+        Sorting.by_sortable_cost(dispatchables),
         flex,
-        price_sensitives_collection
+        Sorting.by_sortable_cost_desc(price_sensitive_users)
       )
     end
 
