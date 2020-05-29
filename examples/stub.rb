@@ -20,7 +20,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 116478.4738,
         fixed_om_costs_per_unit: 13062.47379,
-        load_profile: profiles['agriculture_chp'],
+        load_profile: profiles['weather/default/agriculture_heating'],
         full_load_hours: 3980.424144
       )
     )
@@ -34,7 +34,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 49847.77778,
         fixed_om_costs_per_unit: 0,
-        load_profile: profiles['buildings_chp'],
+        load_profile: profiles['weather/default/buildings_heating'],
         full_load_hours: 3942
       )
     )
@@ -48,7 +48,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 18359173.13,
         fixed_om_costs_per_unit: 0,
-        load_profile: profiles['buildings_chp'],
+        load_profile: profiles['weather/default/buildings_heating'],
         full_load_hours: 6097.777778
       )
     )
@@ -352,7 +352,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 49847.77778,
         fixed_om_costs_per_unit: 0,
-        load_profile: profiles['buildings_chp'],
+        load_profile: profiles['weather/default/buildings_heating'],
         full_load_hours: 3942
       )
     )
@@ -366,7 +366,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 18359173.13,
         fixed_om_costs_per_unit: 0,
-        load_profile: profiles['buildings_chp'],
+        load_profile: profiles['weather/default/buildings_heating'],
         full_load_hours: 6097.777778
       )
     )
@@ -394,7 +394,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 933,
         fixed_om_costs_per_unit: 110,
-        load_profile: profiles['buildings_chp'],
+        load_profile: profiles['weather/default/buildings_heating'],
         full_load_hours: 0
       )
     )
@@ -408,7 +408,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 2453,
         fixed_om_costs_per_unit: 200,
-        load_profile: profiles['buildings_chp'],
+        load_profile: profiles['weather/default/buildings_heating'],
         full_load_hours: 0
       )
     )
@@ -422,7 +422,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 933,
         fixed_om_costs_per_unit: 110,
-        load_profile: profiles['buildings_chp'],
+        load_profile: profiles['weather/default/buildings_heating'],
         full_load_hours: 0
       )
     )
@@ -478,7 +478,7 @@ module Merit
         availability: 0.97,
         fixed_costs_per_unit: 54068.71357,
         fixed_om_costs_per_unit: 6056.838239,
-        load_profile: profiles['buildings_chp'],
+        load_profile: profiles['weather/default/buildings_heating'],
         full_load_hours: 4000
       )
     )
