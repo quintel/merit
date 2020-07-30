@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :consumer do
+  factory :producer, class: Merit::Producer do
     availability { 1.0 }
     fixed_costs_per_unit { 1.0 }
     fixed_om_costs_per_unit { 1.0 }
