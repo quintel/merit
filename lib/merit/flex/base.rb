@@ -75,11 +75,15 @@ module Merit
         0.0
       end
 
+      def available_at(point)
+        max_load_at(point)
+      end
+
       # Public: Assigns a load to this technology.
       #
       # Returns the load set.
       def set_load(point, value)
-        @load_curve.set(point, value) unless value.zero?
+        @load_curve.set(point, value)
       end
 
       # Public: Determines the amount of energy the battery stored during the

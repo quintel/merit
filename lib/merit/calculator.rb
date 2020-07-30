@@ -211,23 +211,21 @@ module Merit
       while index < length
         producer = dispatchables[index]
 
-        max_producer_load = producer.max_load_at(point)
-        initial_load = producer_load = producer.load_at(point)
         price = producer.cost_at(point)
+        available = initial_available = producer.available_at(point)
 
         users.each do |user|
-          available = max_producer_load - producer_load
           break unless available.positive?
 
-          producer_load += user.barter_at(point, available, price)
+          available -= user.barter_at(point, available, price)
         end
 
         # If nothing as assigned, we can stop iterating as it means that the
         # current price is too high for any price-sensitive user. Subsequent
         # dispatchables will be even more expensive.
-        break if initial_load == producer_load
+        break if initial_available == available
 
-        producer.set_load(point, producer_load)
+        producer.set_load(point, producer.load_at(point) + (initial_available - available))
         index += 1
       end
     end

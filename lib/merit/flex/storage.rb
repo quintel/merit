@@ -47,9 +47,13 @@ module Merit
       #
       # Returns the load.
       def set_load(point, amount)
+        previous_load = load_at(point)
+
         super
 
-        @reserve.take(point, amount / @output_efficiency) unless amount.zero?
+        diff = amount - previous_load
+        @reserve.take(point, diff / @output_efficiency) unless diff.zero?
+
         amount
       end
     end # Storage

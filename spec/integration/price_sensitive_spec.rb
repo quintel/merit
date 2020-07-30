@@ -672,4 +672,168 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       end
     end
   end
+
+  # Supplied by flex
+  # ----------------
+
+  # The price-sensitives want 120 each, and flex has received 1.0 energy. As a Base flex it should
+  # never discharge energy.
+  context 'with two users and a Flex::Base with a load of -1' do
+    let(:flex) { FactoryBot.build(:flex) }
+
+    before do
+      flex.assign_excess(0, 1.0)
+
+      order.add(flex)
+      order.calculate
+    end
+
+    context 'when calculating the first hour' do
+      it 'sets no demand on the first user' do
+        expect(ps_1.load_at(0)).to eq(0)
+      end
+
+      it 'sets no demand on the second user' do
+        expect(ps_2.load_at(0)).to eq(0)
+      end
+
+      it 'does not change the flex load' do
+        expect(flex.load_at(0)).to eq(-1)
+      end
+    end
+
+    # Assert that the flex may not discharge the energy later in the calculation.
+    context 'when calculating the second hour' do
+      it 'sets no demand on the first user' do
+        expect(ps_1.load_at(1)).to eq(0)
+      end
+
+      it 'sets no demand on the second user' do
+        expect(ps_2.load_at(1)).to eq(0)
+      end
+
+      it 'does has no load on the flex' do
+        expect(flex.load_at(1)).to eq(0)
+      end
+    end
+  end
+
+  # The price-sensitives want 10 each and the storage has 1.0 stored. Assert that the storage may be
+  # discharged to meet the needs of the first user, but not the second, while correctly setting the
+  # new load on the technology.
+  context 'with two users and a Flex::Storage with a load of -1' do
+    let(:storage) { FactoryBot.build(:storage, volume_per_unit: 2.0) }
+
+    before do
+      storage.assign_excess(0, 1.0)
+
+      order.add(storage)
+      order.calculate
+    end
+
+    # Storage may not output in the same hour as inputting.
+    context 'when calculating the first hour' do
+      it 'sets no demand on the first user' do
+        expect(ps_1.load_at(0)).to eq(0)
+      end
+
+      it 'sets no demand on the second user' do
+        expect(ps_2.load_at(0)).to eq(0)
+      end
+
+      it 'does not change the storage load' do
+        expect(storage.load_at(0)).to eq(-1)
+      end
+
+      it 'does not subtract energy from the reserve' do
+        expect(storage.reserve.at(0)).to eq(1)
+      end
+    end
+
+    # Storage may discharge an hour after inputting.
+    context 'when calculating the second hour' do
+      it 'sets demand of 1 on the first user' do
+        expect(ps_1.load_at(1)).to eq(1)
+      end
+
+      it 'sets no demand on the second user' do
+        expect(ps_2.load_at(1)).to eq(0)
+      end
+
+      it 'sets the load of the storage technology to 1' do
+        expect(storage.load_at(1)).to eq(1)
+      end
+
+      it 'subtracts energy from the reserve' do
+        expect(storage.reserve.at(1)).to eq(0)
+      end
+    end
+  end
+
+  # The price-sensitives want at most 10 each and the storage has 25 stored. Assert that the storage
+  # may be discharged to meet the needs of the users, while correctly setting the new load on the
+  # technology.
+  context 'with two low-capacity users and a Flex::Storage with a load of -25' do
+    let(:storage) do
+      FactoryBot.build(
+        :storage,
+        input_capacity_per_unit: 30.0,
+        output_capacity_per_unit: 30.0,
+        volume_per_unit: 30.0
+      )
+    end
+
+    before do
+      storage.assign_excess(0, 25.0)
+      order.add(storage)
+    end
+
+    context 'when calculating the second hour' do
+      before { order.calculate }
+
+      it 'sets demand of 10 on the first user' do
+        expect(ps_1.load_at(1)).to eq(10)
+      end
+
+      it 'sets demand of 10 on the second user' do
+        expect(ps_2.load_at(1)).to eq(10)
+      end
+
+      it 'sets the load of the storage technology to 20' do
+        expect(storage.load_at(1)).to eq(20)
+      end
+
+      it 'has 5 remaining in the reserve' do
+        expect(storage.reserve.at(1)).to eq(5)
+      end
+    end
+
+    # Remove 10 energy from storage at the beginning of the second hour to simulate energy being
+    # used to meet demand, prior to calculating the price-sensitive users.
+    context 'when calculating the second hour and the storage has already had 10 removed' do
+      before do
+        calculator = Merit::StepwiseCalculator.new.calculate(order)
+        calculator.call(0)
+
+        storage.set_load(1, 10)
+        calculator.call(1)
+      end
+
+      it 'sets demand of 10 on the first user' do
+        expect(ps_1.load_at(1)).to eq(10)
+      end
+
+      it 'sets demand of 5 on the second user' do
+        expect(ps_2.load_at(1)).to eq(5)
+      end
+
+      it 'changes the storage load to reflect the used energy' do
+        expect(storage.load_at(1)).to eq(25)
+      end
+
+      it 'has nothing remaining in the reserve' do
+        expect(storage.reserve.at(1)).to eq(0)
+      end
+    end
+  end
 end

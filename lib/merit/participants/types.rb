@@ -43,5 +43,8 @@ module Merit
   end
 
   class DispatchableProducer < Producer
+    def available_at(point)
+      max_load_at(point) - @load_curve.get(point)
+    end
   end
 end
