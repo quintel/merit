@@ -96,6 +96,16 @@ module Merit
               .to change { storage.production }
               .from(0.0).to(2.0 * 3600)
           end
+
+          it 'has a max load of 0 in the assignment point' do
+            store_load
+            expect(storage.max_load_at(0)).to eq(0)
+          end
+
+          it 'has a max load of 2.0 in the next point' do
+            store_load
+            expect(storage.max_load_at(1)).to eq(2)
+          end
         end # with nothing stored
 
         context 'with 8.0 already stored' do

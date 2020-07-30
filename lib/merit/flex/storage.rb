@@ -35,6 +35,9 @@ module Merit
       end
 
       def max_load_at(point)
+        # Don't discharge in the same hour as charging.
+        return 0.0 if @load_curve.get(point).negative?
+
         in_reserve = @reserve.at(point) * @output_efficiency
         in_reserve > @output_capacity ? @output_capacity : in_reserve
       end
