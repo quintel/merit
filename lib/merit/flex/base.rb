@@ -67,6 +67,17 @@ module Merit
         amount
       end
 
+      # Public: Calculates the number of hours that the technology would run in if it were receiving
+      # energy at its effective input capacity.
+      def full_load_hours
+        @full_load_hours ||
+          if input_capacity_per_unit.zero? || number_of_units.zero?
+            0.0
+          else
+            production / (input_capacity_per_unit * number_of_units * 3600)
+          end
+      end
+
       # Public: Describes how much energy is stored and may be emitted for
       # consumption in the chosen point.
       #
