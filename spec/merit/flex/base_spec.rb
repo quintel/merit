@@ -35,6 +35,26 @@ module Merit
       end
     end
 
+    describe '#full_load_hours when number of units is zero' do
+      let(:flex) do
+        described_class.new(attrs.merge(input_capacity_per_unit: 1.0, number_of_units: 0.0))
+      end
+
+      it 'is zero' do
+        expect(flex.full_load_hours).to eq(0)
+      end
+    end
+
+    describe '#full_load_hours when input capacity is zero' do
+      let(:flex) do
+        described_class.new(attrs.merge(input_capacity_per_unit: 0.0, number_of_units: 1.0))
+      end
+
+      it 'is zero' do
+        expect(flex.full_load_hours).to eq(0)
+      end
+    end
+
     describe '#full_load_hours when output capacity is 1 and input capacity is 2' do
       let(:attrs) do
         super().merge(output_capacity_per_unit: 1.0, number_of_units: 1.0)
