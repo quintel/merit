@@ -198,4 +198,33 @@ describe Merit::Flex::CostBasedShareGroup do
       end
     end
   end
+
+  context 'when participants have maxed load' do
+    before do
+      equal_flex_one.assign_excess(0, 3.0)
+      equal_flex_two.assign_excess(0, 1.0)
+      nonequal_flex.assign_excess(0, 1.0)
+    end
+
+    # All flex unloaded.
+    context 'when assigning 10 energy' do
+      let!(:assigned) { group.assign_excess(0, 10.0) }
+
+      it 'returns 0' do
+        expect(assigned).to eq(0)
+      end
+
+      it 'assigns nothing to equal flex one' do
+        expect(equal_flex_one.load_at(0)).to eq(-3)
+      end
+
+      it 'assigns nothing to equal flex two' do
+        expect(equal_flex_two.load_at(0)).to eq(-1)
+      end
+
+      it 'assigns nothing to the non-equal flex' do
+        expect(nonequal_flex.load_at(0)).to eq(-1)
+      end
+    end
+  end
 end

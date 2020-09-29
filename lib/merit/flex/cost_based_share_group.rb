@@ -90,6 +90,8 @@ module Merit
           index += 1
         end
 
+        return 0.0 if total_capacity.zero?
+
         index = start_index
         while index <= finish_index
           recipient = recipients[index]
