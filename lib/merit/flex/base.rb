@@ -54,6 +54,13 @@ module Merit
           input_capacity_per_unit * availability * number_of_units
       end
 
+      # Public: The amount of energy which may still be provided to the technology.
+      #
+      # Returns a float.
+      def unused_input_capacity_at(point)
+        @input_capacity + @load_curve.get(point)
+      end
+
       # Public: Stores a given amount of energy in the technology. Not all given
       # to the technology is guaranteed to be stored.
       #

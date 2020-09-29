@@ -40,10 +40,12 @@ require_relative 'merit/participants/user/total_consumption'
 require_relative 'merit/participants/user/with_curve'
 
 require_relative 'merit/flex/base'
-require_relative 'merit/flex/black_hole'
 require_relative 'merit/flex/group'
+require_relative 'merit/flex/black_hole'
+require_relative 'merit/flex/cost_based_share_group'
 require_relative 'merit/flex/group_set'
 require_relative 'merit/flex/reserve'
+require_relative 'merit/flex/share_group'
 require_relative 'merit/flex/simple_reserve'
 require_relative 'merit/flex/storage'
 
