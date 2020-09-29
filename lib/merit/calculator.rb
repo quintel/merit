@@ -193,7 +193,7 @@ module Merit
     def compute_price_sensitives(point, users, dispatchables, index)
       length = dispatchables.length
 
-      return if length.zero?
+      return unless (length - index).positive? && users.any?
 
       # It's possible for the first dispatchable to have a current load exactly
       # equal to the max load. If this is the case we can skip it. This enables
@@ -211,23 +211,72 @@ module Merit
       while index < length
         producer = dispatchables[index]
 
-        price = producer.cost_at(point)
-        available = initial_available = producer.available_at(point)
-
-        users.each do |user|
-          break unless available.positive?
-
-          available -= user.barter_at(point, available, price)
-        end
+        assigned = assign_excess_to_price_sensitives(
+          point, producer.available_at(point), producer.cost_at(point), users
+        )
 
         # If nothing as assigned, we can stop iterating as it means that the
         # current price is too high for any price-sensitive user. Subsequent
         # dispatchables will be even more expensive.
-        break if initial_available == available
+        break if assigned.zero?
 
-        producer.set_load(point, producer.load_at(point) + (initial_available - available))
+        producer.set_load(point, producer.load_at(point) + assigned)
         index += 1
       end
+    end
+
+    # Internal: Assigns an amount of excess energy to the price-sensitive users.
+    #
+    # This splits the assignment into two phases, which broadly correspond with the outer and inner
+    # loops:
+    #
+    #   1. Group users by their price, so that users with the same price will receive an equal share
+    #      of energy.
+    #
+    #   2. Assign the available energy to users in each group.
+    #
+    # Once again, while loops are heavily used to avoid extra object allocations when iterating
+    # through array slices.
+    #
+    # Returns a numeric: the amount of energy assigned.
+    def assign_excess_to_price_sensitives(point, available, price, users)
+      index = 0
+      initial_available = available
+
+      while index < users.length
+        break unless available.positive?
+        break if users[index].cost_strategy.sortable_cost(point) <= price
+
+        # Determine the index of the latest user with the same price as the current user. This
+        # allows determining if energy should be assigned to one user, or shared equally between
+        # several users.
+        max_index = Flex::CostBasedShareGroup.max_index_with_same_price(users, point, index)
+
+        if index == max_index
+          # Only one user at the current price.
+          available -= users[index].assign_excess(point, available)
+          index += 1
+        else
+          # Multiple users with the same price. Assign energy equally.
+          total_capacity = Flex::CostBasedShareGroup.total_unused_capacity(
+            point, users, index, max_index
+          )
+
+          if total_capacity.positive?
+            available -=
+              Util.sum_slice(users, index, max_index) do |part|
+                part.assign_excess(
+                  point,
+                  available * (part.unused_input_capacity_at(point) / total_capacity)
+                )
+              end
+          end
+
+          index = max_index + 1
+        end
+      end
+
+      initial_available - available
     end
   end
 

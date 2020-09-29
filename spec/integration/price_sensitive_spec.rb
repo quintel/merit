@@ -20,7 +20,7 @@ RSpec.describe 'Calculation of price-sensitive demands' do
   let(:user_2) { FactoryBot.build(:user_with_curve) }
 
   let(:ps_1_price) { 15 }
-  let(:ps_2_price) { 15 }
+  let(:ps_2_price) { 14 }
 
   let(:ps_1) do
     Merit::User::PriceSensitive.new(
@@ -233,6 +233,92 @@ RSpec.describe 'Calculation of price-sensitive demands' do
 
       it 'sets the load of the second dispatchable to 10' do
         expect(di_2.load_at(0)).to eq(10)
+      end
+    end
+
+    # Ensures dispatchable energy is split equally between price-sensitives when there's
+    # insufficient to max both out.
+    context 'when both price sensitives have the same price' do
+      let(:di_1) { FactoryBot.build(:dispatchable, output_capacity_per_unit: 1.0) }
+      let(:di_2) { FactoryBot.build(:dispatchable, output_capacity_per_unit: 1.0) }
+
+      let(:ps_1_price) { 15 }
+      let(:ps_2_price) { 15 }
+
+      # A user with a price different to the two other price-sensitives.
+      let(:ne_1) do
+        Merit::User::PriceSensitive.new(
+          FactoryBot.build(:user_with_curve),
+          to_cost_strategy([14, 14, 16, 16]),
+          :a_group
+        )
+      end
+
+      before do
+        order.add(ne_1)
+        order.calculate
+      end
+
+      context 'when non-equal user has a lower price threshold' do
+        it 'sets demand of the first user to 1' do
+          expect(ps_1.load_at(0)).to eq(1)
+        end
+
+        it 'sets demand of the second user to 1' do
+          expect(ps_2.load_at(0)).to eq(1)
+        end
+
+        it 'sets demand of the non-equal priced user to 0' do
+          expect(ne_1.load_at(0)).to eq(0)
+        end
+
+        it 'sets the load of the first dispatchable to 1' do
+          expect(di_1.load_at(0)).to eq(1)
+        end
+
+        it 'sets the load of the second dispatchable to 1' do
+          expect(di_2.load_at(0)).to eq(1)
+        end
+      end
+
+      # Asserts that the assignment loop terminates.
+      context 'when there is a large surplus' do
+        let(:di_1) { FactoryBot.build(:dispatchable, output_capacity_per_unit: 25.0) }
+
+        it 'sets demand of the first user to 10' do
+          expect(ps_1.load_at(0)).to eq(10)
+        end
+
+        it 'sets demand of the second user to 10' do
+          expect(ps_2.load_at(0)).to eq(10)
+        end
+
+        it 'sets demand of the non-equal priced user to 6' do
+          # Five from di_1, one from di_2
+          expect(ne_1.load_at(0)).to eq(6)
+        end
+      end
+
+      context 'when non-equal user has a higher price threshold' do
+        it 'sets demand of the first user to 0' do
+          expect(ps_1.load_at(2)).to eq(0)
+        end
+
+        it 'sets demand of the second user to 0' do
+          expect(ps_2.load_at(2)).to eq(0)
+        end
+
+        it 'sets demand of the non-equal priced user to 2' do
+          expect(ne_1.load_at(2)).to eq(2)
+        end
+
+        it 'sets the load of the first dispatchable to 1' do
+          expect(di_1.load_at(2)).to eq(1)
+        end
+
+        it 'sets the load of the second dispatchable to 1' do
+          expect(di_2.load_at(2)).to eq(1)
+        end
       end
     end
 

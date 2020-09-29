@@ -29,13 +29,13 @@ module Merit
         index = 0
 
         while index < recipients.length && recipients[index]
-          max_index = max_index_with_same_price(recipients, point, index)
+          max_index = self.class.max_index_with_same_price(recipients, point, index)
 
           amount -=
             if index == max_index
               recipients[index].assign_excess(point, amount)
             else
-              assign_excess_to_many(point, recipients, amount, index, max_index)
+              self.class.assign_excess_to_many(point, recipients, amount, index, max_index)
             end
 
           index = max_index + 1
@@ -45,8 +45,6 @@ module Merit
       end
       # rubocop:enable Metrics/MethodLength
 
-      private
-
       # Internal: Given all the recipients sorted for the current point and an index of the
       # "current" participant, returns the index of the last participant whose price is the same as
       # that of the current.
@@ -55,7 +53,7 @@ module Merit
       # (the second participant), the maximum index with the same price is 3 (the fourth item).
       #
       # Returns an integer.
-      def max_index_with_same_price(recipients, point, index)
+      def self.max_index_with_same_price(recipients, point, index)
         max_index = index
         cost = recipients[index].cost_strategy.sortable_cost(point)
 
@@ -65,6 +63,16 @@ module Merit
         end
 
         max_index
+      end
+
+      # Internal:Determines the total unused capacity of the participants in the array slice bounded
+      # by `start_index` and `finish_index` inclusive.
+      #
+      # Returns a numeric.
+      def self.total_unused_capacity(point, participants, start_index, finish_index)
+        Util.sum_slice(participants, start_index, finish_index) do |part|
+          part.unused_input_capacity_at(point)
+        end
       end
 
       # Internal: Assign an amount of excess energy fairly between all the participants between the
@@ -79,30 +87,19 @@ module Merit
       # start_index  - The index of the first participant to which load will be assigned.
       # finish_index - The index of the last participant to which load will be assigned.
       #
-      # rubocop:disable Metrics/MethodLength
-      def assign_excess_to_many(point, recipients, amount, start_index, finish_index)
-        total_capacity = 0.0
-        assigned = 0.0
-
-        index = start_index
-        while index <= finish_index
-          total_capacity += recipients[index].unused_input_capacity_at(point)
-          index += 1
-        end
+      # Returns the total energy assigned.
+      def self.assign_excess_to_many(point, recipients, amount, start_index, finish_index)
+        total_capacity = total_unused_capacity(point, recipients, start_index, finish_index)
 
         return 0.0 if total_capacity.zero?
 
-        index = start_index
-        while index <= finish_index
-          recipient = recipients[index]
-          share = recipient.unused_input_capacity_at(point) / total_capacity
-          assigned += recipient.assign_excess(point, amount * share)
-          index += 1
+        Util.sum_slice(recipients, start_index, finish_index) do |part|
+          part.assign_excess(
+            point,
+            amount * (part.unused_input_capacity_at(point) / total_capacity)
+          )
         end
-
-        assigned
       end
-      # rubocop:enable Metrics/MethodLength
     end
   end
 end

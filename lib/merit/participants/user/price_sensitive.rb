@@ -71,6 +71,10 @@ module Merit
         end
       end
 
+      def unused_input_capacity_at(point)
+        @inner.load_at(point) - @load_curve[point]
+      end
+
       # Public: Offers the price-sensitive an `amount` of energy.
       #
       # The energy is offered without a price; the energy is surplus to

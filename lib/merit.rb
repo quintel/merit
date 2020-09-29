@@ -54,6 +54,8 @@ require_relative 'merit/net_load_helper'
 require_relative 'merit/excess'
 require_relative 'merit/blackout'
 
+require_relative 'merit/util'
+
 # Helpers
 require_relative 'merit/bar_chart'
 require_relative 'merit/csv_writer'
