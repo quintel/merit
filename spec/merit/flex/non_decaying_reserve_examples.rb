@@ -58,6 +58,27 @@ RSpec.shared_examples_for 'non-decaying reserve' do
     end
   end
 
+  context 'when adding 3 in frame 0 and 2' do
+    before do
+      reserve.add(0, 3.0)
+      reserve.add(2, 3.0)
+    end
+
+    it 'has 3 in frame 0' do
+      # require 'pry'
+      # binding.pry
+      expect(reserve.to_a[0]).to eq(3)
+    end
+
+    it 'is empty in frame 1' do
+      expect(reserve.to_a[1]).to eq(3)
+    end
+
+    it 'has 6 in frame 2' do
+      expect(reserve.to_a[2]).to eq(6)
+    end
+  end
+
   context 'when adding 5 in frame 0' do
     before { reserve.add(0, 5.0) }
 

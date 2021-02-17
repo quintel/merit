@@ -17,7 +17,7 @@ module Merit
         super
 
         @stored = 0.0
-        @last_decay = 0
+        @last_at_frame = 0
       end
 
       # Public: Returns how much energy is stored in the reserve at the current
@@ -25,22 +25,20 @@ module Merit
       #
       # Returns a numeric.
       def at(frame)
-        if @decay && @last_decay < frame
-          if @stored.positive?
+        return @store[frame] if @store[frame]
+
+        if @stored.positive?
+          if @decay && @last_at_frame < frame
             # More than one frame has passed since last calculating decay. We
             # have to calculate all the missing frames.
-            catch_up_decay!(frame - 1) if @last_decay < frame - 1
-
-            @stored -= @decay.call(frame, @stored)
-            @stored = 0.0 if @stored.negative?
+            catch_up_decay!(frame) if @last_at_frame < frame
+          elsif @last_at_frame < frame
+            fill_blanks!(frame - 1)
           end
-
-          @last_decay = frame
         end
 
-        @store[frame] = @stored unless @store[frame]
-
-        @store[frame]
+        @last_at_frame = frame
+        @store[frame] = @stored
       end
 
       # Public: Sets the `amount` in the reserve in the current calculation
@@ -106,11 +104,24 @@ module Merit
       # catch up with the frame currently being calculated in order to represent
       # the energy lost in the time between the previous calculation and now.
       def catch_up_decay!(frame)
-        ((@last_decay + 1)..frame).each do |other_frame|
-          at(other_frame)
-        end
+        # while loop benchmarked slightly faster than enumerating.
+        while @last_at_frame < frame
+          @last_at_frame += 1
 
-        @last_decay = frame
+          @stored -= @decay.call(@last_at_frame, @stored)
+          @stored = 0.0 if @stored.negative?
+
+          @store[@last_at_frame] = @stored
+        end
+      end
+
+      # Internal: When decay is turned off but frames are skipped, fill any nil
+      # values with the current stored amount.
+      def fill_blanks!(frame)
+        while @last_at_frame < frame
+          @last_at_frame += 1
+          @store[@last_at_frame] = @stored
+        end
       end
     end
   end
