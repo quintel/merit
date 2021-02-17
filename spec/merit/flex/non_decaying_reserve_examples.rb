@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples_for 'non-decaying reserve' do
+  let(:reserve) { described_class.new }
+
   it 'starts empty' do
     expect(reserve.at(0)).to be_zero
   end
@@ -36,6 +38,23 @@ RSpec.shared_examples_for 'non-decaying reserve' do
 
     it 'returns 2.0' do
       expect(reserve.at(8760)).to eq(2.0)
+    end
+  end
+
+  describe '#to_a' do
+    before do
+      8760.times do |frame|
+        # Add 0, 1, 2, etc. This doesn't change the amount stored but assets that set assigns the
+        # stored amount as expected.
+        reserve.set(frame, frame.to_f)
+
+        reserve.add(frame, 2.0)
+        reserve.take(frame, 1.0)
+      end
+    end
+
+    it 'returns the stored amount as an array' do
+      expect(reserve.to_a).to eq(Array.new(8760) { |i| (i + 1).to_f })
     end
   end
 

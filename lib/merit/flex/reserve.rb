@@ -9,9 +9,19 @@ module Merit
         @store  = []
       end
 
+      # Public: Returns the amount of energy stored in each point.
+      #
+      # Returns an array.
+      def to_a
+        @store.dup
+      end
+
       # Public: Returns how much energy is stored in the reserve at the end of
       # the given point. If the technology to which the reserve is attached is
       # still being calculated, the energy stored may be subject to change.
+      #
+      # Prefer #to_a when you want the stored amount for the fill time period
+      # calculated.
       #
       # Returns a numeric.
       def at(point)

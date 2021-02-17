@@ -1,19 +1,22 @@
+# frozen_string_literal: true
+
 module Merit
   module Flex
-    # A simplified version of Reserve which tracks only the "current" amount of
-    # energy stored, without the ability to see how much is stored at each point
-    # in time.
+    # A simplified version of Reserve which disallows random access to most
+    # methods (such as set, add, and take).
     #
-    # SimpleReserve is able to be used within a calculation to model storage,
-    # but cannot be used to reflect upon what happend with storage after the
-    # fact.
+    # These methods may be called only during the Merit::Calculator run.
+    # Calling these methods at any other time results in undefined behavior.
+    #
+    # This class is rougly twice as fast as Reserve and should be used when
+    # you only require the use of Reserve as part of anther technology --
+    # such as Flex::Storage -- and the only access to the Reserve after the
+    # calculation will be `to_a`.
     class SimpleReserve < Reserve
       def initialize(volume = Float::INFINITY, &decay)
-        # raise "Decay not supported by #{self.class.name}" if decay
+        super
 
-        @volume = volume
         @stored = 0.0
-        @decay = decay
         @last_decay = 0
       end
 
@@ -35,15 +38,18 @@ module Merit
           @last_decay = frame
         end
 
-        @stored
+        @store[frame] = @stored unless @store[frame]
+
+        @store[frame]
       end
 
       # Public: Sets the `amount` in the reserve in the current calculation
       # frame.
       #
       # Returns the amount.
-      def set(_frame, amount)
+      def set(frame, amount)
         @stored = amount
+        @store[frame] = amount
       end
 
       # Public: Adds the given `amount` of energy in the current calculation
@@ -61,6 +67,8 @@ module Merit
           @stored = current + amount
         end
 
+        @store[frame] = @stored
+
         amount
       end
 
@@ -69,13 +77,15 @@ module Merit
       #
       # Returns the amount of energy subtracted from the reserve. This may be
       # less than you asked for if insufficient was stored.
-      def take(_frame, amount)
+      def take(frame, amount)
         if amount > @stored
           amount = @stored
           @stored = 0.0
         else
           @stored -= amount
         end
+
+        @store[frame] = @stored
 
         amount
       end
