@@ -7,6 +7,7 @@ group :test do
 end
 
 group :development do
+  gem 'benchmark-ips', require: false
   gem 'coolline', require: false
   gem 'pry', require: false
   gem 'rubocop', '~> 0.83', require: false

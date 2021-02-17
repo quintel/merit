@@ -62,6 +62,83 @@ namespace :performance do
     merit_order.calculate
     puts Benchmark.realtime { merit_order.producers.map(&:profit) }
   end
+  task :reserve do
+    require 'benchmark/ips'
+
+    Benchmark.ips do |x|
+      x.report('SimpleReserve without decay') do
+        reserve = Merit::Flex::SimpleReserve.new(10)
+
+        8760.times do |frame|
+          (frame % 2).zero? ? reserve.add(frame, 5) : reserve.take(frame, 5)
+        end
+      end
+
+      x.report('SimpleReserve with decay') do
+        reserve = Merit::Flex::SimpleReserve.new(10) { |val| val * 0.1 }
+
+        8760.times do |frame|
+          (frame % 2).zero? ? reserve.add(frame, 5) : reserve.take(frame, 5)
+        end
+      end
+
+      x.report('SimpleReserve without decay, every 4th hour') do
+        reserve = Merit::Flex::SimpleReserve.new(10)
+
+        8760.times do |frame|
+          if (frame % 4).zero?
+            (frame % 8).zero? ? reserve.add(frame, 5) : reserve.take(frame, 5)
+          end
+        end
+      end
+
+      x.report('SimpleReserve with decay, every 4th hour') do
+        reserve = Merit::Flex::SimpleReserve.new(10) { |val| val * 0.1 }
+
+        8760.times do |frame|
+          if (frame % 4).zero?
+            (frame % 8).zero? ? reserve.add(frame, 5) : reserve.take(frame, 5)
+          end
+        end
+      end
+
+      x.report('Reserve without decay') do
+        reserve = Merit::Flex::Reserve.new(10)
+
+        8760.times do |frame|
+          (frame % 2).zero? ? reserve.add(frame, 5) : reserve.take(frame, 5)
+        end
+      end
+
+      x.report('Reserve with decay') do
+        reserve = Merit::Flex::Reserve.new(10) { |val| val * 0.1 }
+
+        8760.times do |frame|
+          (frame % 2).zero? ? reserve.add(frame, 5) : reserve.take(frame, 5)
+        end
+      end
+
+      x.report('Reserve without decay, every 4th hour') do
+        reserve = Merit::Flex::Reserve.new(10)
+
+        8760.times do |frame|
+          if (frame % 4).zero?
+            (frame % 8).zero? ? reserve.add(frame, 5) : reserve.take(frame, 5)
+          end
+        end
+      end
+
+      x.report('Reserve with decay, every 4th hour') do
+        reserve = Merit::Flex::Reserve.new(10) { |val| val * 0.1 }
+
+        8760.times do |frame|
+          if (frame % 4).zero?
+            (frame % 8).zero? ? reserve.add(frame, 5) : reserve.take(frame, 5)
+          end
+        end
+      end
+    end
+    end
 end
 
 task :profile do
