@@ -27,14 +27,12 @@ module Merit
       def at(frame)
         return @store[frame] if @store[frame]
 
-        if @stored.positive?
-          if @decay && @last_at_frame < frame
-            # More than one frame has passed since last calculating decay. We
-            # have to calculate all the missing frames.
-            catch_up_decay!(frame) if @last_at_frame < frame
-          elsif @last_at_frame < frame
-            fill_blanks!(frame - 1)
-          end
+        if @stored.positive? && @decay && @last_at_frame < frame
+          # More than one frame has passed since last calculating decay. We
+          # have to calculate all the missing frames.
+          catch_up_decay!(frame) if @last_at_frame < frame
+        elsif @last_at_frame < frame
+          fill_blanks!(frame - 1)
         end
 
         @last_at_frame = frame
