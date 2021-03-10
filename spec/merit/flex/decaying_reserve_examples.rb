@@ -12,6 +12,25 @@ RSpec.shared_examples_for 'decaying reserve' do
       expect(reserve.at(1)).to be_zero
     end
 
+    context 'when starting with nil and skipping frames' do
+      it 'has 0 in frame 0' do
+        expect(reserve.at(0)).to eq(0)
+      end
+
+      it 'has 0 in frame 1' do
+        expect(reserve.at(1)).to eq(0)
+      end
+
+      it 'has 0 in frame 2' do
+        expect(reserve.at(2)).to eq(0)
+      end
+
+      it 'returns the stored value for each frame when calling to_a' do
+        reserve.at(8759)
+        expect(reserve.to_a.take(6)).to eq([0, 0, 0, 0, 0, 0])
+      end
+    end
+
     context 'when starting with 0 and skipping frames' do
       before { reserve.set(0, 0.0) }
 

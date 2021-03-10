@@ -6,7 +6,7 @@ module Merit
       def initialize(volume = Float::INFINITY, &decay)
         @volume = volume
         @decay  = decay
-        @store  = []
+        @store  = [0.0]
       end
 
       # Public: Returns the amount of energy stored in each point.
