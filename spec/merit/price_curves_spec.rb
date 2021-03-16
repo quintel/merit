@@ -35,6 +35,10 @@ module Merit
       producer_two.load_curve.set(2, 1.0)
       producer_three.load_curve.set(2, 0.5)
 
+      producer_one.load_curve.set(3, 1.0)
+      producer_two.load_curve.set(3, -1.0)
+      producer_three.load_curve.set(3, 0.0)
+
       order
     end
 
@@ -88,6 +92,16 @@ module Merit
         end
       end
 
+      describe 'when the second producer has negative load' do
+        it 'sets the third producer to be price-setting' do
+          expect(curve.producer_at(3)).to eq(producer_three)
+        end
+
+        it 'sets the price using the third producer' do
+          expect(curve.get(3)).to eq(30.0)
+        end
+      end
+
       describe 'when a cost-function producer is partially-loaded' do
         let(:producer_one) do
           DispatchableProducer.new(producer_attrs.merge(
@@ -101,6 +115,23 @@ module Merit
 
         it 'sets the price using the first unloaded producer' do
           expect(curve.get(1)).to eq(10.0)
+        end
+      end
+
+      describe 'when a cost-function producer has negative load' do
+        let(:producer_two) do
+          DispatchableProducer.new(producer_attrs.merge(
+            key: :two, marginal_costs: 20.0, cost_spread: 0.5,
+            number_of_units: 2
+          ))
+        end
+
+        it 'sets the first unloaded producer to be price-setting' do
+          expect(curve.producer_at(3)).to eq(producer_three)
+        end
+
+        it 'sets the price using the first unloaded producer' do
+          expect(curve.get(3)).to eq(30.0)
         end
       end
 
@@ -135,6 +166,16 @@ module Merit
 
         it 'sets the price using the last loaded producer' do
           expect(curve.get(1)).to eq(10.0)
+        end
+      end
+
+      describe 'when the second producer has negative load' do
+        it 'sets the first producer to be price-setting' do
+          expect(curve.producer_at(3)).to eq(producer_one)
+        end
+
+        it 'sets the price using the first producer' do
+          expect(curve.get(3)).to eq(10.0)
         end
       end
 

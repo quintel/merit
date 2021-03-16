@@ -228,6 +228,7 @@ module Merit
 
       def price_setting?(point)
         return true if super
+        return false if @producer.load_curve.get(point).negative?
 
         pricing_load =
           @producer.output_capacity_per_unit +

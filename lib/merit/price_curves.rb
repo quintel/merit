@@ -116,7 +116,7 @@ module Merit
 
         # This is faster than reject/max_by, and avoids creating an array.
         @dispatchables.each do |producer|
-          next if producer.load_at(point).zero?
+          next if producer.load_at(point) <= 0
 
           cost = producer.cost_at(point)
 
