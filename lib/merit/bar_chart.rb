@@ -1,12 +1,13 @@
+# frozen_string_literal: true
+
 module Merit
   class BarChart
-
     attr_reader :values, :height, :width
 
     WIDTH  = 72
     HEIGHT = 16
-    EMPTY  = '-'.freeze
-    MARKER = 'o'.freeze
+    EMPTY  = '-'
+    MARKER = 'o'
 
     def initialize(values, height = HEIGHT, width = WIDTH)
       @height = height
@@ -46,7 +47,7 @@ module Merit
       # append each row with a tick value
       height.times do |index|
         tick_value = max_y_value / (height - index)
-        matrix[width][index] = " #{ format('%8.2e', tick_value) }"
+        matrix[width][index] = " #{format('%8.2e', tick_value)}"
       end
 
       matrix
@@ -62,7 +63,7 @@ module Merit
       reduced_values = []
 
       values.each_slice(step_size) do |slice|
-        reduced_values << slice.inject(:+).to_f / slice.size
+        reduced_values << slice.sum.to_f / slice.size
       end
 
       reduced_values

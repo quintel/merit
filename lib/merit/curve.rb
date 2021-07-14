@@ -1,7 +1,8 @@
+# frozen_string_literal: true
+
 module Merit
-  # A Curve is a container for time series values, typically with one value for
-  # each hour in the year. Values stored may include load on a producer, or
-  # marginal costs which vary by hour.
+  # A Curve is a container for time series values, typically with one value for each hour in the
+  # year. Values stored may include load on a producer, or marginal costs which vary by hour.
   class Curve
     include Enumerable
 
@@ -10,10 +11,9 @@ module Merit
     # Public: Creates a Curve with the given +values+.
     #
     # values - The values for each point in the curve.
-    # length - When the curve needs to be a specific length, but the supplied
-    #          +values+ are shorter than this length, provide a +length+ to
-    #          ensure that +each+ and +to_a+ always return the desired number of
-    #          elements (empty elements will be returned as 0.0).
+    # length - When the curve needs to be a specific length, but the supplied +values+ are shorter
+    #          than this length, provide a +length+ to ensure that +each+ and +to_a+ always return
+    #          the desired number of elements (empty elements will be returned as 0.0).
     #
     # Returns a Curve.
     def initialize(values = [], length = nil, default = 0.0)
@@ -26,13 +26,13 @@ module Merit
       @values[point] || @default
     end
 
-    alias [] get
+    alias_method :[], :get
 
     def set(point, value)
       @values[point] = value
     end
 
-    alias []= set
+    alias_method :[]=, :set
 
     def each
       length.times { |point| yield get(point) }
@@ -45,7 +45,7 @@ module Merit
     alias_method :size, :length
 
     def to_s
-      "#<#{ self.class }: #{ length } values>"
+      "#<#{self.class}: #{length} values>"
     end
 
     alias_method :inspect, :to_s
@@ -74,7 +74,7 @@ module Merit
     def variance
       as_array = to_a
 
-      mean = as_array.reduce(:+) / length.to_f
+      mean = as_array.sum / length.to_f
       sum  = as_array.reduce(0) { |accum, i| accum + (i - mean)**2 }
 
       sum / (length - 1).to_f
@@ -87,9 +87,8 @@ module Merit
 
     # Public: Returns the curve as an array.
     #
-    # If the curve was initialized with a `length` which is longer than the
-    # length of the values currently stored, the resulting array will be right-
-    # padded with the default value.
+    # If the curve was initialized with a `length` which is longer than the length of the values
+    # currently stored, the resulting array will be right- padded with the default value.
     #
     # Returns an array.
     def to_a
@@ -100,27 +99,26 @@ module Merit
       end
     end
 
-    # Public: Returns a new curve by rotating `self` so that the element at
-    # `count` becomes the new first element of the new curve.
+    # Public: Returns a new curve by rotating `self` so that the element at `count` becomes the new
+    # first element of the new curve.
     #
     # Returns a Merit::Curve.
     def rotate(count)
       self.class.new(to_a.rotate(count))
     end
 
-    # Internal: Sets which reader class to use for retrieving load profile
-    # data from disk. Anything which responds to "read" and returns an array
-    # of floats is acceptable.
+    # Internal: Sets which reader class to use for retrieving load profile data from disk. Anything
+    # which responds to "read" and returns an array of floats is acceptable.
     #
     # reader - The object to use to read the load profile data.
     #
     # Returns nothing.
-    def self.reader=(klass)
-      @reader = klass
+    class << self
+      attr_writer :reader
     end
 
-    # Internal: Returns the class to use for reading load profile data. If
-    # none was set explicitly, the default Reader is used.
+    # Internal: Returns the class to use for reading load profile data. If none was set explicitly,
+    # the default Reader is used.
     #
     # Returns an object which responds to "read".
     def self.reader
@@ -140,9 +138,7 @@ module Merit
     private
 
     def transpose_other_curve(other, method)
-      if other.is_a?(Numeric)
-        return @values.map { |value| value.public_send(method, other) }
-      end
+      return @values.map { |value| value.public_send(method, other) } if other.is_a?(Numeric)
 
       values = to_a
       other  = other.to_a
@@ -156,8 +152,7 @@ module Merit
         values += [@default] * (o_length - v_length)
       end
 
-      # Optimization: using each_with_index is 100ms faster for the complete
-      # Merit::Order.
+      # Optimization: using each_with_index is 100ms faster for the complete Merit::Order.
       new_values = []
 
       values.each_with_index do |value, index|
@@ -167,16 +162,15 @@ module Merit
       new_values
     end
 
-    # Internal: Loads curve information from a CSV file into an array of
-    # numerics.
+    # Internal: Loads curve information from a CSV file into an array of numerics.
     class Reader
       def read(path)
         File.foreach(path).map(&:to_f)
       end
     end
 
-    # Internal: A production-mode class for initializing curve data which caches
-    # the information after it is loaded.
+    # Internal: A production-mode class for initializing curve data which caches the information
+    # after it is loaded.
     class CachingReader < Reader
       def initialize
         @curves = {}

@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 module Merit
-  # This (mixin) module includes every method for Producers with respect to
-  # finance, such as profit, revenue and cost.
+  # This (mixin) module includes every method for Producers with respect to finance, such as profit,
+  # revenue and cost.
   module Profitable
     def profitability
       if revenue > total_costs
@@ -23,7 +25,7 @@ module Merit
         if number_of_units.zero? || output_capacity_per_unit.zero?
           0.0
         else
-          revenue_curve.reduce(:+)
+          revenue_curve.sum
         end
     end
 
@@ -62,6 +64,7 @@ module Merit
     def profit_per_mwh_electricity
       production_mwh = production(:mwh)
       return nil if production_mwh.zero?
+
       profit / production_mwh
     end
   end

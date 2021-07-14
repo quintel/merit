@@ -1,57 +1,69 @@
+# frozen_string_literal: true
+
 # frozen_string_literal
 
 require 'spec_helper'
 
 describe Merit::Calculator do
-  let(:disp_1_attrs) {{
-    key:                       :dispatchable,
-    marginal_costs:            13.999791,
-    output_capacity_per_unit:  0.1,
-    number_of_units:           1,
-    availability:              0.89,
-    fixed_costs_per_unit:      222.9245208,
-    fixed_om_costs_per_unit:   35.775
-  }}
+  let(:disp_1_attrs) do
+    {
+      key: :dispatchable,
+      marginal_costs: 13.999791,
+      output_capacity_per_unit: 0.1,
+      number_of_units: 1,
+      availability: 0.89,
+      fixed_costs_per_unit: 222.9245208,
+      fixed_om_costs_per_unit: 35.775
+    }
+  end
 
-  let(:disp_2_attrs) {{
-    key:                       :dispatchable_2,
-    marginal_costs:            15.999791,
-    output_capacity_per_unit:  0.005,
-    number_of_units:           1,
-    availability:              0.89,
-    fixed_costs_per_unit:      222.9245208,
-    fixed_om_costs_per_unit:   35.775
-  }}
+  let(:disp_2_attrs) do
+    {
+      key: :dispatchable_2,
+      marginal_costs: 15.999791,
+      output_capacity_per_unit: 0.005,
+      number_of_units: 1,
+      availability: 0.89,
+      fixed_costs_per_unit: 222.9245208,
+      fixed_om_costs_per_unit: 35.775
+    }
+  end
 
-  let(:vol_1_attrs) {{
-    key:                       :volatile,
-    marginal_costs:            19.999791,
-    load_profile:              Merit::LoadProfile.new([3.1709791984e-08]),
-    output_capacity_per_unit:  0.1,
-    availability:              0.95,
-    number_of_units:           1,
-    fixed_costs_per_unit:      222.9245208,
-    fixed_om_costs_per_unit:   35.775,
-    full_load_hours:           1000
-  }}
+  let(:vol_1_attrs) do
+    {
+      key: :volatile,
+      marginal_costs: 19.999791,
+      load_profile: Merit::LoadProfile.new([3.1709791984e-08]),
+      output_capacity_per_unit: 0.1,
+      availability: 0.95,
+      number_of_units: 1,
+      fixed_costs_per_unit: 222.9245208,
+      fixed_om_costs_per_unit: 35.775,
+      full_load_hours: 1000
+    }
+  end
 
-  let(:vol_2_attrs) {{
-    key:                       :volatile_two,
-    marginal_costs:            21.21,
-    load_profile:              Merit::LoadProfile.new([0.0]),
-    output_capacity_per_unit:  0.1,
-    availability:              0.95,
-    number_of_units:           1,
-    fixed_costs_per_unit:      222.9245208,
-    fixed_om_costs_per_unit:   35.775,
-    full_load_hours:           1000
-  }}
+  let(:vol_2_attrs) do
+    {
+      key: :volatile_two,
+      marginal_costs: 21.21,
+      load_profile: Merit::LoadProfile.new([0.0]),
+      output_capacity_per_unit: 0.1,
+      availability: 0.95,
+      number_of_units: 1,
+      fixed_costs_per_unit: 222.9245208,
+      fixed_om_costs_per_unit: 35.775,
+      full_load_hours: 1000
+    }
+  end
 
-  let(:user_attrs) {{
-    key: :total_demand,
-    total_consumption: 6.4e6,
-    load_profile: Merit::LoadProfile.new([2.775668529550e-08])
-  }}
+  let(:user_attrs) do
+    {
+      key: :total_demand,
+      total_consumption: 6.4e6,
+      load_profile: Merit::LoadProfile.new([2.775668529550e-08])
+    }
+  end
 
   let(:order) do
     Merit::Order.new.tap do |order|
@@ -77,21 +89,21 @@ describe Merit::Calculator do
     it 'sets the load profile values of the first producer' do
       load_value = dispatchable.load_curve.get(0)
 
-      expect(load_value).to_not be_nil
+      expect(load_value).not_to(be_nil)
       expect(load_value).to eql(dispatchable.max_load_at(0))
     end
 
     it 'sets the load profile values of the second producer' do
       load_value = volatile.load_curve.get(0)
 
-      expect(load_value).to_not be_nil
+      expect(load_value).not_to(be_nil)
       expect(load_value).to eql(volatile.max_load_at(0))
     end
 
     it 'sets the load profile values of the third producer' do
       load_value = volatile_two.load_curve.get(0)
 
-      expect(load_value).to_not be_nil
+      expect(load_value).not_to(be_nil)
       expect(load_value).to eql(volatile_two.max_load_at(0))
     end
 
@@ -113,6 +125,7 @@ describe Merit::Calculator do
 
   context 'with an excess of supply' do
     let(:disp_1_attrs) { super().merge(number_of_units: 2) }
+
     before { order.calculate(described_class.new) }
 
     it 'sets the load profile values of the first dispatchable' do
@@ -122,7 +135,7 @@ describe Merit::Calculator do
       demand -= volatile.max_load_at(0)
       demand -= volatile_two.max_load_at(0)
 
-      expect(load_value).to_not be_nil
+      expect(load_value).not_to(be_nil)
       expect(load_value).to be_within(0.01).of(demand)
     end
 
@@ -133,21 +146,21 @@ describe Merit::Calculator do
       demand -= volatile.max_load_at(0)
       demand -= volatile_two.max_load_at(0)
 
-      expect(load_value).to_not be_nil
+      expect(load_value).not_to(be_nil)
       expect(load_value).to be_within(0.01).of(demand)
     end
 
     it 'sets the load profile values of the second producer' do
       load_value = volatile.load_curve.get(0)
 
-      expect(load_value).to_not be_nil
+      expect(load_value).not_to(be_nil)
       expect(load_value).to eql(volatile.max_load_at(0))
     end
 
     it 'sets the load profile values of the third producer' do
       load_value = volatile_two.load_curve.get(0)
 
-      expect(load_value).to_not be_nil
+      expect(load_value).not_to(be_nil)
       expect(load_value).to eql(volatile_two.max_load_at(0))
     end
 
@@ -164,7 +177,7 @@ describe Merit::Calculator do
         it 'assigns the current dispatchable as price-setting' do
           expect(order.price_curve.producer_at(0)).to eql(dispatchable)
         end
-      end # with no remaining capacity
+      end
 
       context 'with > 1 unit of remaining capacity' do
         let(:disp_1_attrs) do
@@ -174,18 +187,19 @@ describe Merit::Calculator do
         it 'assigns the current dispatchable as price-setting' do
           expect(order.price_curve.producer_at(0)).to eql(dispatchable)
         end
-      end # with no remaining capacity
-    end # and the dispatchable is a cost-function producer
+      end
+    end
   end
 
   context 'with a huge excess of supply' do
     before { volatile.instance_variable_set(:@number_of_units, 10**9) }
+
     before { order.calculate(described_class.new) }
 
     it 'sets the load profile values of the first producer' do
       load_value = dispatchable.load_curve.get(0)
 
-      expect(load_value).to eql 0.0
+      expect(load_value).to be(0.0)
     end
 
     it 'sets the load profile values of the second producer' do
@@ -213,11 +227,11 @@ describe Merit::Calculator do
 
     before { order.add(cuser) }
 
-    it 'should return raise SubZeroDemand' do
+    it 'returns raise SubZeroDemand' do
       expect { described_class.new.calculate(order) }
         .to raise_error(Merit::SubZeroDemand, /in point 2/)
     end
-  end # with sub-zero demand
+  end
 
   context 'with highly-competitive dispatchers' do
     before { order.calculate(described_class.new) }
@@ -230,20 +244,26 @@ describe Merit::Calculator do
       end
     end
 
-    let(:user_attrs) {{
-      key: :curve_demand,
-      load_curve: Merit::Curve.new([1.0] * Merit::POINTS)
-    }}
+    let(:user_attrs) do
+      {
+        key: :curve_demand,
+        load_curve: Merit::Curve.new([1.0] * Merit::POINTS)
+      }
+    end
 
-    let(:disp_1_attrs) { super().merge(
-      cost_spread: 0.4, marginal_costs: 20.0, availability: 1.0,
-      output_capacity_per_unit: 0.1, number_of_units: 10
-    ) }
+    let(:disp_1_attrs) do
+      super().merge(
+        cost_spread: 0.4, marginal_costs: 20.0, availability: 1.0,
+        output_capacity_per_unit: 0.1, number_of_units: 10
+      )
+    end
 
-    let(:disp_2_attrs) { super().merge(
-      marginal_costs: 20.1, availability: 1.0,
-      output_capacity_per_unit: 0.02, number_of_units: 1
-    ) }
+    let(:disp_2_attrs) do
+      super().merge(
+        marginal_costs: 20.1, availability: 1.0,
+        output_capacity_per_unit: 0.02, number_of_units: 1
+      )
+    end
 
     it 'assigns all load to the first dispatchable' do
       # Merit::Dispatchable #1 has a lower mean price, even though it becomes more
@@ -254,21 +274,23 @@ describe Merit::Calculator do
     it 'assigns no load to the second dispatchable' do
       expect(dispatchable_two.load_curve.get(0)).to be_zero
     end
-  end # with highly-competitive dispatchers
+  end
 
   describe 'with a variable-marginal-cost producer' do
     let(:curve) do
       Merit::Curve.new([[12.0] * 24, [24.0] * 24, [12.0] * 120].flatten * 52)
     end
 
-    let(:ic_attrs) {{
-      key:                       :interconnect,
-      cost_curve:                curve,
-      output_capacity_per_unit:  1.0,
-      availability:              1.0,
-      fixed_costs_per_unit:      1.0,
-      fixed_om_costs_per_unit:   1.0
-    }}
+    let(:ic_attrs) do
+      {
+        key: :interconnect,
+        cost_curve: curve,
+        output_capacity_per_unit: 1.0,
+        availability: 1.0,
+        fixed_costs_per_unit: 1.0,
+        fixed_om_costs_per_unit: 1.0
+      }
+    end
 
     let(:ic) do
       Merit::SupplyInterconnect.new(ic_attrs)
@@ -279,49 +301,52 @@ describe Merit::Calculator do
     before { dispatchable.instance_variable_set(:@number_of_units, 30) }
 
     before { order.add(ic) }
+
     before { order.calculate(described_class.new) }
 
     context 'when the producer is competitive' do
       let(:ic_attrs) { super().merge(output_capacity_per_unit: 0.2) }
 
-      it 'should be active' do
-        expect(ic.load_curve.get(0)).to_not be_zero
+      it 'is active' do
+        expect(ic.load_curve.get(0)).not_to(be_zero)
       end
 
       it 'is price-setting' do
         expect(order.price_curve.producer_at(0)).to eq(ic)
       end
-    end # when the producer is competitive
+    end
 
     context 'when the producer is the final producer' do
-      it 'should be active' do
-        expect(ic.load_curve.get(0)).to_not be_zero
+      it 'is active' do
+        expect(ic.load_curve.get(0)).not_to(be_zero)
       end
 
       it 'is price-setting' do
         expect(order.price_curve.producer_at(0)).to eq(ic)
       end
-    end # when the producer is competitive
+    end
 
     context 'when the producer is uncompetitive' do
-      it 'should be inactive' do
+      it 'is inactive' do
         expect(ic.load_curve.get(24)).to be_zero
       end
 
       it 'is not price-setting' do
-        expect(order.price_curve.producer_at(24)).to_not eq(ic)
+        expect(order.price_curve.producer_at(24)).not_to(eq(ic))
       end
-    end # when the producer is uncompetitive
-  end # with a variable-marginal-cost producer
+    end
+  end
 
   describe 'with P2P storage' do
     let(:p2p_attrs) { FactoryBot.attributes_for(:storage) }
 
-    let(:user_attrs) {{
-      key: :total_demand,
-      total_consumption: 0.0,
-      load_profile: Merit::LoadProfile.new([0.0])
-    }}
+    let(:user_attrs) do
+      {
+        key: :total_demand,
+        total_consumption: 0.0,
+        load_profile: Merit::LoadProfile.new([0.0])
+      }
+    end
 
     let(:p2p) { Merit::Flex::Storage.new(p2p_attrs) }
 
@@ -357,8 +382,8 @@ describe Merit::Calculator do
       context 'on two producers' do
         let(:vol_2_attrs) do
           super().merge(
-            load_profile:             Merit::LoadProfile.new([3.1709791984e-08]),
-            output_capacity_per_unit: 0.1,
+            load_profile: Merit::LoadProfile.new([3.1709791984e-08]),
+            output_capacity_per_unit: 0.1
           )
         end
 
@@ -368,7 +393,7 @@ describe Merit::Calculator do
             .to eq(-0.01141552511424 * 2)
         end
       end
-    end # with an excess of production
+    end
 
     context 'with an excess of production and excess_share of 0.25' do
       let(:p2p_attrs) do
@@ -406,16 +431,18 @@ describe Merit::Calculator do
     end
 
     context 'with a partial excess of production and excess_share of 0.25x2' do
-      let(:p2p_attrs) {{
-        key: :p2p,
-        volume_per_unit: 10.0,
-        output_capacity_per_unit: 20.0,
-        availability: 1.0,
-        number_of_units: 1,
-        excess_share: 0.25,
-        input_capacity_per_unit: 0.01,
-        group: :flex_group
-      }}
+      let(:p2p_attrs) do
+        {
+          key: :p2p,
+          volume_per_unit: 10.0,
+          output_capacity_per_unit: 20.0,
+          availability: 1.0,
+          number_of_units: 1,
+          excess_share: 0.25,
+          input_capacity_per_unit: 0.01,
+          group: :flex_group
+        }
+      end
 
       let(:p2p_2) do
         Merit::Flex::Storage.new(p2p_attrs.merge(key: :p2p2))
@@ -457,6 +484,7 @@ describe Merit::Calculator do
       end
 
       before { p2p.reserve.add(0, 0.01) }
+
       before { order.calculate(described_class.new) }
 
       it 'does not charge' do
@@ -464,10 +492,10 @@ describe Merit::Calculator do
       end
 
       it 'does not discharge' do
-        expect(p2p.reserve.at(1)).to_not be_zero
+        expect(p2p.reserve.at(1)).not_to(be_zero)
         expect(p2p.reserve.at(1)).to eq(p2p.reserve.at(0))
       end
-    end # when there is no excess
+    end
 
     context 'with a deficit, and the P2P contains energy' do
       let(:vol_1_attrs) do
@@ -478,11 +506,13 @@ describe Merit::Calculator do
         super().merge(load_profile: Merit::LoadProfile.new([0.0]))
       end
 
-      let(:user_attrs) {{
-        key: :total_demand,
-        total_consumption: 6.4e6,
-        load_profile: Merit::LoadProfile.new([0.0] + ([2.775668529550e-08] * 8759))
-      }}
+      let(:user_attrs) do
+        {
+          key: :total_demand,
+          total_consumption: 6.4e6,
+          load_profile: Merit::LoadProfile.new([0.0] + ([2.775668529550e-08] * 8759))
+        }
+      end
 
       let(:p2p_attrs) do
         super().merge(
@@ -492,7 +522,9 @@ describe Merit::Calculator do
       end
 
       before { p2p.reserve.add(0, 0.4) }
+
       before { order.add(dispatchable) }
+
       before { order.calculate(described_class.new) }
 
       it 'uses the P2P energy' do
@@ -522,8 +554,8 @@ describe Merit::Calculator do
 
         expect(reduced).to be < normal
       end
-    end # with a deficit, and the P2P contains energy
-  end # with P2P storage
+    end
+  end
 
   describe 'with StepwiseCalculator' do
     let(:calc) { Merit::StepwiseCalculator.new }
@@ -552,5 +584,4 @@ describe Merit::Calculator do
         .to raise_error('Cannot use out-of-bounds point 8760')
     end
   end
-
-end # described_class
+end

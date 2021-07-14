@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Merit
   # Computes the number of hours in which there is excess production.
   class Excess
@@ -10,16 +12,15 @@ module Merit
       net_load.count(&over_producing)
     end
 
-    # Public: Determines a chain of events by calling +number_of_events+ with
-    # a range of durations.
+    # Public: Determines a chain of events by calling +number_of_events+ with a range of durations.
     def event_groups(durations = [])
       durations.map do |duration|
-        [ duration, number_of_events(duration) ]
+        [duration, number_of_events(duration)]
       end
     end
 
-    # Public: Determines the amount of times production exceeds consumption
-    # by the specified duration.
+    # Public: Determines the amount of times production exceeds consumption by the specified
+    # duration.
     #
     # duration - Length of event
     #
@@ -33,7 +34,7 @@ module Merit
     private
 
     def over_producing
-      -> (point) { point > 1e-5 }
+      ->(point) { point > 1e-5 }
     end
 
     def events

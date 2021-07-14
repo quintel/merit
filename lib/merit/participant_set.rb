@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 module Merit
-  # Stores Participants used in a Merit Order, and provides helpers for
-  # retrieving participants of a given type, or meeting certain criteria.
+  # Stores Participants used in a Merit Order, and provides helpers for retrieving participants of a
+  # given type, or meeting certain criteria.
   class ParticipantSet
     include Enumerable
     extend  Forwardable
@@ -12,10 +14,9 @@ module Merit
 
     # Contains pre-defined flexibility groups.
     #
-    # This permits setting a custom configuration for a Flex::Group. If a
-    # flexibilty participant belongs to a group which isn't defined in
-    # `flex_groups`, ParticipantSet will fall back to the default group:
-    # Flex::Group (first-come, first-served) with Sorting::Fixed.
+    # This permits setting a custom configuration for a Flex::Group. If a flexibilty participant
+    # belongs to a group which isn't defined in `flex_groups`, ParticipantSet will fall back to the
+    # default group: Flex::Group (first-come, first-served) with Sorting::Fixed.
     attr_reader :flex_groups
 
     # Creates a new ParticipantSet.
@@ -28,6 +29,7 @@ module Merit
     # Public: returns an +ordered+ Array of all the producers
     #
     # Ordering is as follows:
+    #
     #   1. volatiles     (wind, solar, etc.)
     #   2. must runs     (chps, nuclear, etc.)
     #   3. dispatchables (coal, gas, etc.)
@@ -47,10 +49,9 @@ module Merit
           select_participants(CurveProducer)
     end
 
-    # Public: Returns a ParticipantSet which can be used in a merit order
-    # calculation. In most cases, this will return itself, however when one or
-    # more producers has a cost which varies over time, a Resortable is returned
-    # instead.
+    # Public: Returns a ParticipantSet which can be used in a merit order calculation. In most
+    # cases, this will return itself, however when one or more producers has a cost which varies
+    # over time, a Resortable is returned instead.
     #
     # TODO: Update documentation.
     #
@@ -64,23 +65,22 @@ module Merit
       )
     end
 
-    # Public: Returns all the dispatchables participants, ordered
-    # by marginal_costs. Sets the dispatchable position attribute, which
-    # which starts with 1 and is set to -1 if the capacity production is zero
+    # Public: Returns all the dispatchables participants, ordered by marginal_costs. Sets the
+    # dispatchable position attribute, which which starts with 1 and is set to -1 if the capacity
+    # production is zero
     def dispatchables
       @dispatchables || begin
         dispatchables = select_participants(DispatchableProducer)
         flexibles = flex
 
-        # This ensures a stable sort: that if two participants have the same
-        # cost their original order will be preserved.
+        # This ensures a stable sort: that if two participants have the same cost their original
+        # order will be preserved.
         #
-        # This should already be the case in Ruby, but there was a situation
-        # where two import interconnectors had an identical cost and yet would
-        # be flipped after sorting. Attempts to reproduce outside of Merit, and
-        # in tests, were unsuccessful. Yet, `dispatchables` above would have
-        # the participants in the correct order, and after `sort_by!` the order
-        # would be flipped.
+        # This should already be the case in Ruby, but there was a situation where two import
+        # interconnectors had an identical cost and yet would be flipped after sorting. Attempts to
+        # reproduce outside of Merit, and in tests, were unsuccessful. Yet, `dispatchables` above
+        # would have the participants in the correct order, and after `sort_by!` the order would be
+        # flipped.
         pos = 0
 
         dispatchables.sort_by! do |participant|
@@ -97,15 +97,11 @@ module Merit
     end
 
     # Public: Returns all participants which are flexible technologies.
-    #
-    # TODO Sort by user-preference.
-    # TODO Extract to a separate module.
     def flex
       @flex || FlexListBuilder.build(self)
     end
 
-    # Public: Returns all the users of energy except those which are price
-    # sensitive.
+    # Public: Returns all the users of energy except those which are price sensitive.
     def users
       @users || select_participants(User)
     end
@@ -124,8 +120,7 @@ module Merit
 
     # Public: Returns participants which may only be running sometimes.
     #
-    # Accepts (and discards) an optional "point" parameter for API compatibility
-    # with Resortable.
+    # Accepts (and discards) an optional "point" parameter for API compatibility with Resortable.
     #
     # Returns an array of Producers.
     def transients(*)
@@ -134,21 +129,24 @@ module Merit
 
     # Public: Returns all participants which are always running.
     #
-    # Accepts (and discards) an optional "point" parameter for API compatibility
-    # with Resortable.
+    # Accepts (and discards) an optional "point" parameter for API compatibility with Resortable.
     #
     # Returns an array of Producers.
     def always_on(*)
       @always_on || split_producers.first
     end
 
-    # Public: Locks the ParticipantSet so that no more participants may be
-    # added. Memoizes the various helper methods for fast lookups during merit
-    # order calculation.
+    # Public: Locks the ParticipantSet so that no more participants may be added. Memoizes the
+    # various helper methods for fast lookups during merit order calculation.
     #
     # Returns true.
     def lock!
-      @locked || (memoize! ; @locked = true ; @members.freeze ; true)
+      @locked || begin
+        memoize!
+        @locked = true
+        @members.freeze
+        true
+      end
     end
 
     # Public: Iterates through each participant in the order they were added.
@@ -158,22 +156,18 @@ module Merit
       @members.each { |_, participant| yield participant }
     end
 
-    # Internal: Adds a `participant` to the set. For the moment, please use
-    # Order.add instead of this method, as it will set the Participant#order.
+    # Internal: Adds a `participant` to the set. For the moment, please use Order.add instead of
+    # this method, as it will set the Participant#order.
     #
     # participant - The participant to be added to the set.
     #
-    # Returns the participant, raising LockedOrderError if the merit order has
-    # been calculated already, or DuplicateParticipant if the participant you
-    # are adding already exists.
+    # Returns the participant, raising LockedOrderError if the merit order has been calculated
+    # already, or DuplicateParticipant if the participant you are adding already exists.
     def add(participant)
       key = participant.key
 
-      if @locked
-        raise LockedOrderError, participant
-      elsif @members.key?(key) && @members[key] != participant
-        raise DuplicateParticipant, key
-      end
+      raise LockedOrderError, participant if @locked
+      raise DuplicateParticipant, key if @members.key?(key) && @members[key] != participant
 
       @members[key] = participant
     end
@@ -184,15 +178,14 @@ module Merit
     end
 
     def inspect
-      "#<#{ self.class.name } (#{ self })>"
+      "#<#{self.class.name} (#{self})>"
     end
 
     private
 
-    # Internal: Stores each participant collection (must run, volatiles, etc)
-    # for faster retrieval. This should only be done when all of the
-    # participants have been added, and you are ready to perform the
-    # calculation.
+    # Internal: Stores each participant collection (must run, volatiles, etc) for faster retrieval.
+    # This should only be done when all of the participants have been added, and you are ready to
+    # perform the calculation.
     #
     # Returns nothing.
     def memoize!
@@ -207,8 +200,7 @@ module Merit
       @always_on, @transients = split_producers.map(&:freeze)
     end
 
-    # Internal: Retrieves all member participants which are descendants of the
-    # given +klass+.
+    # Internal: Retrieves all member participants which are descendants of the given +klass+.
     #
     # klass - The class of participants to be included.
     #
@@ -217,17 +209,17 @@ module Merit
       select { |participant| participant.is_a?(klass) }
     end
 
-    # Internal: Splits participants into two groups; those which must run all
-    # the time, and those which may be turned on and off as demand requires.
+    # Internal: Splits participants into two groups; those which must run all the time, and those
+    # which may be turned on and off as demand requires.
     #
-    # Returns an array with always-on producers in the first element, and all
-    # other producers in the second. Raises an IncorrectProducerOrder if an
-    # always-on producer appears after a transient producer.
+    # Returns an array with always-on producers in the first element, and all other producers in the
+    # second. Raises an IncorrectProducerOrder if an always-on producer appears after a transient
+    # producer.
     def split_producers
       producers = self.producers
 
-      # Not using Enumerable#partition allows us to quickly test that all the
-      # always-on producers were before the first transient producer.
+      # Not using Enumerable#partition allows us to quickly test that all the always-on producers
+      # were before the first transient producer.
       partition = producers.index(&:transient?)
 
       return [producers.dup, []] if partition.nil?

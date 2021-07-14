@@ -7,7 +7,7 @@ require 'spec_helper'
 #   point 0 = 1.0
 #   point 1 = 2.0
 #
-RSpec.shared_examples 'a price-sensitive User' do
+RSpec.shared_examples('a price-sensitive User') do
   context 'when the "want" price is 15' do
     let(:price_curve) { [15, 15] }
 

@@ -1,28 +1,30 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 module Merit
   describe Excess do
     let(:merit_order) { Order.new }
-    let(:excess) { Excess.new(merit_order) }
+    let(:excess) { described_class.new(merit_order) }
 
     before do
       merit_order.add(Merit::MustRunProducer.new(
-        key:                      :producer,
-        load_profile:             production,
-        marginal_costs:           0,
+        key: :producer,
+        load_profile: production,
+        marginal_costs: 0,
         output_capacity_per_unit: 1,
-        number_of_units:          1,
-        full_load_hours:          (1.0 / 3600.0)
+        number_of_units: 1,
+        full_load_hours: (1.0 / 3600.0)
       ))
 
       merit_order.add(Merit::User.create(
-        key:               :total_consumption,
-        load_profile:      consumption,
+        key: :total_consumption,
+        load_profile: consumption,
         total_consumption: 1
       ))
     end
 
-    context "empty curves" do
+    context 'empty curves' do
       let(:production) {  Curve.new([0, 0, 0]) }
       let(:consumption) { Curve.new([0, 0, 0]) }
 
@@ -31,7 +33,7 @@ module Merit
       end
     end
 
-    context "one event with a duration of 1 hour" do
+    context 'one event with a duration of 1 hour' do
       let(:production) {  Curve.new([0, 1, 0]) }
       let(:consumption) { Curve.new([0, 0, 0]) }
 
@@ -40,7 +42,7 @@ module Merit
       end
     end
 
-    context "one event of a duration of 2 hours" do
+    context 'one event of a duration of 2 hours' do
       let(:production) {  Curve.new([1, 1, 0]) }
       let(:consumption) { Curve.new([0, 0, 0]) }
 
@@ -49,7 +51,7 @@ module Merit
       end
     end
 
-    context "1 events of a duration of 2 hours" do
+    context '1 events of a duration of 2 hours' do
       let(:production) {  Curve.new([1, 1, 1, 1, 0]) }
       let(:consumption) { Curve.new([0, 0, 0, 0, 0]) }
 
@@ -64,7 +66,7 @@ module Merit
       end
     end
 
-    context "2 events of a duration of 2 hours" do
+    context '2 events of a duration of 2 hours' do
       let(:production) {  Curve.new([1, 1, 0, 1, 1]) }
       let(:consumption) { Curve.new([0, 0, 0, 0, 0]) }
 
@@ -73,7 +75,7 @@ module Merit
       end
     end
 
-    context "1 event of a duration of 5 hours" do
+    context '1 event of a duration of 5 hours' do
       let(:production) {  Curve.new(Array.new(14, 1)) }
       let(:consumption) { Curve.new(Array.new(14, 0)) }
 
@@ -82,13 +84,13 @@ module Merit
       end
     end
 
-    context "time group events" do
+    context 'time group events' do
       let(:production) {  Curve.new(Array.new(14, 1)) }
       let(:consumption) { Curve.new(Array.new(14, 0)) }
 
       it 'determines the correct set of groups' do
-        expect(excess.event_groups([1,2,4,8])).to eq([
-          [1,1], [2,1], [4,1], [8,1]
+        expect(excess.event_groups([1, 2, 4, 8])).to eq([
+          [1, 1], [2, 1], [4, 1], [8, 1]
         ])
       end
     end

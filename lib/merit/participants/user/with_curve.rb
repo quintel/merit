@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Merit
   class User
     # A user whose demand is determined with a Curve.
@@ -11,6 +13,6 @@ module Merit
         super
         @load_curve = options[:load_curve]
       end
-    end # WithCurve
-  end # User
-end # Merit
+    end
+  end
+end

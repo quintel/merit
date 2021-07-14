@@ -4,9 +4,10 @@ require 'spec_helper'
 
 RSpec.describe 'Calculation of price-sensitive demands' do
   def to_cost_strategy(pricing)
-    if pricing.is_a?(Numeric)
+    case pricing
+    when Numeric
       Merit::CostStrategy::Constant.new(nil, pricing)
-    elsif pricing.is_a?(Array)
+    when Array
       Merit::CostStrategy::FromCurve.new(
         nil,
         Merit::Curve.new(pricing * (Merit::POINTS / pricing.length))
@@ -426,7 +427,7 @@ RSpec.describe 'Calculation of price-sensitive demands' do
     end
 
     context 'when the first dispatchable provides only 5.0 and the second ' \
-        'price-sensitive has a higher price threshold in frame 1' do
+            'price-sensitive has a higher price threshold in frame 1' do
       let(:capacity_1) { 2 }
       let(:capacity_2) { 2 }
 

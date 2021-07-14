@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :user, class: Merit::User do
+  factory :user, class: 'Merit::User' do
     initialize_with { Merit::User.create(attributes) }
 
     sequence(:key) { |n| :"user_#{n}" }

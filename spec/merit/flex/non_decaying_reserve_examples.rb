@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples_for 'non-decaying reserve' do
+RSpec.shared_examples_for('non-decaying reserve') do
   let(:reserve) { described_class.new }
 
   it 'starts empty' do

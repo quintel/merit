@@ -1,11 +1,12 @@
+# frozen_string_literal: true
+
 module Merit
-  # Contains classes which know how to calculate the cost of a producer. Each
-  # strategy should implement at least one method: "marginal_cost". This accetps
-  # an optional "point" argument telling it for which hour in the year we want
-  # to calculate the cost.
+  # Contains classes which know how to calculate the cost of a producer. Each strategy should
+  # implement at least one method: "marginal_cost". This accetps an optional "point" argument
+  # telling it for which hour in the year we want to calculate the cost.
   #
-  # An optional "sortable_cost" method, with the same signature, is used to sort
-  # producers prior to calculating points in the merit order.
+  # An optional "sortable_cost" method, with the same signature, is used to sort producers prior to
+  # calculating points in the merit order.
   module CostStrategy
     # Public: Given a producer, returns a cost strategy suitable to perform the
     # calculation.
@@ -24,13 +25,12 @@ module Merit
       end
     end
 
-    # An abstract cost calculator from which real cost calculators should
-    # inherit.
+    # An abstract cost calculator from which real cost calculators should inherit.
     class Base
       attr_reader :producer
 
-      # Public: Creates a new CostStrategy which knows how to determine the cost
-      # (or, sometimes, price) of a producer in a particular hour of the year.
+      # Public: Creates a new CostStrategy which knows how to determine the cost (or, sometimes,
+      # price) of a producer in a particular hour of the year.
       #
       # producer - The producer whose cost will be calculated.
       #
@@ -39,25 +39,24 @@ module Merit
         @producer = producer
       end
 
-      # Public: Determines the final marginal cost of the producer. Accepts and
-      # discards any arguments given; subclasses may instead take a single
-      # "point" argument to tell it which hour is being calculated.
+      # Public: Determines the final marginal cost of the producer. Accepts and discards any
+      # arguments given; subclasses may instead take a single "point" argument to tell it which hour
+      # is being calculated.
       #
-      # This method should be called only after the merit order has been
-      # calculated as subclasses may rely on data from the calculation. Prior to
-      # then, use "sortable_cost" instead.
+      # This method should be called only after the merit order has been calculated as subclasses
+      # may rely on data from the calculation. Prior to then, use "sortable_cost" instead.
       #
       # Returns a Numeric.
       def marginal_cost
         raise NotImplementedError
       end
 
-      # Public: Returns the price of the producer. This is subtly different from
-      # the cost in that the price is used to determine the price of an entire
-      # region in a particular hour. Only one producer is price-setting.
+      # Public: Returns the price of the producer. This is subtly different from the cost in that
+      # the price is used to determine the price of an entire region in a particular hour. Only one
+      # producer is price-setting.
       #
       # Returns a Numeric.
-      def price_at(point, allow_loaded = false)
+      def price_at(point, allow_loaded = false) # rubocop:disable Style/OptionalBooleanParameter
         assert_price_setting!(point, allow_loaded)
         marginal_cost
       end
@@ -69,35 +68,31 @@ module Merit
         marginal_cost
       end
 
-      # Public: Determines the marginal cost of the producer. In some cases,
-      # this will differ from "marginal_cost" if the final marginal cost depends
-      # on data from the merit order calculation.
+      # Public: Determines the marginal cost of the producer. In some cases, this will differ from
+      # "marginal_cost" if the final marginal cost depends on data from the merit order calculation.
       #
       # Returns a Numeric.
       def sortable_cost(*)
         marginal_cost
       end
 
-      # Public: The variable cost of a producer is the marginal cost multiplied
-      # by the production.
+      # Public: The variable cost of a producer is the marginal cost multiplied by the production.
       #
       # Returns a Numeric.
       def variable_cost
         marginal_cost * @producer.production(:mwh)
       end
 
-      # Public: Returns if the producer may be used to set the price of the
-      # region for a given point. Note that this does not mean that this IS the
-      # price-setting producer; merely that it is valid to be used in such a
-      # way.
+      # Public: Returns if the producer may be used to set the price of the region for a given
+      # point. Note that this does not mean that this IS the price-setting producer; merely that it
+      # is valid to be used in such a way.
       def price_setting?(point)
         @producer.provides_price? || @producer.load_curve.get(point).zero?
       end
 
-      # Public: Tells us if the price changes depending on the point in the year
-      # being calculated. If the merit order has one or more producers with a
-      # cost which varies by hour, the producer list has to be resorted prior to
-      # every point calculation.
+      # Public: Tells us if the price changes depending on the point in the year being calculated.
+      # If the merit order has one or more producers with a cost which varies by hour, the producer
+      # list has to be resorted prior to every point calculation.
       #
       # Returns true or false.
       def variable?
@@ -111,11 +106,10 @@ module Merit
           raise InsufficentCapacityForPrice.new(@producer, point)
         end
       end
-    end # Base
+    end
 
-    # A cost strategy which simply reads a "marginal_costs" attribute from the
-    # producer. The cost is constant, and does not changed depending on the hour
-    # being calculated.
+    # A cost strategy which simply reads a "marginal_costs" attribute from the producer. The cost is
+    # constant, and does not changed depending on the hour being calculated.
     #
     # Create your producer providing a "marginal_costs" attribute:
     #
@@ -130,7 +124,7 @@ module Merit
       def marginal_cost
         @cost
       end
-    end # Constant
+    end
 
     # A cost strategy which has no cost and whose producer will never be
     # price-setting. For example, storage.
@@ -142,10 +136,10 @@ module Merit
       def price_setting?(*)
         false
       end
-    end # Null
+    end
 
-    # Calculates the marginal cost of the producer by reading the value from a
-    # curve. The cost may change depending on the hour.
+    # Calculates the marginal cost of the producer by reading the value from a curve. The cost may
+    # change depending on the hour.
     #
     # Create your producer like so:
     #
@@ -161,7 +155,7 @@ module Merit
         point.nil? ? average_cost : @curve[point]
       end
 
-      def price_at(point, allow_loaded = false)
+      def price_at(point, allow_loaded = false) # rubocop:disable Style/OptionalBooleanParameter
         assert_price_setting!(point, allow_loaded)
         sortable_cost(point)
       end
@@ -175,7 +169,7 @@ module Merit
       end
 
       def variable_cost
-        (@producer.load_curve * @curve).reduce(:+)
+        (@producer.load_curve * @curve).sum
       end
 
       def variable?
@@ -187,10 +181,10 @@ module Merit
       def average_cost
         @average_cost ||= @curve.sum / @curve.length
       end
-    end # FromCurve
+    end
 
-    # Calculates the marginal cost of a producer using a linear step function,
-    # slightly increasing costs with demand.
+    # Calculates the marginal cost of a producer using a linear step function, slightly increasing
+    # costs with demand.
     #
     # Create your producer like so:
     #
@@ -213,7 +207,7 @@ module Merit
         cost_at_load(@producer.load_curve.get(point))
       end
 
-      def price_at(point, allow_loaded = false)
+      def price_at(point, allow_loaded = false) # rubocop:disable Style/OptionalBooleanParameter
         if @producer.provides_price?
           cost_at_load(@producer.load_curve.get(point))
         else
@@ -241,10 +235,9 @@ module Merit
         @mean
       end
 
-      # Internal: Calculates the cost of the producer according to a linear step
-      # function, whereby the cost increases slightly as capacity increases.
-      # Each "step" in the function corresponds with an increase in the number
-      # of units required to satisfy demand.
+      # Internal: Calculates the cost of the producer according to a linear step function, whereby
+      # the cost increases slightly as capacity increases. Each "step" in the function corresponds
+      # with an increase in the number of units required to satisfy demand.
       #
       # See https://github.com/quintel/merit/issues/109
       #
@@ -263,6 +256,6 @@ module Merit
         y_min + (capacity / typical).floor *
           delta / (avail / typical)
       end
-    end # LinearCostFunction
-  end # CostStrategy
-end # Merit
+    end
+  end
+end

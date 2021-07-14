@@ -1,17 +1,21 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 module Merit
   describe Flex::Base do
-    let(:attrs) {{
-      key: :a,
-      output_capacity_per_unit: 2.0,
-      input_capacity_per_unit: 2.0,
-      number_of_units: 1
-    }}
+    let(:attrs) do
+      {
+        key: :a,
+        output_capacity_per_unit: 2.0,
+        input_capacity_per_unit: 2.0,
+        number_of_units: 1
+      }
+    end
 
     context 'with no group or excess_share' do
       it 'is acceptable' do
-        expect { Flex::Base.new(attrs) }.to_not raise_error
+        expect { described_class.new(attrs) }.not_to(raise_error)
       end
     end
 
@@ -21,7 +25,7 @@ module Merit
       end
 
       it 'is acceptable' do
-        expect { Flex::Base.new(attrs) }.to_not raise_error
+        expect { described_class.new(attrs) }.not_to(raise_error)
       end
     end
 
@@ -31,7 +35,7 @@ module Merit
       end
 
       it 'is not acceptable' do
-        expect { Flex::Base.new(attrs) }.to raise_error(MissingGroup)
+        expect { described_class.new(attrs) }.to raise_error(MissingGroup)
       end
     end
 

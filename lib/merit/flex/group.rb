@@ -2,13 +2,11 @@
 
 module Merit
   module Flex
-    # Some Flexible participants may belong to a group, such that receive excess
-    # energy at the same time. The group determines how this energy is shared
-    # between its members.
+    # Some Flexible participants may belong to a group, such that receive excess energy at the same
+    # time. The group determines how this energy is shared between its members.
     #
-    # The default group behaves exactly like the normal calculation: energy is
-    # given in order to each member. The order of members is determined by the
-    # Sorting to which they belong.
+    # The default group behaves exactly like the normal calculation: energy is given in order to
+    # each member. The order of members is determined by the Sorting to which they belong.
     #
     # For example:
     #
@@ -28,10 +26,10 @@ module Merit
       # Public: Creates a new group.
       #
       # key        - Unique key to identify this group in the merit order.
-      # collection - An optional Sorting instance containing members of the
-      #              group. If none is provided, the group will be unsorted. If
-      #              a Sorting::Fixed is provided, it will be swapped out for a
-      #              Sorting::Variable if any variably-priced members are added.
+      # collection - An optional Sorting instance containing members of the group. If none is
+      #              provided, the group will be unsorted. If a Sorting::Fixed is provided, it will
+      #              be swapped out for a Sorting::Variable if any variably-priced members are
+      #              added.
       #
       # Returns a Group.
       def initialize(key, collection = Sorting::Unsorted.new)
@@ -43,9 +41,7 @@ module Merit
       #
       # Returns self.
       def insert(participant)
-        if must_become_variable?(participant)
-          @collection = @collection.to_variable
-        end
+        @collection = @collection.to_variable if must_become_variable?(participant)
 
         @collection.insert(participant)
         self
@@ -67,8 +63,8 @@ module Merit
 
       # Public: Reduces the group to the simplest possible participant.
       #
-      # A group with only one member has no special assignment or sorting
-      # behavior, and can therefore be replaced by the member.
+      # A group with only one member has no special assignment or sorting behavior, and can
+      # therefore be replaced by the member.
       #
       # Returns a Group or Participant.
       def simplify
@@ -96,6 +92,5 @@ module Merit
         true
       end
     end
-
   end
 end

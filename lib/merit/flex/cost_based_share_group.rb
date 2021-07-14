@@ -21,8 +21,6 @@ module Merit
       # remaining output capacity.
       #
       # Returns the total amount of energy taken by the participants.
-      #
-      # rubocop:disable Metrics/MethodLength
       def assign_excess(point, amount)
         initial_amount = amount
         recipients = @collection.at_point(point)
@@ -43,7 +41,6 @@ module Merit
 
         initial_amount - amount
       end
-      # rubocop:enable Metrics/MethodLength
 
       # Internal: Given all the recipients sorted for the current point and an index of the
       # "current" participant, returns the index of the last participant whose price is the same as

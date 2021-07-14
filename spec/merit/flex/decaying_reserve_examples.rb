@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples_for 'decaying reserve' do
+RSpec.shared_examples_for('decaying reserve') do
   describe 'with a decay which subtracts 2' do
     let(:reserve) { described_class.new { |*| 2 } }
 

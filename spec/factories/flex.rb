@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :flex, class: Merit::Flex::Base do
+  factory :flex, class: 'Merit::Flex::Base' do
     initialize_with { Merit::Flex::Base.new(attributes) }
 
     sequence(:key) { |n| :"flex_#{n}" }
@@ -11,7 +11,7 @@ FactoryBot.define do
     number_of_units { 1 }
     output_capacity_per_unit { 2.0 }
 
-    factory :storage, class: Merit::Flex::Storage do
+    factory :storage, class: 'Merit::Flex::Storage' do
       initialize_with { Merit::Flex::Storage.new(attributes) }
 
       sequence(:key) { |n| :"storage_#{n}" }

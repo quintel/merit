@@ -1,12 +1,14 @@
+# frozen_string_literal: true
+
 module Merit
+  # A participant which places a demand on the merit order.
   class User < Participant
     class << self
       protected :new
 
-      # Public: Creates an appropriate User for the options given. The options
-      # hash should include a :total_consumption key if you want to express the
-      # User's total energy use for the year, or a :load_curve if the per-point
-      # consumption defined using a Curve.
+      # Public: Creates an appropriate User for the options given. The options hash should include a
+      # :total_consumption key if you want to express the User's total energy use for the year, or a
+      # :load_curve if the per-point consumption defined using a Curve.
       #
       # Returns a Participant.
       def create(options)
@@ -20,7 +22,7 @@ module Merit
           raise UnknownDemandError
         end
       end
-    end # class << self
+    end
 
     attr_reader :load_curve
 
@@ -29,21 +31,20 @@ module Merit
       @load_curve.values[point_in_time]
     end
 
-    # Public: What is the total supply between the two given points (inclusive
-    # of both points)?
+    # Public: What is the total supply between the two given points (inclusive of both points)?
     #
     # start  - The earlier point.
     # finish - The later point.
     #
     # Returns a float.
     def load_between(start, finish)
-      @load_curve.values[start..finish].reduce(:+)
+      @load_curve.values[start..finish].sum
     end
 
-    # Public: Determines if the demand of the user depends on the total demand
-    # of all other users in the order.
+    # Public: Determines if the demand of the user depends on the total demand of all other users in
+    # the order.
     def dependent?
       false
     end
-  end # User
-end # Merit
+  end
+end

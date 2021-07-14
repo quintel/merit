@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 module Merit
@@ -10,7 +12,7 @@ module Merit
     end
 
     let(:ic) do
-      SupplyInterconnect.new({
+      described_class.new({
         key: :import_interconnect,
         cost_curve: cost_curve,
         availability: 1.0,
@@ -27,7 +29,7 @@ module Merit
       it 'sets number of units to 1' do
         expect(ic.number_of_units).to eq(1)
       end
-    end # initialize
+    end
 
     describe '#variable_costs' do
       let(:load_curve) do
@@ -40,9 +42,9 @@ module Merit
       before { ic.load_curve = load_curve }
 
       it 'returns the total variable cost for the year' do
-        expect(ic.variable_costs).
-          to eq(1.upto(24).map { |val| val * val }.reduce(:+) * 365)
+        expect(ic.variable_costs)
+          .to eq(1.upto(24).sum { |val| val * val } * 365)
       end
-    end # variable_costs
-  end # SupplyInterconnect
-end # Merit
+    end
+  end
+end

@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 module Merit
+  # Helper module for classes which need to calculate the net load of a merit order.
   module NetLoadHelper
     def initialize(order, excludes = [])
       @order    = order
@@ -12,13 +15,9 @@ module Merit
     def production
       CurveTools.add_curves(
         @order.participants.producers
-          .reject(&method(:excluded_from_participating))
+          .reject { |part| @excludes.include?(part.key) }
           .map(&:load_curve)
       )
-    end
-
-    def excluded_from_participating(producer)
-      @excludes.include?(producer.key)
     end
 
     def consumption

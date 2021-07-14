@@ -4,18 +4,16 @@ require 'forwardable'
 
 module Merit
   class User
-    # A user whose demand is determined by the current price after all other
-    # demands have been satisfied.
+    # A user whose demand is determined by the current price after all other demands have been
+    # satisfied.
     #
-    # A conditional demand only occurs if the user is willing to pay no more
-    # than the price of a dispatchable producer. For example, assumign the User
-    # is willing to pay 10, and there are three dispatchbles available with
-    # prices of 5, 10, and 15, then the User would be willing to use energy from
-    # the first two, but not the third.
+    # A conditional demand only occurs if the user is willing to pay no more than the price of a
+    # dispatchable producer. For example, assumign the User is willing to pay 10, and there are
+    # three dispatchbles available with prices of 5, 10, and 15, then the User would be willing to
+    # use energy from the first two, but not the third.
     #
-    # Conditional demands are not included in the total demand calculated by
-    # `DemandCalculator`, and require a separate loop at the end of
-    # `Calculator#calculate_point`.
+    # Conditional demands are not included in the total demand calculated by `DemandCalculator`, and
+    # require a separate loop at the end of `Calculator#calculate_point`.
 
     # `PriceSensitive` wraps around a `User`, such that its demand is only
     # satisifed if the price it is willing to pay is less than or equal to the
@@ -35,14 +33,12 @@ module Merit
 
       attr_reader :cost_strategy, :group, :load_curve
 
-      # Public: Creates a new `PriceSensitive` which adds price-sensitivity to
-      # the given `User`.
+      # Public: Creates a new `PriceSensitive` which adds price-sensitivity to the given `User`.
       #
       # user          - The `User` being made price sensitive.
-      # cost_strategy - A `CostStrategy` instance, describing how to calculate
-      #                 the price the user is willing to pay in each hour.
-      # group         - Allows the PriceSensitive to be included in a
-      #                 flexibility group.
+      # cost_strategy - A `CostStrategy` instance, describing how to calculate the price the user is
+      #                 willing to pay in each hour.
+      # group         - Allows the PriceSensitive to be included in a flexibility group.
       #
       # Returns a PriceSensitive.
       def initialize(user, cost_strategy, group = nil)
@@ -56,14 +52,13 @@ module Merit
 
       # Public: Offers the price-sensitive an `amount` of energy at a `price`.
       #
-      # If the user wishes to purchase some (or all) the energy, it returns the
-      # amount, otherwise it returns zero.
+      # If the user wishes to purchase some (or all) the energy, it returns the amount, otherwise it
+      # returns zero.
       #
       # Returns a numeric.
       def barter_at(point, amount, price)
-        # "gt" rather than "gte" so that the participant does not provide energy
-        # to itself. This avoids having to do this check explicitly in
-        # Calculator avoiding many extra comparisons.
+        # "gt" rather than "gte" so that the participant does not provide energy to itself. This
+        # avoids having to do this check explicitly in Calculator avoiding many extra comparisons.
         if @cost_strategy.cost_at(point) > price
           assign_excess(point, amount)
         else
@@ -77,12 +72,11 @@ module Merit
 
       # Public: Offers the price-sensitive an `amount` of energy.
       #
-      # The energy is offered without a price; the energy is surplus to
-      # requirements and can therefore be provided to the User regardless of
-      # how much it is willing to pay.
+      # The energy is offered without a price; the energy is surplus to requirements and can
+      # therefore be provided to the User regardless of how much it is willing to pay.
       #
-      # If the user wishes some (or all) of the energy, it returns the amount.
-      # Otherwise it returns zero.
+      # If the user wishes some (or all) of the energy, it returns the amount. Otherwise it returns
+      # zero.
       #
       # Returns a numeric.
       def assign_excess(point, amount)
@@ -107,8 +101,8 @@ module Merit
 
       # Public: PriceSensitive is considered flexible.
       #
-      # This allows a PriceSensitive to receive energy from always-on production
-      # when there is an excess.
+      # This allows a PriceSensitive to receive energy from always-on production when there is an
+      # excess.
       def flex?
         true
       end
@@ -117,17 +111,17 @@ module Merit
       #
       # Defaults to MJ, but may return MWh. For example:
       #
-      #   price_sensitive.production #=> MJ
-      #   price_sensitive.production(:mwh) # => MWh
+      #   price_sensitive.production
+      #   #=> MJ price_sensitive.production(:mwh) # => MWh
       #
-      # "production" is a misnomer, but is used for compatibility with other
-      # `Participant` classes.
+      # "production" is a misnomer, but is used for compatibility with other `Participant` classes.
       #
       # Returns a numeric.
       def production(unit = :mj)
-        if unit == :mj
+        case unit
+        when :mj
           @load_curve.sum * 3600
-        elsif unit == :mwh
+        when :mwh
           @load_curve.sum
         else
           raise "Unknown unit: #{unit}"

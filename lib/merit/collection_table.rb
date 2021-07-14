@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Merit
   class CollectionTable
     attr_reader :collection, :attrs

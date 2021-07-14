@@ -128,6 +128,11 @@ Style/Alias:
 Style/GuardClause:
   MinBodyLength: 3 # Default is 1.
 
+# Allow format to be used without annotations as long as there is only one value.
+Style/FormatStringToken:
+  EnforcedStyle: annotated
+  MaxUnannotatedPlaceholdersAllowed: 1
+
 Style/MethodCallWithArgsParentheses:
   Enabled: true
   IgnoreMacros: true
@@ -145,21 +150,8 @@ Style/MethodCallWithArgsParentheses:
   Exclude:
   - Gemfile
 
-# Calculator methods cannot be reduced in complexity (by splitting into smaller
-# methods) without a performance impact.
-Metrics/AbcSize:
-  Exclude:
-    - lib/merit/calculator.rb
-
-Metrics/BlockLength:
-  Exclude:
-    - spec/**/*_spec.rb
-
-# Calculator methods cannot be split into smaller methods without a performance
-# impact.
-Metrics/MethodLength:
-  Exclude:
-    - lib/merit/calculator.rb
+Metrics:
+  Enabled: false
 
 # Integration tests have human-readable descriptions and do not describe
 # specific classes.

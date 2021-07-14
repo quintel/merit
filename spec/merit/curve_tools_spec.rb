@@ -8,7 +8,7 @@ describe Merit::CurveTools do
       let(:result) do
         described_class.add_curves([
           Merit::Curve.new([1.0, 2.0] * 2),
-          Merit::Curve.new([1.0, 2.0] * 2),
+          Merit::Curve.new([1.0, 2.0] * 2)
         ])
       end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # General libraries
 require 'csv'
 require 'terminal-table'
@@ -20,7 +22,6 @@ require_relative 'merit/cost_strategy'
 require_relative 'merit/curve'
 require_relative 'merit/demand_calculator'
 require_relative 'merit/order'
-require_relative 'merit/order_attribute_groups'
 require_relative 'merit/load_profile'
 require_relative 'merit/price_curves'
 require_relative 'merit/load_curve_presenter'

@@ -1,32 +1,30 @@
+# frozen_string_literal: true
+
 module Merit
   module Flex
-    # Base class for all flexible producers which may store or use excess
-    # energy from always-on producers.
+    # Base class for all flexible producers which may store or use excess energy from always-on
+    # producers.
     class Base < DispatchableProducer
-      # Default attributes for all storage technologies. May be customised as
-      # needed.
+      # Default attributes for all storage technologies. May be customised as needed.
       DEFAULTS = { availability: 1.0, marginal_costs: :null }.freeze
 
       # Public: Returns the input capacity of each unit of this technology.
       #
-      # Input capacity determines the maxiumum amount of energy which may be
-      # consumed in each point. If no capacity is set, the output capacity is
-      # used.
+      # Input capacity determines the maxiumum amount of energy which may be consumed in each point.
+      # If no capacity is set, the output capacity is used.
       #
       # Returns a float.
       attr_reader :input_capacity_per_unit
 
       # Public: Returns the share of excess which may be assigned.
       #
-      # When a Flex producer belongs to a group of many other flex producers,
-      # assigning a share will limit how much excess may be assigned, so as to
-      # leave some for the other group members.
+      # When a Flex producer belongs to a group of many other flex producers, assigning a share will
+      # limit how much excess may be assigned, so as to leave some for the other group members.
       #
       # Returns a float.
       attr_reader :excess_share
 
-      # Public: The group of flexibles to which the participant optionally
-      # belongs.
+      # Public: The group of flexibles to which the participant optionally belongs.
       #
       # Returns a Symbol.
       attr_reader :group
@@ -61,8 +59,8 @@ module Merit
         @input_capacity + @load_curve.get(point)
       end
 
-      # Public: Stores a given amount of energy in the technology. Not all given
-      # to the technology is guaranteed to be stored.
+      # Public: Stores a given amount of energy in the technology. Not all given to the technology
+      # is guaranteed to be stored.
       #
       # Returns the amount of energy which was accepted by the storage device.
       def assign_excess(point, amount)
@@ -85,8 +83,8 @@ module Merit
           end
       end
 
-      # Public: Describes how much energy is stored and may be emitted for
-      # consumption in the chosen point.
+      # Public: Describes how much energy is stored and may be emitted for consumption in the chosen
+      # point.
       #
       # Returns a numeric.
       def max_load_at(_point)
@@ -104,9 +102,8 @@ module Merit
         @load_curve.set(point, value)
       end
 
-      # Public: Determines the amount of energy the battery stored during the
-      # Merit order calculation. It is assumed that the same amount of energy
-      # will be emitted for use.
+      # Public: Determines the amount of energy the battery stored during the Merit order
+      # calculation. It is assumed that the same amount of energy will be emitted for use.
       #
       # Returns a float.
       def production(unit = :mj)
@@ -115,13 +112,13 @@ module Merit
         case unit
         when :mj  then mwh * 3600
         when :mwh then mwh
-        else           raise "Unknown unit: #{ unit }"
+        else           raise "Unknown unit: #{unit}"
         end
       end
 
       def flex?
         true
       end
-    end # Base
-  end # Flex
+    end
+  end
 end

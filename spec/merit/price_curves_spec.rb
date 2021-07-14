@@ -1,14 +1,18 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 module Merit
   describe PriceCurves do
-    let(:producer_attrs) {{
-      output_capacity_per_unit:  1.0,
-      number_of_units:           1,
-      availability:              1.0,
-      fixed_costs_per_unit:      1.0,
-      fixed_om_costs_per_unit:   1.0
-    }}
+    let(:producer_attrs) do
+      {
+        output_capacity_per_unit: 1.0,
+        number_of_units: 1,
+        availability: 1.0,
+        fixed_costs_per_unit: 1.0,
+        fixed_om_costs_per_unit: 1.0
+      }
+    end
 
     let(:order) do
       order = Merit::Order.new
@@ -44,23 +48,26 @@ module Merit
 
     let(:producer_one) do
       DispatchableProducer.new(producer_attrs.merge(
-        key: :one, marginal_costs: 10.0))
+        key: :one, marginal_costs: 10.0
+      ))
     end
 
     let(:producer_two) do
       DispatchableProducer.new(producer_attrs.merge(
-        key: :two, marginal_costs: 20.0))
+        key: :two, marginal_costs: 20.0
+      ))
     end
 
     let(:producer_three) do
       DispatchableProducer.new(producer_attrs.merge(
-        key: :three, marginal_costs: 30.0))
+        key: :three, marginal_costs: 30.0
+      ))
     end
 
     # --------------------------------------------------------------------------
 
     describe PriceCurves::FirstUnloaded do
-      let(:curve) { PriceCurves::FirstUnloaded.new(order) }
+      let(:curve) { described_class.new(order) }
 
       describe 'when no producers have load' do
         it 'sets the first producer to be price-setting' do
@@ -106,7 +113,8 @@ module Merit
         let(:producer_one) do
           DispatchableProducer.new(producer_attrs.merge(
             key: :one, marginal_costs: 10.0, cost_spread: 0.5,
-            number_of_units: 2))
+            number_of_units: 2
+          ))
         end
 
         it 'sets the first unloaded producer to be price-setting' do
@@ -144,10 +152,10 @@ module Merit
           expect(curve.get(2)).to eq(30.0 * 7.22)
         end
       end
-    end # FirstUnloaded
+    end
 
     describe PriceCurves::LastLoaded do
-      let(:curve) { PriceCurves::LastLoaded.new(order) }
+      let(:curve) { described_class.new(order) }
 
       describe 'when no producers have load' do
         it 'sets the first producer to be price-setting' do
@@ -183,7 +191,8 @@ module Merit
         let(:producer_one) do
           DispatchableProducer.new(producer_attrs.merge(
             key: :one, marginal_costs: 10.0, cost_spread: 0.5,
-            number_of_units: 2))
+            number_of_units: 2
+          ))
         end
 
         it 'sets the cost-function producer to be price-setting' do
@@ -204,6 +213,6 @@ module Merit
           expect(curve.get(2)).to eq(30.0)
         end
       end
-    end # LastLoaded
-  end # PriceCurves
-end # Merit
+    end
+  end
+end

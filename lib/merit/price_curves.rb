@@ -1,16 +1,16 @@
+# frozen_string_literal: true
+
 module Merit
   # Price curves determine how electricity is priced in each hour of the year.
   module PriceCurves
-    # FirstUnloaded will price electricity by taking the price of the first
-    # producer to have no load, or by incrementing the load of a cost-function
-    # producer equivalent to adding one extra plant.
+    # FirstUnloaded will price electricity by taking the price of the first producer to have no
+    # load, or by incrementing the load of a cost-function producer equivalent to adding one extra
+    # plant.
     #
-    # In the event that all producers are fully-loaded, a fallback price is
-    # determined by multiplying the price of the most expensive producer by a
-    # constant.
+    # In the event that all producers are fully-loaded, a fallback price is determined by
+    # multiplying the price of the most expensive producer by a constant.
     class FirstUnloaded < Curve
-      # The amount by which to multiply the most expensive producer when all are
-      # fully-loaded.
+      # The amount by which to multiply the most expensive producer when all are fully-loaded.
       #
       # See quintel/merit#66 for the rationale behind this constant.
       FALLBACK_MULTIPLIER = 7.22
@@ -21,11 +21,11 @@ module Merit
         @order = order
       end
 
-      # Public: Sets the value of the load curve for an point in the year using
-      # the price of the given producer.
+      # Public: Sets the value of the load curve for an point in the year using the price of the
+      # given producer.
       #
-      # Generally you don't need to call this in your own code; just +get()+ the
-      # hour you want and the Curve will set the correct price.
+      # Generally you don't need to call this in your own code; just +get()+ the hour you want and
+      # the Curve will set the correct price.
       #
       # Returns the numeric price.
       def set(point, producer)
@@ -36,8 +36,7 @@ module Merit
         end
       end
 
-      # Public: Returns the price curve as an array, computing each value if
-      # necessary.
+      # Public: Returns the price curve as an array, computing each value if necessary.
       def to_a
         if @values.first.nil?
           # Price curve hasn't been calculated.
@@ -49,16 +48,14 @@ module Merit
 
       # Public: Gets the price for the given point in the year.
       #
-      # If no price has been explicitly set, the price will be calculated, set,
-      # and then returned.
+      # If no price has been explicitly set, the price will be calculated, set, and then returned.
       #
       # Returns a numeric.
       def get(point)
         super || set(point, producer_at(point))
       end
 
-      # Public: Returns the Producer responsible for setting the price in the
-      # given +point+.
+      # Public: Returns the Producer responsible for setting the price in the given +point+.
       def producer_at(point)
         @order.participants.dispatchables
           .select { |producer| producer.cost_strategy.price_setting?(point) }
@@ -67,49 +64,47 @@ module Merit
 
       private
 
-      # Internal: Determines the price which should be used in the event that
-      # all producers are fully-loaded.
+      # Internal: Determines the price which should be used in the event that all producers are
+      # fully-loaded.
       #
       # Returns a numeric.
       def fallback_price(point)
-        if fallback = fallback_producer(point)
+        if (fallback = fallback_producer(point))
           price_of(fallback, point, true) * FALLBACK_MULTIPLIER
         else
           600.0
         end
       end
 
-      # Internal: calculates the price of a producer in the given point of the
-      # year.
+      # Internal: calculates the price of a producer in the given point of the year.
       #
       # If allow_loaded is false, and the producer is not price-setting (see
-      # CostStrategy::Base#price_setting?), an InsufficientCapacityForPrice
-      # exception will be raised.
+      # CostStrategy::Base#price_setting?), an InsufficientCapacityForPrice exception will be
+      # raised.
       #
       # Returns a numeric.
-      def price_of(producer, point, allow_loaded = false)
+      def price_of(producer, point, allow_loaded = false) # rubocop:disable Style/OptionalBooleanParameter
         producer.price_at(point, allow_loaded)
       end
 
-      # Internal: Returns the producer which should be used to calculate the
-      # price in the event that all producers are fully-loaded.
+      # Internal: Returns the producer which should be used to calculate the price in the event that
+      # all producers are fully-loaded.
       def fallback_producer(_point)
         @order.participants.dispatchables.reverse_each.detect do |producer|
-          producer.number_of_units > 0
+          producer.number_of_units.positive?
         end
       end
     end
 
-    # LastLoaded calculates electricity prices by using the cost of the most
-    # expensive producer which has load assigned.
+    # LastLoaded calculates electricity prices by using the cost of the most expensive producer
+    # which has load assigned.
     class LastLoaded < FirstUnloaded
       def initialize(*)
         super
         @dispatchables = @order.participants.dispatchables
       end
 
-      # Public: Returns the Producer responsible for setting the price in the
-      # given +point+.
+      # Public: Returns the Producer responsible for setting the price in the given +point+.
       def producer_at(point)
         max_cost     = -1.0
         max_producer = nil
@@ -126,7 +121,7 @@ module Merit
           end
         end
 
-        max_producer ? max_producer : @dispatchables.first
+        max_producer || @dispatchables.first
       end
 
       private
@@ -140,6 +135,6 @@ module Merit
       def price_of(producer, point, *)
         producer.cost_at(point)
       end
-    end # LastLoaded
-  end # PriceCurves
-end # Merit
+    end
+  end
+end

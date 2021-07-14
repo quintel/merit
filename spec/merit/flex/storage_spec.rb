@@ -1,17 +1,21 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 module Merit
   describe Flex::Storage do
-    let(:attrs) {{
-      key: :p2p,
-      number_of_units: 1,
-      output_capacity_per_unit: 10.0,
-      input_efficiency: 1.0,
-      output_efficiency: 1.0,
-      volume_per_unit: 10.0
-    }}
+    let(:attrs) do
+      {
+        key: :p2p,
+        number_of_units: 1,
+        output_capacity_per_unit: 10.0,
+        input_efficiency: 1.0,
+        output_efficiency: 1.0,
+        volume_per_unit: 10.0
+      }
+    end
 
-    let(:storage) { Flex::Storage.new(attrs) }
+    let(:storage) { described_class.new(attrs) }
 
     # --
 
@@ -20,7 +24,7 @@ module Merit
         it 'returns zero' do
           expect(storage.max_load_at(0)).to be_zero
         end
-      end # when empty
+      end
 
       context 'with 1.0 stored' do
         before { storage.reserve.set(0, 1.0) }
@@ -37,7 +41,7 @@ module Merit
               expect(storage.max_load_at(1)).to eq(0.75)
             end
           end
-        end # and output capacity: 10.0
+        end
 
         context 'and output capacity: 0.5' do
           let(:attrs) { super().merge(output_capacity_per_unit: 0.5) }
@@ -57,7 +61,7 @@ module Merit
               expect(storage.max_load_at(2)).to eq(0.5)
             end
           end
-        end # and output capacity: 0.5
+        end
 
         context 'and input capacity: 0.25' do
           # Output is unaffected by input capacity
@@ -66,9 +70,9 @@ module Merit
           it 'returns 1.0' do
             expect(storage.max_load_at(1)).to eq(1.0)
           end
-        end # and output capacity: 10.0
-      end # with 1.0 stored
-    end # max_load_at
+        end
+      end
+    end
 
     # --
 
@@ -93,7 +97,7 @@ module Merit
 
           it 'has production of 7200 MJ' do
             expect { store_load }
-              .to change { storage.production }
+              .to change(storage, :production)
               .from(0.0).to(2.0 * 3600)
           end
 
@@ -106,7 +110,7 @@ module Merit
             store_load
             expect(storage.max_load_at(1)).to eq(2)
           end
-        end # with nothing stored
+        end
 
         context 'with 8.0 already stored' do
           before { storage.reserve.add(0, 8.0) }
@@ -129,10 +133,10 @@ module Merit
 
           it 'has production of 7200 MJ' do
             expect { store_load }
-              .to change { storage.production }
+              .to change(storage, :production)
               .from(0.0).to(2.0 * 3600)
           end
-        end # with 8.0 already stored
+        end
 
         context 'with 9.0 already stored' do
           before { storage.reserve.add(0, 9.0) }
@@ -155,10 +159,10 @@ module Merit
 
           it 'has production of 3600 MJ' do
             expect { store_load }
-              .to change { storage.production }
+              .to change(storage, :production)
               .from(0.0).to(3600)
           end
-        end # with 9.0 already stored
+        end
 
         context 'with a volume_per_unit of 0.0' do
           let(:attrs) { super().merge(volume_per_unit: 0.0) }
@@ -189,7 +193,7 @@ module Merit
             store_load
             expect(storage.load_curve.get(1)).to eq(-3.0)
           end
-        end # with a capacity of 3.0, 2.0 already stored
+        end
 
         context 'with an availability of 0.1' do
           let(:attrs) { super().merge(availability: 0.1) }
@@ -217,7 +221,7 @@ module Merit
 
           it 'stores nothing' do
             expect { store_load }
-              .to_not change { storage.reserve.at(1) }.from(10.0)
+              .not_to(change { storage.reserve.at(1) }.from(10.0))
           end
 
           it 'returns zero' do
@@ -228,7 +232,7 @@ module Merit
             store_load
             expect(storage.load_curve.get(1)).to be_zero
           end
-        end # with 10.0 already stored
+        end
 
         context 'with an input efficiency of 0.75' do
           let(:attrs) { super().merge(input_efficiency: 0.75) }
@@ -247,7 +251,7 @@ module Merit
             store_load
             expect(storage.load_curve.get(1)).to eq(-2.0)
           end
-        end # with an input efficiency of 0.75
+        end
 
         context 'with an input capacity of 0.5' do
           let(:attrs) { super().merge(input_capacity_per_unit: 0.5) }
@@ -266,7 +270,7 @@ module Merit
             store_load
             expect(storage.load_curve.get(1)).to eq(-0.5)
           end
-        end # with an input capacity of 0.5
+        end
 
         context 'with an output capacity of 0.25 and no input capacity' do
           let(:attrs) { super().merge(output_capacity_per_unit: 0.25) }
@@ -285,7 +289,7 @@ module Merit
             store_load
             expect(storage.load_curve.get(1)).to eq(-0.25)
           end
-        end # with an output capacity of 0.25 and no input capacity
+        end
 
         context 'with an input capacity of 0.5 and input efficiency of 0.75' do
           let(:attrs) do
@@ -310,8 +314,8 @@ module Merit
             store_load
             expect(storage.load_curve.get(1)).to eq(-0.5)
           end
-        end # with an input capacity of 0.5 and input efficiency of 0.75
-      end # storing 2.0
+        end
+      end
 
       context 'storing -2.0' do
         let(:store_load) { storage.assign_excess(1, -2.0) }
@@ -325,8 +329,7 @@ module Merit
           expect(storage.load_curve.get(1)).to be_zero
         end
       end
-
-    end # store
+    end
 
     # --
 
@@ -352,7 +355,7 @@ module Merit
         end
 
         it 'incurs no production' do
-          expect { set_load }.to_not change { storage.production }
+          expect { set_load }.not_to(change(storage, :production))
         end
 
         context 'with an output efficiency of 0.4' do
@@ -372,9 +375,9 @@ module Merit
             set_load
             expect(storage.load_curve.get(1)).to eq(0.5)
           end
-        end # with an output efficiency of 0.4
-      end # setting 0.5
-    end # set_load
+        end
+      end
+    end
 
     # --
 
@@ -421,8 +424,7 @@ module Merit
             expect(storage.max_load_at(1)).to be_zero
           end
         end
-      end # with 2.0 stored
-    end # decay
-
-  end # Flex::Storage
-end # Merit
+      end
+    end
+  end
+end

@@ -23,15 +23,15 @@ RSpec.configure do |config|
 
   config.expose_dsl_globally = true
 
-  config.include FactoryBot::Syntax::Methods
-  config.include Merit::Spec
+  config.include(FactoryBot::Syntax::Methods)
+  config.include(Merit::Spec)
 
   config.before(:suite) do
     FactoryBot.find_definitions
   end
 end
 
-def capture_stdout(&block)
+def capture_stdout
   original_stdout = $stdout
   $stdout = fake = StringIO.new
   begin

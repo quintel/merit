@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 module Merit
   module Flex
     class Storage < Base
       attr_reader :reserve
 
-      # Public: Creates a new Storage participant which may retain excess energy
-      # produced by always-on producers so that it may be used later.
+      # Public: Creates a new Storage participant which may retain excess energy produced by
+      # always-on producers so that it may be used later.
       def initialize(opts)
         super
 
@@ -12,9 +14,7 @@ module Merit
         @output_efficiency = opts[:output_efficiency] || 1.0
 
         decay =
-          if opts[:decay]
-            ->(point, amount) { opts[:decay].call(point, amount) }
-          end
+          (->(point, amount) { opts[:decay].call(point, amount) } if opts[:decay])
 
         @reserve = (opts[:reserve_class] || Reserve).new(
           opts.fetch(:volume_per_unit) * number_of_units * availability, &decay
@@ -27,7 +27,7 @@ module Merit
         amount  = amount > input_cap ? input_cap : amount
         amount *= @input_efficiency
 
-        stored  = @reserve.add(point, amount) / @input_efficiency
+        stored = @reserve.add(point, amount) / @input_efficiency
 
         @load_curve.set(point, @load_curve.get(point) - stored)
 
@@ -42,8 +42,8 @@ module Merit
         in_reserve > @output_capacity ? @output_capacity : in_reserve
       end
 
-      # Public: Assigns the load to the storage technology and retains the
-      # energy in the reserve for future use.
+      # Public: Assigns the load to the storage technology and retains the energy in the reserve for
+      # future use.
       #
       # Returns the load.
       def set_load(point, amount)
@@ -56,6 +56,6 @@ module Merit
 
         amount
       end
-    end # Storage
-  end # Flex
+    end
+  end
 end

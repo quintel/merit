@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 module Merit
-  # Given a Merit::Order, produces a table containing load and pricing
-  # information about a single point in the order.
+  # Given a Merit::Order, produces a table containing load and pricing information about a single
+  # point in the order.
   #
   # For example:
   #
@@ -52,9 +54,9 @@ module Merit
 
     def producer_rows(type, point)
       producers = @order.participants.public_send(type).sort_by do |producer|
-        [ producer.max_load_curve.get(point).zero? ? 1 : 0,
-          producer.cost_strategy.sortable_cost(point),
-          -producer.load_curve.get(point) ]
+        [producer.max_load_curve.get(point).zero? ? 1 : 0,
+         producer.cost_strategy.sortable_cost(point),
+         -producer.load_curve.get(point)]
       end
 
       producers.map { |producer| row(producer, point) }.compact
@@ -77,11 +79,11 @@ module Merit
       price_setting =
         @order.price_setting_producers[point] == producer ? '* ' : ''
 
-      [ (producer.always_on? ? 'A' : 'T'),
-        producer.key,
-        prod.zero? && ! max.zero? ? '0.0 %' : "#{ cap_used } %",
-        format('%.02f', prod),
-        format('%s%.02f', price_setting, cost) ]
+      [(producer.always_on? ? 'A' : 'T'),
+       producer.key,
+       prod.zero? && !max.zero? ? '0.0 %' : "#{cap_used} %",
+       format('%.02f', prod),
+       format('%<setting>s%<cost>.02f', setting: price_setting, cost: cost)]
     end
-  end # PointTable
-end # Merit
+  end
+end

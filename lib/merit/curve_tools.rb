@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Merit
-  # This monstrosity dynamically defines methods on itself as an optimised way
-  # to sum the values in Merit curves.
+  # This monstrosity dynamically defines methods on itself as an optimised way to sum the values in
+  # Merit curves.
   #
   # Typically this would be done as:
   #
@@ -16,11 +16,10 @@ module Merit
   #     end
   #   end
   #
-  # If there is no "adder" method for the number of curves given, the curves
-  # will be partitioned into the largest groups possible in order to sum the
-  # curves optimally. For example, adding 15 curves will run `add_curves_10` on
-  # the first ten curves, `add_curves_5` on the remaining five, then
-  # `add_curves_2` on the previous two results to get the final summed curve.
+  # If there is no "adder" method for the number of curves given, the curves will be partitioned
+  # into the largest groups possible in order to sum the curves optimally. For example, adding 15
+  # curves will run `add_curves_10` on the first ten curves, `add_curves_5` on the remaining five,
+  # then `add_curves_2` on the previous two results to get the final summed curve.
   #
   # Benchmarks:
   #
@@ -32,8 +31,8 @@ module Merit
   #     add_curves    164.975  (+- 4.2%) i/s -    832.000 in 5.052981s
   module CurveTools
     class << self
-      # Public: Combines two or more curves, creating a new curve where each
-      # value is the sum of values in each provided curve.
+      # Public: Combines two or more curves, creating a new curve where each value is the sum of
+      # values in each provided curve.
       #
       # Use instead of `curves.reduce(:+)` when performance is needed.
       #
@@ -53,8 +52,8 @@ module Merit
 
       private
 
-      # Internal: Adds an arbitrary number of curves together using the largest
-      # available adder methods.
+      # Internal: Adds an arbitrary number of curves together using the largest available adder
+      # methods.
       def add_many(curves)
         while curves.length > 1
           curves = curves
@@ -65,8 +64,8 @@ module Merit
         curves.first
       end
 
-      # Internal: Creates a method which implements loop unrolling for adding
-      # two or more Merit curves. See CurveTools.add_curves.
+      # Internal: Creates a method which implements loop unrolling for adding two or more Merit
+      # curves. See CurveTools.add_curves.
       #
       # Use `add_curves` as the public API to these dynamic methods.
       #
@@ -86,7 +85,8 @@ module Merit
         param_list = params.join(', ')
         name = :"add_curves_#{num_curves}"
 
-        instance_eval <<-RUBY, __FILE__, __LINE__ + 1
+        # rubocop:disable Style/DocumentDynamicEvalDefinition
+        instance_eval(<<-RUBY, __FILE__, __LINE__ + 1)
           def #{name}(#{param_list})
             length = curves_length(#{param_list})
 
@@ -97,6 +97,7 @@ module Merit
 
           private_class_method name
         RUBY
+        # rubocop:enable Style/DocumentDynamicEvalDefinition
 
         name
       end
