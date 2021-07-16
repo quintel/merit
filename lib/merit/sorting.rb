@@ -71,7 +71,9 @@ module Merit
     # of an object stored in the collection).
     class Unsorted
       extend Forwardable
-      def_delegators :@collection, :first, :length
+      include Enumerable
+
+      def_delegators :@collection, :each, :empty?, :first, :length
 
       def initialize(collection = [])
         @collection = collection.dup

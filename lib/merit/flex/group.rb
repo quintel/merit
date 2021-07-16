@@ -82,7 +82,23 @@ module Merit
 
       alias_method :to_s, :inspect
 
+      def cost_strategy
+        @cost_strategy ||= CostStrategy.create(self, marginal_costs: sortable_cost)
+      end
+
+      def consume_from_dispatchables?
+        @collection.all? { |flex| flex.consume_from_dispatchables? }
+      end
+
       private
+
+      def sortable_cost
+        if @collection.empty?
+          :null
+        else
+          @collection.sum { |el| el.cost_strategy.sortable_cost } / @collection.length
+        end
+      end
 
       def must_become_variable?(participant)
         return false if @collection.is_a?(Sorting::Variable)

@@ -2,6 +2,8 @@
 
 require 'spec_helper'
 
+# rubocop:disable Naming/VariableNumber
+# rubocop:disable RSpec/MultipleMemoizedHelpers
 RSpec.describe 'Calculation of price-sensitive demands' do
   def to_cost_strategy(pricing)
     case pricing
@@ -20,21 +22,23 @@ RSpec.describe 'Calculation of price-sensitive demands' do
   let(:user_1) { FactoryBot.build(:user_with_curve) }
   let(:user_2) { FactoryBot.build(:user_with_curve) }
 
-  let(:ps_1_price) { 15 }
-  let(:ps_2_price) { 14 }
+  let(:ps_flex_price) { 15 }
+  let(:ps_user_price) { 14 }
 
-  let(:ps_1) do
-    Merit::User::PriceSensitive.new(
-      user_1,
-      to_cost_strategy(ps_1_price),
-      :a_group
+  let(:ps_flex) do
+    FactoryBot.build(
+      :flex,
+      marginal_costs: ps_flex_price,
+      input_capacity_per_unit: 10.0,
+      output_capacity_per_unit: 10.0,
+      group: :a_group
     )
   end
 
-  let(:ps_2) do
+  let(:ps_user) do
     Merit::User::PriceSensitive.new(
       user_2,
-      to_cost_strategy(ps_2_price),
+      to_cost_strategy(ps_user_price),
       :a_group
     )
   end
@@ -43,13 +47,13 @@ RSpec.describe 'Calculation of price-sensitive demands' do
     Merit::Order.new.tap do |order|
       order.participants.flex_groups.define(
         Merit::Flex::Group.new(
-          ps_1.group,
+          ps_flex.group,
           Merit::Sorting.by_sortable_cost_desc
         )
       )
 
-      order.add(ps_1)
-      order.add(ps_2)
+      order.add(ps_flex)
+      order.add(ps_user)
     end
   end
 
@@ -77,19 +81,19 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       before { order.calculate }
 
       it 'sets demand of the first user to 10' do
-        expect(ps_1.load_at(0)).to eq(10)
+        expect(ps_flex.load_at(0)).to eq(-10)
       end
 
       it 'sets demand of the second user to 10' do
-        expect(ps_2.load_at(0)).to eq(10)
+        expect(ps_user.load_at(0)).to eq(10)
       end
 
       it 'calculates the production in MJ' do
-        expect(ps_1.production).to eq(10 * Merit::POINTS * Merit::MJ_IN_MWH)
+        expect(ps_flex.production).to eq(10 * Merit::POINTS * Merit::MJ_IN_MWH)
       end
 
       it 'calculates the production in MWh' do
-        expect(ps_1.production(:mwh)).to eq(10 * Merit::POINTS)
+        expect(ps_flex.production(:mwh)).to eq(10 * Merit::POINTS)
       end
     end
 
@@ -100,11 +104,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       let(:capacity_2) { 50 }
 
       it 'sets demand of the first user to 10' do
-        expect(ps_1.load_at(0)).to eq(10)
+        expect(ps_flex.load_at(0)).to eq(-10)
       end
 
       it 'sets demand of the second user to 10' do
-        expect(ps_2.load_at(0)).to eq(10)
+        expect(ps_user.load_at(0)).to eq(10)
       end
     end
 
@@ -115,19 +119,19 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       before { order.calculate }
 
       it 'sets demand of the first user to 4' do
-        expect(ps_1.load_at(0)).to eq(4)
+        expect(ps_flex.load_at(0)).to eq(-4)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(0)
       end
 
       it 'calculates the production of the first user' do
-        expect(ps_1.production).to eq(4 * Merit::POINTS * Merit::MJ_IN_MWH)
+        expect(ps_flex.production).to eq(4 * Merit::POINTS * Merit::MJ_IN_MWH)
       end
 
       it 'calculates the production of the second user to be zero' do
-        expect(ps_2.production).to eq(0)
+        expect(ps_user.production).to eq(0)
       end
     end
 
@@ -136,16 +140,16 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       let(:capacity_1) { 2 }
       let(:capacity_2) { 2 }
 
-      let(:ps_2_price) { 20 }
+      let(:ps_user_price) { 20 }
 
       before { order.calculate }
 
       it 'sets no demand on the first user' do
-        expect(ps_1.load_at(0)).to eq(0)
+        expect(ps_flex.load_at(0)).to eq(-0)
       end
 
       it 'sets demand of the second user to 4' do
-        expect(ps_2.load_at(0)).to eq(4)
+        expect(ps_user.load_at(0)).to eq(4)
       end
     end
 
@@ -154,24 +158,24 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       let(:capacity_1) { 2 }
       let(:capacity_2) { 2 }
 
-      let(:ps_2_price) { [11, 20] }
+      let(:ps_user_price) { [11, 20] }
 
       before { order.calculate }
 
       it 'sets demand of the first user to 4 in frame 0' do
-        expect(ps_1.load_at(0)).to eq(4)
+        expect(ps_flex.load_at(0)).to eq(-4)
       end
 
       it 'sets no demand on the second user in frame 0' do
-        expect(ps_2.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(0)
       end
 
       it 'sets no demand on the first user in frame 1' do
-        expect(ps_1.load_at(1)).to eq(0)
+        expect(ps_flex.load_at(1)).to eq(-0)
       end
 
       it 'sets demand of the second user to 4 in frame 1' do
-        expect(ps_2.load_at(1)).to eq(4)
+        expect(ps_user.load_at(1)).to eq(4)
       end
     end
 
@@ -181,11 +185,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       before { order.calculate }
 
       it 'sets demand of the first user to 10' do
-        expect(ps_1.load_at(0)).to eq(10)
+        expect(ps_flex.load_at(0)).to eq(-10)
       end
 
       it 'sets demand of the second user to 2' do
-        expect(ps_2.load_at(0)).to eq(2)
+        expect(ps_user.load_at(0)).to eq(2)
       end
     end
 
@@ -196,11 +200,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       before { order.calculate }
 
       it 'sets no demand on the first user' do
-        expect(ps_1.load_at(0)).to eq(0)
+        expect(ps_flex.load_at(0)).to eq(-0)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(0)
       end
     end
   end
@@ -221,11 +225,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       before { order.calculate }
 
       it 'sets demand of the first user to 10' do
-        expect(ps_1.load_at(0)).to eq(10)
+        expect(ps_flex.load_at(0)).to eq(-10)
       end
 
       it 'sets demand of the second user to 10' do
-        expect(ps_2.load_at(0)).to eq(10)
+        expect(ps_user.load_at(0)).to eq(10)
       end
 
       it 'sets the load of the first dispatchable to 10' do
@@ -243,8 +247,8 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       let(:di_1) { FactoryBot.build(:dispatchable, output_capacity_per_unit: 1.0) }
       let(:di_2) { FactoryBot.build(:dispatchable, output_capacity_per_unit: 1.0) }
 
-      let(:ps_1_price) { 15 }
-      let(:ps_2_price) { 15 }
+      let(:ps_flex_price) { 15 }
+      let(:ps_user_price) { 15 }
 
       # A user with a price different to the two other price-sensitives.
       let(:ne_1) do
@@ -262,11 +266,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
 
       context 'when non-equal user has a lower price threshold' do
         it 'sets demand of the first user to 1' do
-          expect(ps_1.load_at(0)).to eq(1)
+          expect(ps_flex.load_at(0)).to eq(-1)
         end
 
         it 'sets demand of the second user to 1' do
-          expect(ps_2.load_at(0)).to eq(1)
+          expect(ps_user.load_at(0)).to eq(1)
         end
 
         it 'sets demand of the non-equal priced user to 0' do
@@ -287,11 +291,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
         let(:di_1) { FactoryBot.build(:dispatchable, output_capacity_per_unit: 25.0) }
 
         it 'sets demand of the first user to 10' do
-          expect(ps_1.load_at(0)).to eq(10)
+          expect(ps_flex.load_at(0)).to eq(-10)
         end
 
         it 'sets demand of the second user to 10' do
-          expect(ps_2.load_at(0)).to eq(10)
+          expect(ps_user.load_at(0)).to eq(10)
         end
 
         it 'sets demand of the non-equal priced user to 6' do
@@ -302,11 +306,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
 
       context 'when non-equal user has a higher price threshold' do
         it 'sets demand of the first user to 0' do
-          expect(ps_1.load_at(2)).to eq(0)
+          expect(ps_flex.load_at(2)).to eq(-0)
         end
 
         it 'sets demand of the second user to 0' do
-          expect(ps_2.load_at(2)).to eq(0)
+          expect(ps_user.load_at(2)).to eq(0)
         end
 
         it 'sets demand of the non-equal priced user to 2' do
@@ -328,15 +332,15 @@ RSpec.describe 'Calculation of price-sensitive demands' do
     context 'when neither dispatchable is price-competitive' do
       before { order.calculate }
 
-      let(:ps_1_price) { 5 }
-      let(:ps_2_price) { 5 }
+      let(:ps_flex_price) { 5 }
+      let(:ps_user_price) { 5 }
 
       it 'sets no demand on the first user' do
-        expect(ps_1.load_at(0)).to eq(0)
+        expect(ps_flex.load_at(0)).to eq(-0)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(0)
       end
 
       it 'sets no load on the first dispatchable' do
@@ -348,19 +352,18 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       end
     end
 
-    context 'when both dispatchables have the same price as the ' \
-            'price-sensitives' do
-      let(:ps_1_price) { 10 }
-      let(:ps_2_price) { 10 }
+    context 'when both dispatchables have the same price as the price-sensitives' do
+      let(:ps_flex_price) { 10 }
+      let(:ps_user_price) { 10 }
 
       before { order.calculate }
 
       it 'sets no demand on the first user' do
-        expect(ps_1.load_at(0)).to eq(0)
+        expect(ps_flex.load_at(0)).to eq(-0)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(0)
       end
 
       it 'sets no demand on the first dispatchable' do
@@ -380,11 +383,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       before { order.calculate }
 
       it 'sets demand of the first user to 10' do
-        expect(ps_1.load_at(0)).to eq(10)
+        expect(ps_flex.load_at(0)).to eq(-10)
       end
 
       it 'sets demand of the second user to 5.0' do
-        expect(ps_2.load_at(0)).to eq(5)
+        expect(ps_user.load_at(0)).to eq(5)
       end
 
       it 'sets the load of the first dispatchable to 5' do
@@ -405,16 +408,16 @@ RSpec.describe 'Calculation of price-sensitive demands' do
         FactoryBot.build(:dispatchable, output_capacity_per_unit: 5.0)
       end
 
-      let(:ps_2_price) { 20 }
+      let(:ps_user_price) { 20 }
 
       before { order.calculate }
 
       it 'sets demand of the first user to 5' do
-        expect(ps_1.load_at(0)).to eq(5)
+        expect(ps_flex.load_at(0)).to eq(-5)
       end
 
       it 'sets demand of the second user to 10' do
-        expect(ps_2.load_at(0)).to eq(10)
+        expect(ps_user.load_at(0)).to eq(10)
       end
 
       it 'sets the load of the first dispatchable to 5' do
@@ -435,16 +438,16 @@ RSpec.describe 'Calculation of price-sensitive demands' do
         FactoryBot.build(:dispatchable, output_capacity_per_unit: 5.0)
       end
 
-      let(:ps_2_price) { [11, 20] }
+      let(:ps_user_price) { [11, 20] }
 
       before { order.calculate }
 
       it 'sets demand of the first user to 10 in frame 0' do
-        expect(ps_1.load_at(0)).to eq(10)
+        expect(ps_flex.load_at(0)).to eq(-10)
       end
 
       it 'sets demand of the second user to 5 in frame 0' do
-        expect(ps_2.load_at(0)).to eq(5)
+        expect(ps_user.load_at(0)).to eq(5)
       end
 
       it 'sets the load of the first dispatchable to 5 in frame 0' do
@@ -456,11 +459,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       end
 
       it 'sets demand of the first user to 5 in frame 1' do
-        expect(ps_1.load_at(1)).to eq(5)
+        expect(ps_flex.load_at(1)).to eq(-5)
       end
 
       it 'sets demand of the second user to 10 in frame 1' do
-        expect(ps_2.load_at(1)).to eq(10)
+        expect(ps_user.load_at(1)).to eq(10)
       end
 
       it 'sets the load of the first dispatchable to 5 in frame 1' do
@@ -472,8 +475,7 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       end
     end
 
-    context 'when the first dispatchable provides only 5.0 and the ' \
-            'second provides 0.0' do
+    context 'when the first dispatchable provides only 5.0 and the second provides 0.0' do
       let(:di_1) do
         FactoryBot.build(:dispatchable, output_capacity_per_unit: 5.0)
       end
@@ -485,11 +487,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       before { order.calculate }
 
       it 'sets demand of the first user to 5' do
-        expect(ps_1.load_at(0)).to eq(5)
+        expect(ps_flex.load_at(0)).to eq(-5)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(0)
       end
 
       it 'sets the load of the first dispatchable to 5.0' do
@@ -508,11 +510,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       end
 
       it 'demand of the first user to 10' do
-        expect(ps_1.load_at(0)).to eq(10)
+        expect(ps_flex.load_at(0)).to eq(-10)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(0)
       end
 
       it 'sets the load of the first dispatchable to 10' do
@@ -537,11 +539,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       end
 
       it 'demand no demand on the first user' do
-        expect(ps_1.load_at(0)).to eq(0)
+        expect(ps_flex.load_at(0)).to eq(-0)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(0)
       end
 
       it 'sets the load of the first dispatchable to 10' do
@@ -553,22 +555,21 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       end
     end
 
-    context 'with a non-sensitive user and neither dispatchable is price ' \
-            'competitive' do
+    context 'with a non-sensitive user and neither dispatchable is price competitive' do
       before do
         order.add(FactoryBot.build(:user_with_curve))
         order.calculate
       end
 
-      let(:ps_1_price) { 5 }
-      let(:ps_2_price) { 5 }
+      let(:ps_flex_price) { 5 }
+      let(:ps_user_price) { 5 }
 
       it 'demand no demand on the first user' do
-        expect(ps_1.load_at(0)).to eq(0)
+        expect(ps_flex.load_at(0)).to eq(-0)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(0)
       end
 
       it 'sets the load of the first dispatchable to 10' do
@@ -611,11 +612,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       before { order.calculate }
 
       it 'sets demand of the first user to 10' do
-        expect(ps_1.load_at(0)).to eq(10)
+        expect(ps_flex.load_at(0)).to eq(-10)
       end
 
       it 'sets demand of the second user to 10' do
-        expect(ps_2.load_at(0)).to eq(10)
+        expect(ps_user.load_at(0)).to eq(10)
       end
 
       it 'sets the load of the dispatchable to 10' do
@@ -623,19 +624,18 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       end
     end
 
-    context 'when both producers provide 10 and the dispatchable is not ' \
-            'price-competitive' do
+    context 'when both producers provide 10 and the dispatchable is not price-competitive' do
       before { order.calculate }
 
-      let(:ps_1_price) { 5 }
-      let(:ps_2_price) { 5 }
+      let(:ps_flex_price) { 5 }
+      let(:ps_user_price) { 5 }
 
       it 'sets demand of the first user to 10' do
-        expect(ps_1.load_at(0)).to eq(10)
+        expect(ps_flex.load_at(0)).to eq(-10)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(0)
       end
 
       it 'sets no load on the dispatchable' do
@@ -643,18 +643,17 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       end
     end
 
-    context 'when the always-on provides 5 and the dispatchable is ' \
-            'price-competitive' do
+    context 'when the always-on provides 5 and the dispatchable is price-competitive' do
       before { order.calculate }
 
       let(:ao_capacity) { 5 }
 
       it 'sets demand of the first user to 10' do
-        expect(ps_1.load_at(0)).to eq(10)
+        expect(ps_flex.load_at(0)).to eq(-10)
       end
 
       it 'sets demand of the second user to 5' do
-        expect(ps_2.load_at(0)).to eq(5)
+        expect(ps_user.load_at(0)).to eq(5)
       end
 
       it 'sets the load of the dispatchable to 10' do
@@ -662,20 +661,19 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       end
     end
 
-    context 'when the always-on provides 5 and the dispatchable is not ' \
-            'price-competitive' do
+    context 'when the always-on provides 5 and the dispatchable is not price-competitive' do
       before { order.calculate }
 
       let(:ao_capacity) { 5 }
-      let(:ps_1_price) { 5 }
-      let(:ps_2_price) { 5 }
+      let(:ps_flex_price) { 5 }
+      let(:ps_user_price) { 5 }
 
       it 'sets demand of the first user to 5' do
-        expect(ps_1.load_at(0)).to eq(5)
+        expect(ps_flex.load_at(0)).to eq(-5)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(0)
       end
 
       it 'sets no load on the dispatchable' do
@@ -683,18 +681,17 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       end
     end
 
-    context 'when the always-on provides 15 and the dispatchable is ' \
-            'price-competitive' do
+    context 'when the always-on provides 15 and the dispatchable is price-competitive' do
       before { order.calculate }
 
       let(:ao_capacity) { 50 }
 
       it 'sets demand of the first user to 10' do
-        expect(ps_1.load_at(0)).to eq(10)
+        expect(ps_flex.load_at(0)).to eq(-10)
       end
 
       it 'sets demand of the second user to 10' do
-        expect(ps_2.load_at(0)).to eq(10)
+        expect(ps_user.load_at(0)).to eq(10)
       end
 
       it 'sets no load on the dispatchable' do
@@ -702,18 +699,17 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       end
     end
 
-    context 'when the always-on provides nothing and the dispatchable is ' \
-            'price-competitive' do
+    context 'when the always-on provides nothing and the dispatchable is price-competitive' do
       before { order.calculate }
 
       let(:ao_capacity) { 0 }
 
       it 'sets demand of the first user to 10' do
-        expect(ps_1.load_at(0)).to eq(10)
+        expect(ps_flex.load_at(0)).to eq(-10)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(0)
       end
 
       it 'sets the load of the dispatchable to 10' do
@@ -728,11 +724,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       let(:di_capacity) { 0 }
 
       it 'sets no demand on the first user' do
-        expect(ps_1.load_at(0)).to eq(0)
+        expect(ps_flex.load_at(0)).to eq(-0)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(0)
       end
 
       it 'sets no load on the dispatchable' do
@@ -747,11 +743,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       let(:di_capacity) { 2 }
 
       it 'sets demand on the first user to 4' do
-        expect(ps_1.load_at(0)).to eq(4)
+        expect(ps_flex.load_at(0)).to eq(-4)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(0)
       end
 
       it 'sets load on the dispatchable to 2' do
@@ -765,7 +761,7 @@ RSpec.describe 'Calculation of price-sensitive demands' do
 
   # The price-sensitives want 120 each, and flex has received 1.0 energy. As a Base flex it should
   # never discharge energy.
-  context 'with two users and a Flex::Base with a load of -1' do
+  xcontext 'with two users and a Flex::Base with a load of -1' do
     let(:flex) { FactoryBot.build(:flex) }
 
     before do
@@ -777,11 +773,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
 
     context 'when calculating the first hour' do
       it 'sets no demand on the first user' do
-        expect(ps_1.load_at(0)).to eq(0)
+        expect(ps_flex.load_at(0)).to eq(-0)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(0)
       end
 
       it 'does not change the flex load' do
@@ -792,11 +788,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
     # Assert that the flex may not discharge the energy later in the calculation.
     context 'when calculating the second hour' do
       it 'sets no demand on the first user' do
-        expect(ps_1.load_at(1)).to eq(0)
+        expect(ps_flex.load_at(1)).to eq(-0)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(1)).to eq(0)
+        expect(ps_user.load_at(1)).to eq(0)
       end
 
       it 'does has no load on the flex' do
@@ -808,7 +804,7 @@ RSpec.describe 'Calculation of price-sensitive demands' do
   # The price-sensitives want 10 each and the storage has 1.0 stored. Assert that the storage may be
   # discharged to meet the needs of the first user, but not the second, while correctly setting the
   # new load on the technology.
-  context 'with two users and a Flex::Storage with a load of -1' do
+  xcontext 'with two users and a Flex::Storage with a load of -1' do
     let(:storage) { FactoryBot.build(:storage, volume_per_unit: 2.0) }
 
     before do
@@ -821,11 +817,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
     # Storage may not output in the same hour as inputting.
     context 'when calculating the first hour' do
       it 'sets no demand on the first user' do
-        expect(ps_1.load_at(0)).to eq(0)
+        expect(ps_flex.load_at(0)).to eq(-0)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(0)
       end
 
       it 'does not change the storage load' do
@@ -840,11 +836,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
     # Storage may discharge an hour after inputting.
     context 'when calculating the second hour' do
       it 'sets demand of 1 on the first user' do
-        expect(ps_1.load_at(1)).to eq(1)
+        expect(ps_flex.load_at(1)).to eq(-1)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_2.load_at(1)).to eq(0)
+        expect(ps_user.load_at(1)).to eq(0)
       end
 
       it 'sets the load of the storage technology to 1' do
@@ -860,7 +856,7 @@ RSpec.describe 'Calculation of price-sensitive demands' do
   # The price-sensitives want at most 10 each and the storage has 25 stored. Assert that the storage
   # may be discharged to meet the needs of the users, while correctly setting the new load on the
   # technology.
-  context 'with two low-capacity users and a Flex::Storage with a load of -25' do
+  xcontext 'with two low-capacity users and a Flex::Storage with a load of -25' do
     let(:storage) do
       FactoryBot.build(
         :storage,
@@ -879,11 +875,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       before { order.calculate }
 
       it 'sets demand of 10 on the first user' do
-        expect(ps_1.load_at(1)).to eq(10)
+        expect(ps_flex.load_at(1)).to eq(-10)
       end
 
       it 'sets demand of 10 on the second user' do
-        expect(ps_2.load_at(1)).to eq(10)
+        expect(ps_user.load_at(1)).to eq(10)
       end
 
       it 'sets the load of the storage technology to 20' do
@@ -907,11 +903,11 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       end
 
       it 'sets demand of 10 on the first user' do
-        expect(ps_1.load_at(1)).to eq(10)
+        expect(ps_flex.load_at(1)).to eq(-10)
       end
 
       it 'sets demand of 5 on the second user' do
-        expect(ps_2.load_at(1)).to eq(5)
+        expect(ps_user.load_at(1)).to eq(5)
       end
 
       it 'changes the storage load to reflect the used energy' do
@@ -924,3 +920,5 @@ RSpec.describe 'Calculation of price-sensitive demands' do
     end
   end
 end
+# rubocop:enable Naming/VariableNumber
+# rubocop:enable RSpec/MultipleMemoizedHelpers

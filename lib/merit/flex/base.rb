@@ -42,6 +42,8 @@ module Merit
 
         @excess_share = opts[:excess_share] || 1.0
         @group = opts[:group]
+
+        @consume_from_dispatchables = opts.fetch(:consume_from_dispatchables, true)
       end
 
       # Public: The total input capacity of all units of this technology.
@@ -59,6 +61,14 @@ module Merit
         @input_capacity + @load_curve.get(point)
       end
 
+      def barter_at(point, amount, price)
+        if @cost_strategy.cost_at(point) > price
+          assign_excess(point, amount)
+        else
+          0.0
+        end
+      end
+
       # Public: Stores a given amount of energy in the technology. Not all given to the technology
       # is guaranteed to be stored.
       #
@@ -70,6 +80,10 @@ module Merit
         @load_curve.set(point, @load_curve.get(point) - amount)
 
         amount
+      end
+
+      def consume_from_dispatchables?
+        @consume_from_dispatchables && !infinite?
       end
 
       # Public: Calculates the number of hours that the technology would run in if it were receiving
@@ -114,6 +128,12 @@ module Merit
         when :mwh then mwh
         else           raise "Unknown unit: #{unit}"
         end
+      end
+
+      def infinite?
+        input_capacity_per_unit == Float::INFINITY ||
+          output_capacity_per_unit == Float::INFINITY ||
+          number_of_units == Float::INFINITY
       end
 
       def flex?

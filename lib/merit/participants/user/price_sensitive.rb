@@ -130,6 +130,12 @@ module Merit
 
       alias_method :total_consumption, :production
 
+      # Public: Price-sensitive users can consume energy from dispatchable producers (price
+      # permitting).
+      def consume_from_dispatchables?
+        true
+      end
+
       def inspect
         "#<#{self.class.name} #{key} (#{@inner.class.name})>"
       end

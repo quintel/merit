@@ -50,7 +50,7 @@ module Merit
     # point - The point in time.
     #
     # Returns a float.
-    def demand(order, point)
+    def demand_at(order, point)
       order.demand_calculator.demand_at(point)
     end
 
@@ -76,49 +76,21 @@ module Merit
       # separate loops allows us to skip calling #always_on? in every iteration. This accounts for a
       # 20% reduction in the calculation runtime.
 
-      if (remaining = demand(order, point)).negative?
-        raise SubZeroDemand.new(point, remaining)
+      if (demand = demand_at(order, point)).negative?
+        raise SubZeroDemand.new(point, demand)
       end
 
-      flex = participants.flex
-
-      participants.always_on.each do |producer|
-        produced = producer.max_load_at(point)
-
-        if produced > remaining
-          # The producer has enough to meet demand, and then have some left over for flex
-          # consumption.
-          produced -= remaining
-          remaining = 0.0
-
-          if produced.positive?
-            flex.each do |tech|
-              produced -= tech.assign_excess(point, produced)
-
-              # If there is no energy remaining to be assigned we can exit early and, as an added
-              # bonus, prevent assigning tiny negatives resulting from floating point errors, which
-              # messes up technologies which have a Reserve with volume 0.0.
-              break if produced <= APPROX_ZERO
-            end
-          end
-
-          # Not all excess could be assigned; no point in trying to assign energy from any more must
-          # runs.
-          break if produced > APPROX_ZERO
-        elsif produced < remaining
-          # The producer is emitting less energy that demanded. Take it all and continue with the
-          # next producer.
-          remaining -= produced
-        end
-
-        remaining = 0.0 if remaining.negative?
-      end
+      demand = compute_always_ons(
+        point, demand,
+        participants.always_on,
+        participants.flex.at_point(point)
+      )
 
       dispatchables = participants.dispatchables.at_point(point)
       next_idx = 0
 
-      if remaining.positive?
-        next_idx = compute_dispatchables(point, dispatchables, remaining)
+      if demand.positive?
+        next_idx = compute_dispatchables(point, dispatchables, demand)
 
         # There was unmet demand after running all dispatchables. It is not possible to satisfy any
         # price-sensitive demands (below).
@@ -133,6 +105,27 @@ module Merit
       )
 
       nil
+    end
+
+    # Internal: Computes always-on loads, assigning excess to flexibles.
+    #
+    # Returns the amount of demand which was not satisfied by energy produced by the always-on (the
+    # deficit).
+    def compute_always_ons(point, demand, always_ons, flex)
+      produced = always_ons.sum { |producer| producer.max_load_at(point) }
+
+      if produced > demand
+        # The producer has enough to meet demand, and then have some left over for flex
+        # consumption.
+        assign_excess(point, produced - demand, nil, flex) if produced.positive?
+        demand = 0.0
+      elsif produced < demand
+        # The producer is emitting less energy that demanded. Take it all and continue with the
+        # next producer.
+        demand -= produced
+      end
+
+      demand.negative? ? 0.0 : demand
     end
 
     # Internal: Computes the dispatchables load.
@@ -198,15 +191,18 @@ module Merit
       while index < length
         producer = dispatchables[index]
 
-        assigned = assign_excess_to_price_sensitives(
-          point, producer.available_at(point), producer.cost_at(point), users
-        )
+        unless producer.flex?
+          assigned = assign_excess(
+            point, producer.available_at(point), producer.cost_at(point), users
+          )
 
-        # If nothing as assigned, we can stop iterating as it means that the current price is too
-        # high for any price-sensitive user. Subsequent dispatchables will be even more expensive.
-        break if assigned.zero?
+          # If nothing as assigned, we can stop iterating as it means that the current price is too
+          # high for any price-sensitive user. Subsequent dispatchables will be even more expensive.
+          break if assigned.zero?
 
-        producer.set_load(point, producer.load_at(point) + assigned)
+          producer.set_load(point, producer.load_at(point) + assigned)
+        end
+
         index += 1
       end
     end
@@ -225,13 +221,13 @@ module Merit
     # through array slices.
     #
     # Returns a numeric: the amount of energy assigned.
-    def assign_excess_to_price_sensitives(point, available, price, users)
+    def assign_excess(point, available, price, users)
       index = 0
       initial_available = available
 
       while index < users.length
         break unless available.positive?
-        break if users[index].cost_strategy.sortable_cost(point) <= price
+        break if price && users[index].cost_strategy.sortable_cost(point) <= price
 
         # Determine the index of the latest user with the same price as the current user. This
         # allows determining if energy should be assigned to one user, or shared equally between

@@ -135,16 +135,16 @@ describe Merit::ParticipantSet do
     end
 
     it 'has the group as a flexibility technology' do
-      expect(participants.flex[1]).to be_a(Merit::Flex::Group)
+      expect(participants.flex.to_a[1]).to be_a(Merit::Flex::Group)
     end
 
     it 'adds the flex technologies to the group' do
-      group = participants.flex[1]
+      group = participants.flex.to_a[1]
       expect(group.to_a).to eq([f2, f3])
     end
 
     it 'has the Group instance as a flexibility technology' do
-      expect(participants.flex[1]).to eq(group)
+      expect(participants.flex.to_a[1]).to eq(group)
     end
   end
 

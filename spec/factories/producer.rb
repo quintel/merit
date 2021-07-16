@@ -18,6 +18,14 @@ FactoryBot.define do
       load_profile { Merit::Curve.new([1.0 / 8760 / 3600] * Merit::POINTS) }
     end
 
+    factory :curve_producer, class: 'Merit::MustRunProducer' do
+      initialize_with { Merit::CurveProducer.new(attributes) }
+
+      sequence(:key) { |n| :"curve_producer_#{n}" }
+
+      load_curve { Merit::Curve.new([10.0] * Merit::POINTS) }
+    end
+
     factory :dispatchable, class: 'Merit::DispatchableProducer' do
       initialize_with { Merit::DispatchableProducer.new(attributes) }
 

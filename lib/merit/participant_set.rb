@@ -60,7 +60,7 @@ module Merit
       ForCalculation.new(
         always_on,
         Sorting.by_sortable_cost(dispatchables),
-        flex,
+        Sorting.by_sortable_cost_desc(flex),
         Sorting.by_sortable_cost_desc(price_sensitive_users)
       )
     end
@@ -71,7 +71,7 @@ module Merit
     def dispatchables
       @dispatchables || begin
         dispatchables = select_participants(DispatchableProducer)
-        flexibles = flex
+          .reject { |p| p.output_capacity_per_unit.zero? }
 
         # This ensures a stable sort: that if two participants have the same cost their original
         # order will be preserved.
@@ -84,12 +84,7 @@ module Merit
         pos = 0
 
         dispatchables.sort_by! do |participant|
-          flex_index = flexibles.index(participant)
-
-          [
-            participant.cost_strategy.sortable_cost,
-            flex_index ? -flex_index : pos += 1
-          ]
+          [participant.cost_strategy.sortable_cost, pos += 1]
         end
 
         dispatchables
@@ -108,9 +103,13 @@ module Merit
 
     # Public: Returns users which are price sensitive.
     def price_sensitive_users
-      @price_sensitive_users ||
-        select_participants(User::PriceSensitive)
-          .sort_by { |u| -u.cost_strategy.sortable_cost }
+      @price_sensitive_users || begin
+        ps_users =
+          select_participants(User::PriceSensitive) +
+          flex.flat_map { |f| Array(f) }.select(&:consume_from_dispatchables?)
+
+        ps_users.uniq.sort_by { |u| -u.cost_strategy.sortable_cost }
+      end
     end
 
     # Public: Returns all normal users, plus price-sensitive users.
