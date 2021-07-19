@@ -62,6 +62,33 @@ namespace :performance do
     merit_order.calculate
     puts Benchmark.realtime { merit_order.producers.map(&:profit) }
   end
+  task :excess do
+    merit_order = Merit.stub
+    merit_order.add(Merit::CurveProducer.new(
+      key: :curve_producer,
+      marginal_costs: 0.0,
+      load_curve: [8_000.0] * 8760
+    ))
+    5.times do |i|
+      merit_order.add(Merit::Flex::Storage.new(
+        key: :"storage_#{i}",
+        marginal_costs: i < 2 ? 15.0 : i,
+        output_capacity_per_unit: 500.0,
+        number_of_units: 1.0,
+        availability: 1.0,
+        volume_per_unit: 25000.0
+      ))
+    end
+    merit_order.add(Merit::Flex::Base.new(
+      key: :dump,
+      marginal_costs: :null,
+      input_capacity_per_unit: 50000.0,
+      output_capacity_per_unit: 50000.0,
+      number_of_units: 1.0,
+      availability: 1.0
+    ))
+    puts Benchmark.realtime { merit_order.calculate }
+  end
   task :reserve do
     require 'benchmark/ips'
 
@@ -138,7 +165,7 @@ namespace :performance do
         end
       end
     end
-    end
+  end
 end
 
 task :profile do
