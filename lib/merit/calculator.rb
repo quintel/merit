@@ -227,7 +227,7 @@ module Merit
 
       while index < users.length
         break unless available.positive?
-        break if price && users[index].cost_strategy.sortable_cost(point) <= price
+        break if price && users[index].cost_strategy.cost_at(point) <= price
 
         # Determine the index of the latest user with the same price as the current user. This
         # allows determining if energy should be assigned to one user, or shared equally between

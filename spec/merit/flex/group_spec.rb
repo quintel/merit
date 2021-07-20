@@ -6,7 +6,6 @@ describe Merit::Flex::ShareGroup do
   let(:participant_one) do
     Merit::Flex::BlackHole.new(
       key: :a,
-      output_capacity_per_unit: 2.0,
       number_of_units: 1,
       group: :a,
       input_capacity_per_unit: 2.0
@@ -16,7 +15,6 @@ describe Merit::Flex::ShareGroup do
   let(:participant_two) do
     Merit::Flex::BlackHole.new(
       key: :b,
-      output_capacity_per_unit: 2.0,
       number_of_units: 1,
       group: :a,
       input_capacity_per_unit: 2.0
@@ -114,7 +112,7 @@ describe Merit::Flex::ShareGroup do
 
   context 'when the participants swap order in point 1' do
     let(:participant_one) do
-      Merit::Flex::BlackHole.new(
+      Merit::Flex::Base.new(
         key: :a,
         output_capacity_per_unit: 2.0,
         number_of_units: 1,
@@ -126,7 +124,7 @@ describe Merit::Flex::ShareGroup do
     end
 
     let(:participant_two) do
-      Merit::Flex::BlackHole.new(
+      Merit::Flex::Base.new(
         key: :b,
         output_capacity_per_unit: 2.0,
         number_of_units: 1,
