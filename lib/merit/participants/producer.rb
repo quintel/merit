@@ -174,11 +174,16 @@ module Merit
     end
 
     # Public: determined what the max produced load is at a point in time
+    #
+    # This method delegates to `max_production` or `available_output_capacity` whose value is cached
+    # in an instance variable. We check these variables explicitly in this method as reading them is
+    # much faster than dispatching a message; this matters as this method is called extremely
+    # frequently in real-world merit-order calculations.
     def max_load_at(point_in_time)
       if @load_profile
         @load_profile[point_in_time] * (@max_production || max_production)
       else
-        available_output_capacity
+        @available_output_capacity || available_output_capacity
       end
     end
 
