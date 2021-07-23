@@ -176,7 +176,7 @@ module Merit
     # Public: determined what the max produced load is at a point in time
     def max_load_at(point_in_time)
       if @load_profile
-        @load_profile.values[point_in_time] * max_production
+        @load_profile[point_in_time] * (@max_production || max_production)
       else
         available_output_capacity
       end

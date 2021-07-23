@@ -9,21 +9,12 @@ module Merit
 
     def_delegators :@members, :[], :length, :key?
 
-    ForCalculation =
-      Struct.new(:always_on, :dispatchables, :flex, :price_sensitive_users)
-
-    # Contains pre-defined flexibility groups.
-    #
-    # This permits setting a custom configuration for a Flex::Group. If a flexibilty participant
-    # belongs to a group which isn't defined in `flex_groups`, ParticipantSet will fall back to the
-    # default group: Flex::Group (first-come, first-served) with Sorting::Fixed.
-    attr_reader :flex_groups
+    ForCalculation = Struct.new(:always_on, :dispatchables, :flex, :price_sensitive_users)
 
     # Creates a new ParticipantSet.
     def initialize
       @members = {}
       @locked = false
-      @flex_groups = Flex::GroupSet.new
     end
 
     # Public: returns an +ordered+ Array of all the producers
@@ -60,8 +51,8 @@ module Merit
       ForCalculation.new(
         always_on,
         Sorting.by_sortable_cost(dispatchables),
-        Sorting.by_sortable_cost_desc(flex),
-        Sorting.by_sortable_cost_desc(price_sensitive_users)
+        Flex::Collection.new(Sorting.by_sortable_cost_desc(flex)),
+        Flex::Collection.new(Sorting.by_sortable_cost_desc(price_sensitive_users))
       )
     end
 
@@ -93,7 +84,7 @@ module Merit
 
     # Public: Returns all participants which are flexible technologies.
     def flex
-      @flex || FlexListBuilder.build(self)
+      @flex || select(&:flex?)
     end
 
     # Public: Returns all the users of energy except those which are price sensitive.

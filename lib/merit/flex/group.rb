@@ -1,111 +1,96 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 module Merit
   module Flex
-    # Some Flexible participants may belong to a group, such that receive excess energy at the same
-    # time. The group determines how this energy is shared between its members.
-    #
-    # The default group behaves exactly like the normal calculation: energy is given in order to
-    # each member. The order of members is determined by the Sorting to which they belong.
-    #
-    # For example:
-    #
-    #   # A group where the order of members is constant.
-    #   Merit::Flex::Group.new(Merit::Sorting::Fixed.new)
-    #
-    #   # A group where the order of members is recomputed in each point
-    #   # according to its sortable cost.
-    #   sorting = Merit::Sorting::Variable do |participant, point|
-    #     participant.cost_strategy.sortable_cost(point)
-    #   end
-    #
-    #   Merit::Flex::Group.new(sorting)
-    class Group < Base
-      attr_reader :key
+    # Wraps two or more flex technologies so that their capacities and assignments may be treated as
+    # an aggregate.
+    class Group
+      extend Forwardable
+      include Enumerable
 
-      # Public: Creates a new group.
+      def_delegator :@collection, :each
+
+      # Public: Given a Sorting containing flex technologies, returns an array of the technologies
+      # grouped by price.
       #
-      # key        - Unique key to identify this group in the merit order.
-      # collection - An optional Sorting instance containing members of the group. If none is
-      #              provided, the group will be unsorted. If a Sorting::Fixed is provided, it will
-      #              be swapped out for a Sorting::Variable if any variably-priced members are
-      #              added.
+      # Technologies which share a price in the given `point` will be wrapped inside a Group, while
+      # those with a unique price will be included in the output array without any changes.
       #
-      # Returns a Group.
-      def initialize(key, collection = Sorting::Unsorted.new)
-        @key = key
+      # Returns Array[Flex::Base | Flex::Group]
+      def self.from_collection(collection, point = 0)
+        groups = []
+        last_cost = nil
+
+        collection.at_point(point).each do |part|
+          cost = part.cost_strategy.sortable_cost(point)
+
+          if cost == last_cost
+            groups.last.push(part)
+          else
+            groups.push([part])
+          end
+
+          last_cost = cost
+        end
+
+        groups.map! do |parts|
+          parts.length > 1 ? new(parts) : parts[0]
+        end
+
+        groups
+      end
+
+      def initialize(collection)
+        if collection.nil? || collection.empty?
+          raise "Cannot create a #{self.class.name} with no members"
+        end
+
         @collection = collection
       end
 
-      # Public: Adds a new participant to the group.
-      #
-      # Returns self.
-      def insert(participant)
-        @collection = @collection.to_variable if must_become_variable?(participant)
-
-        @collection.insert(participant)
-        self
-      end
-
-      # Public: Assigns energy to each member of the group in sorted order.
-      #
-      # Returns the total amount of energy taken by the participants.
-      def assign_excess(point, amount)
-        @collection.at_point(point).reduce(0.0) do |memo, part|
-          break memo unless amount.positive?
-
-          taken = part.assign_excess(point, amount)
-          amount -= taken
-
-          memo + taken
-        end
-      end
-
-      # Public: Reduces the group to the simplest possible participant.
-      #
-      # A group with only one member has no special assignment or sorting behavior, and can
-      # therefore be replaced by the member.
-      #
-      # Returns a Group or Participant.
-      def simplify
-        @collection.length == 1 ? @collection.first : self
-      end
-
       def to_a
-        @collection.to_a
+        @collection.dup
+      end
+
+      def key
+        :anonymous_group
+      end
+
+      def cost_strategy
+        @collection[0].cost_strategy
       end
 
       def inspect
-        part_keys = @collection.at_point(0).map(&:key).join(', ')
-        "#<#{self.class.name} #{@collection.class.name}(#{part_keys})>"
+        "#<#{self.class.name} (#{@collection.map(&:key).join(', ')})>"
       end
 
-      alias_method :to_s, :inspect
-
-      def cost_strategy
-        @cost_strategy ||= CostStrategy.create(self, marginal_costs: sortable_cost)
+      def to_s
+        "#{self.class.name}(#{@collection.map(&:key).join(', ')})"
       end
 
-      def consume_from_dispatchables?
-        @collection.all? { |flex| flex.consume_from_dispatchables? }
-      end
-
-      private
-
-      def sortable_cost
-        if @collection.empty?
-          :null
-        else
-          @collection.sum { |el| el.cost_strategy.sortable_cost } / @collection.length
+      def unused_input_capacity_at(point)
+        @collection.sum do |part|
+          part.unused_input_capacity_at(point)
         end
       end
 
-      def must_become_variable?(participant)
-        return false if @collection.is_a?(Sorting::Variable)
-        return false unless @collection.sortable?
-        return false unless participant.cost_strategy.variable?
+      # Public: Assigns excess energy to the contained flex technologies. Energy is split fairly
+      # between the participants based on their remaining input capacity.
+      def assign_excess(point, amount)
+        return 0.0 if amount.zero?
 
-        true
+        total_capacity = unused_input_capacity_at(point)
+
+        return 0.0 if total_capacity.zero?
+
+        @collection.sum do |part|
+          part.assign_excess(
+            point,
+            amount * (part.unused_input_capacity_at(point) / total_capacity)
+          )
+        end
       end
     end
   end

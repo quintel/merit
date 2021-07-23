@@ -397,29 +397,11 @@ describe Merit::Calculator do
 
     context 'with an excess of production and excess_share of 0.25' do
       let(:p2p_attrs) do
-        FactoryBot.attributes_for(
-          :storage,
-          excess_share: 0.25,
-          group: :flex_group
-        )
+        FactoryBot.attributes_for(:storage, input_capacity_per_unit: 0.5)
       end
 
       before do
-        order.add(
-          FactoryBot.build(
-            :storage,
-            excess_share: 0.75,
-            group: :flex_group
-          )
-        )
-
-        order.participants.flex_groups.define(
-          Merit::Flex::ShareGroup.new(
-            :flex_group,
-            Merit::Sorting.by_sortable_cost
-          )
-        )
-
+        order.add(FactoryBot.build(:storage, input_capacity_per_unit: 1.5))
         order.calculate
       end
 
@@ -427,50 +409,6 @@ describe Merit::Calculator do
         # 0.01141552511424 is the excess
         expect(p2p.load_curve.to_a.take(4))
           .to eq([-0.01141552511424 / 4.0] * 4)
-      end
-    end
-
-    context 'with a partial excess of production and excess_share of 0.25x2' do
-      let(:p2p_attrs) do
-        {
-          key: :p2p,
-          volume_per_unit: 10.0,
-          output_capacity_per_unit: 20.0,
-          availability: 1.0,
-          number_of_units: 1,
-          excess_share: 0.25,
-          input_capacity_per_unit: 0.01,
-          group: :flex_group
-        }
-      end
-
-      let(:p2p_2) do
-        Merit::Flex::Storage.new(p2p_attrs.merge(key: :p2p2))
-      end
-
-      let(:order) do
-        super().tap { |order| order.add(p2p_2) }
-      end
-
-      before do
-        order.participants.flex_groups.define(
-          Merit::Flex::ShareGroup.new(
-            :flex_group,
-            Merit::Sorting.by_sortable_cost
-          )
-        )
-
-        order.calculate
-      end
-
-      it 'charges the first flex' do
-        expect(p2p.load_curve.to_a.take(4))
-          .to eq([-0.01141552511424 / 4] * 4)
-      end
-
-      it 'charges the second flex' do
-        expect(p2p_2.load_curve.to_a.take(4))
-          .to eq([-0.01141552511424 / 4] * 4)
       end
     end
 

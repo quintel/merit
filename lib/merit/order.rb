@@ -125,7 +125,7 @@ module Merit
     end
 
     def to_s
-      "<##{self.class} (#{participants})>"
+      "#<#{self.class} (#{participants})>"
     end
 
     alias_method :inspect, :to_s

@@ -115,9 +115,13 @@ module Merit
       produced = always_ons.sum { |producer| producer.max_load_at(point) }
 
       if produced > demand
+        produced -= demand
+
         # The producer has enough to meet demand, and then have some left over for flex
         # consumption.
-        assign_excess(point, produced - demand, nil, flex) if produced.positive?
+        flex.each { |part| produced -= part.assign_excess(point, produced) } if produced.positive?
+        # assign_excess(point, produced, nil, flex)
+
         demand = 0.0
       elsif produced < demand
         # The producer is emitting less energy that demanded. Take it all and continue with the
@@ -170,95 +174,108 @@ module Merit
     # These users want energy, but only if the price of energy is less or equal to the price they
     # are willing to pay. These are run after calculating dispatchable loads.
     #
+    # This method contains many instances of non-idiomatic Ruby due to slightly better performance
+    # or fewer allocations; a single allocation in a loop can add up to tens of thousands of
+    # allocations throughout the calculation. While loops are used for iteration, where a nice
+    # helper method used to do the same job, as doing so avoids an object allocation when the helper
+    # `yield`ed.
+    #
     # Returns nothing.
-    def compute_price_sensitives(point, users, dispatchables, index)
-      length = dispatchables.length
+    def compute_price_sensitives(point, users, dispatchables, disp_index)
+      disp_length = dispatchables.length
 
-      return unless (length - index).positive? && users.any?
+      return unless (disp_length - disp_index).positive? && users.any?
 
-      # It's possible for the first dispatchable to have a current load exactly equal to the max
-      # load. If this is the case we can skip it. This enables the `break if initial_load ==
-      # producer_load` optimisation after the `users.each` loop (otherwise the loop may terminate
-      # early).
-      first_disp = dispatchables[index]
-      index += 1 if first_disp.max_load_at(point) == first_disp.load_at(point)
+      users_index = 0
 
-      # This is an attempt to loop through the dispatchables array a second time, starting where
-      # `compute_dispatchables` left off, without having to allocate another array or Enumerator.
-      #
-      # While `dispatchables[index..-1].each` would be more idiomatic, the while loop requires no
-      # extra allocations.
-      while index < length
-        producer = dispatchables[index]
+      while (user = users[users_index])
+        users_index += 1
 
-        unless producer.flex?
-          assigned = assign_excess(
-            point, producer.available_at(point), producer.cost_at(point), users
-          )
+        available = available_for_ps_user(point, user, dispatchables, disp_index)
 
-          # If nothing as assigned, we can stop iterating as it means that the current price is too
-          # high for any price-sensitive user. Subsequent dispatchables will be even more expensive.
-          break if assigned.zero?
+        # Price is now too high to assign any more energy.
+        break if available.zero?
 
-          producer.set_load(point, producer.load_at(point) + assigned)
-        end
-
-        index += 1
+        disp_index = assign_ps_used_to_dispatchables(
+          point,
+          user.assign_excess(point, available),
+          dispatchables,
+          disp_index
+        )
       end
     end
 
-    # Internal: Assigns an amount of excess energy to the price-sensitive users.
+    # Internal: Given a point, a price-sensitive user, and the available dispatchables, returns how
+    # much energy those dispatchables can provide the user at the price the user is willing to pay.
     #
-    # This splits the assignment into two phases, which broadly correspond with the outer and inner
-    # loops:
+    # A while loop is used as this is faster than an Enumerable-based helper, and avoids
+    # allocations.
     #
-    #   1. Group users by their price, so that users with the same price will receive an equal share
-    #      of energy.
+    # point         - The point in the hour being calculated.
+    # user          - The user that wishes energy.
+    # dispatchables - The list of all dispatchables.
+    # index         - The index of the first dispatchable which can provide energy.
     #
-    #   2. Assign the available energy to users in each group.
-    #
-    # Once again, while loops are heavily used to avoid extra object allocations when iterating
-    # through array slices.
-    #
-    # Returns a numeric: the amount of energy assigned.
-    def assign_excess(point, available, price, users)
-      index = 0
-      initial_available = available
+    # Returns a numeric.
+    def available_for_ps_user(point, user, dispatchables, index)
+      available = 0.0
+      threshold = user.cost_strategy.cost_at(point)
 
-      while index < users.length
-        break unless available.positive?
-        break if price && users[index].cost_strategy.cost_at(point) <= price
+      while (dispatchable = dispatchables[index])
+        index += 1
 
-        # Determine the index of the latest user with the same price as the current user. This
-        # allows determining if energy should be assigned to one user, or shared equally between
-        # several users.
-        max_index = Flex::CostBasedShareGroup.max_index_with_same_price(users, point, index)
+        next 0.0 if dispatchable.flex?
+        break if dispatchable.cost_strategy.cost_at(point) >= threshold
 
-        if index == max_index
-          # Only one user at the current price.
-          available -= users[index].assign_excess(point, available)
-          index += 1
+        available += dispatchable.available_at(point)
+      end
+
+      available
+    end
+
+    # Internal: Given an amount of energy which was assigned to a price-sensitive user, sets the
+    # load on the dispatchables to reflect this energy use.
+    #
+    # Returns the index of the first dispatchable with remaining capacity (this index can be used
+    # to more quickly calculate loads for other price-sensitive users).
+    #
+    # A while loop is used as this is faster than an Enumerable-based helper, and avoids
+    # allocations.
+    #
+    # point         - The point in the hour being calculated.
+    # assigned      - The amount of energy to be assigned.
+    # dispatchables - The list of all dispatchables.
+    # index         - The index of the first dispatchable which can provide energy.
+    #
+    # Returns a numeric.
+    def assign_ps_used_to_dispatchables(point, assigned, dispatchables, disp_index)
+      index = disp_index
+
+      while (dispatchable = dispatchables[index])
+        index += 1
+
+        next if dispatchable.flex?
+
+        available = dispatchable.available_at(point)
+
+        if available > assigned
+          # Producer could emit more than was used; these users are full.
+          dispatchable.set_load(point, dispatchable.load_at(point) + assigned)
+          assigned = 0
+
+          # We've filled up all the users; any further dispatchables are unused.
+          break
         else
-          # Multiple users with the same price. Assign energy equally.
-          total_capacity = Flex::CostBasedShareGroup.total_unused_capacity(
-            point, users, index, max_index
-          )
+          # Producer is at max capacity.
+          dispatchable.set_load(point, dispatchable.load_at(point) + available)
+          assigned -= available
 
-          if total_capacity.positive?
-            available -=
-              Util.sum_slice(users, index, max_index) do |part|
-                part.assign_excess(
-                  point,
-                  available * (part.unused_input_capacity_at(point) / total_capacity)
-                )
-              end
-          end
-
-          index = max_index + 1
+          # This dispatchable is fully used. Further users should start with the next one.
+          disp_index += 1
         end
       end
 
-      initial_available - available
+      disp_index
     end
   end
 

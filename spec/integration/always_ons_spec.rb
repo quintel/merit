@@ -16,7 +16,7 @@ RSpec.describe 'Calculation of always ons and flex' do
       # Static demand of 10.
       order.add(FactoryBot.build(:user_with_curve))
 
-      order.add(FactoryBot.build(:always_on,output_capacity_per_unit: ao_production.to_f))
+      order.add(FactoryBot.build(:always_on, output_capacity_per_unit: ao_production.to_f))
 
       # Each consumes up to 10.
       order.add(flex_1)

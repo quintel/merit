@@ -45,13 +45,6 @@ RSpec.describe 'Calculation of price-sensitive demands' do
 
   let(:order) do
     Merit::Order.new.tap do |order|
-      order.participants.flex_groups.define(
-        Merit::Flex::Group.new(
-          ps_flex.group,
-          Merit::Sorting.by_sortable_cost_desc
-        )
-      )
-
       order.add(ps_flex)
       order.add(ps_user)
     end
@@ -630,12 +623,12 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       let(:ps_flex_price) { 5 }
       let(:ps_user_price) { 5 }
 
-      it 'sets demand of the first user to 10' do
-        expect(ps_flex.load_at(0)).to eq(-10)
+      it 'sets demand of the first user to 5' do
+        expect(ps_flex.load_at(0)).to eq(-5)
       end
 
-      it 'sets no demand on the second user' do
-        expect(ps_user.load_at(0)).to eq(0)
+      it 'sets demand of the second user to 5' do
+        expect(ps_user.load_at(0)).to eq(5)
       end
 
       it 'sets no load on the dispatchable' do
@@ -668,12 +661,12 @@ RSpec.describe 'Calculation of price-sensitive demands' do
       let(:ps_flex_price) { 5 }
       let(:ps_user_price) { 5 }
 
-      it 'sets demand of the first user to 5' do
-        expect(ps_flex.load_at(0)).to eq(-5)
+      it 'sets demand of the first user to 2.5' do
+        expect(ps_flex.load_at(0)).to eq(-2.5)
       end
 
       it 'sets no demand on the second user' do
-        expect(ps_user.load_at(0)).to eq(0)
+        expect(ps_user.load_at(0)).to eq(2.5)
       end
 
       it 'sets no load on the dispatchable' do
