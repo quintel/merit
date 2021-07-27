@@ -184,7 +184,7 @@ module Merit
     def compute_price_sensitives(point, users, dispatchables, disp_index)
       disp_length = dispatchables.length
 
-      return unless (disp_length - disp_index).positive? && users.any?
+      return unless (disp_length - disp_index).positive? && users.length.positive?
 
       users_index = 0
 
