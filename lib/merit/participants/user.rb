@@ -27,8 +27,8 @@ module Merit
     attr_reader :load_curve
 
     # Public: Returns the load on the participant for a certain point in time.
-    def load_at(point_in_time)
-      @load_curve.values[point_in_time]
+    def load_at(point)
+      @load_curve[point]
     end
 
     # Public: What is the total supply between the two given points (inclusive of both points)?
