@@ -44,7 +44,6 @@ require_relative 'merit/flex/black_hole'
 require_relative 'merit/flex/collection'
 require_relative 'merit/flex/group'
 require_relative 'merit/flex/reserve'
-require_relative 'merit/flex/share_group'
 require_relative 'merit/flex/simple_reserve'
 require_relative 'merit/flex/storage'
 

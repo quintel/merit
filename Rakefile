@@ -96,7 +96,9 @@ namespace :performance do
       order = Merit::Examples.build(stub)
       GC.disable
 
+      RubyProf.measure_mode = RubyProf::ALLOCATIONS
       RubyProf.start
+
       order.calculate
       result = RubyProf.stop
 

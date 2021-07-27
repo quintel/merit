@@ -13,32 +13,6 @@ module Merit
       }
     end
 
-    context 'with no group or excess_share' do
-      it 'is acceptable' do
-        expect { described_class.new(attrs) }.not_to(raise_error)
-      end
-    end
-
-    context 'with group and excess_share' do
-      let(:attrs) do
-        super().merge(group: :a, excess_share: 1.0)
-      end
-
-      it 'is acceptable' do
-        expect { described_class.new(attrs) }.not_to(raise_error)
-      end
-    end
-
-    context 'with excess_share and no group' do
-      let(:attrs) do
-        super().merge(excess_share: 1.0)
-      end
-
-      it 'is not acceptable' do
-        expect { described_class.new(attrs) }.to raise_error(MissingGroup)
-      end
-    end
-
     describe '#full_load_hours when number of units is zero' do
       let(:flex) do
         described_class.new(attrs.merge(input_capacity_per_unit: 1.0, number_of_units: 0.0))
