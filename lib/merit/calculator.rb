@@ -1,25 +1,17 @@
 # frozen_string_literal: true
 
 module Merit
-  # Undertakes the arduous task of calculating the production load for the merit order.
+  # Calculates the load of all participants in the merit order.
   #
-  #   Calculator.new.calculate(order)
-  #
-  # Terminology:
-  #
-  #   "always-on"  - Producers which must always be running, and therefore demand / load is assigned
-  #                  to these first.
-  #
-  #   "transients" - The opposite of an always-on producer, these may be turned on and off as
-  #                  necessary in order to fulfil any demand which cannot be provided by an
-  #                  always-on producer.
-  #
+  # Development note: A number of methods in this class use `while` loops rather than the more
+  # idiomatic `Enumerable#each`. Doing so provides slightly better performance (up to 10ms in
+  # demanding scenarios) and in some cases avoids allocating an object for each iteration.
   class Calculator
     # Floating-point arithmetic errors are common during merit calculations and it is practically
     # impossible to check that a value is zero. Values less than this will be regarded as zero.
     APPROX_ZERO = 1e-11
 
-    # Public: Performs the calculation. This sets the load curve values for each transient producer.
+    # Public: Performs the calculation.
     #
     # order - The Merit::Order instance to be calculated.
     #
@@ -44,7 +36,7 @@ module Merit
       Merit::POINTS.times(&block)
     end
 
-    # Internal: Computes the total energy demand for a given +point+.
+    # Internal: Computes the total energy demand for a given `point`.
     #
     # order - The merit order.
     # point - The point in time.
@@ -54,13 +46,23 @@ module Merit
       order.demand_calculator.demand_at(point)
     end
 
-    # Internal: For a given +point+ in time, calculates the load which should be handled by
-    # transient energy producers, and assigns the calculated values to the producer's load curve.
+    # Internal: For a given `point` in time, calculates the load of all the participants at that
+    # point.
     #
-    # This is the "jumping off point" for calculating the merit order, and note that the method is
-    # called once per Merit::POINT. Since Calculator computes a value for every point (default 8,760
-    # of them) even tiny changes can have large effects on the time taken to run the calculation.
-    # Therefore, always benchmark / profile your changes!
+    # This first determines the total amount of baseload demand; the energy demand which must be
+    # satisfied at any cost. This is then followed by meeting that demand using always-on producers.
+    # If demand is completely satisfied, excess energy from always-ons is then provided to flexible
+    # technologies for storage or conversion to other energy carriers.
+    #
+    # If demand is not yet met, dispatchable energy producers are used in order of lowest to highest
+    # cost until either demand is met or all dispatchables are fully loaded.
+    #
+    # Finally, when dispatchable capacity still remains, flexible technologies may be provided with
+    # their energy when willing to pay more than the price of the dispatchable.
+    #
+    # Since Calculator computes a value for every point (defaults to 8,760), even tiny changes can
+    # have large effects on the time taken to run the calculation. Always benchmark / profile your
+    # changes!
     #
     # order        - The Merit::Order being calculated.
     # point        - The point in time, as an integer. Should be a value between zero and
@@ -69,13 +71,6 @@ module Merit
     #
     # Returns nothing.
     def compute_point(order, point, participants)
-      # Optimisation: This is order-dependent; it requires that always-on producers are before the
-      # transient producers, otherwise "remaining" load will not be correct.
-      #
-      # Since this method is called a lot, being able to handle always-on and transient producers in
-      # separate loops allows us to skip calling #always_on? in every iteration. This accounts for a
-      # 20% reduction in the calculation runtime.
-
       if (demand = demand_at(order, point)).negative?
         raise SubZeroDemand.new(point, demand)
       end
@@ -115,17 +110,13 @@ module Merit
       produced = always_ons.sum { |producer| producer.max_load_at(point) }
 
       if produced > demand
+        # There is enough production to meet demand and have some left over for flexibles.
         produced -= demand
 
-        # The producer has enough to meet demand, and then have some left over for flex
-        # consumption.
         flex.each { |part| produced -= part.assign_excess(point, produced) } if produced.positive?
-        # assign_excess(point, produced, nil, flex)
 
         demand = 0.0
       elsif produced < demand
-        # The producer is emitting less energy that demanded. Take it all and continue with the
-        # next producer.
         demand -= produced
       end
 
@@ -135,12 +126,7 @@ module Merit
     # Internal: Computes the dispatchables load.
     #
     # Takes an enumerable of dispatchable producers and the remaining demand to be satisifed, and
-    # sets the load on the producers needed to meet demand.
-    #
-    # Returns the amount of energy still to be satisfied after running dispatchables.
-    #
-    # Returns the `dispatchables` array, minus those producers which have no remaining capacity.
-    # Note that the original `dispatchables` is modified in place for performance reasons.
+    # sets the load on the producers needed to meet that demand.
     #
     # Returns the index of the first dispatchable which has capacity remaining, or nil if there is
     # no remaining capacity.
@@ -172,18 +158,13 @@ module Merit
     # Internal: Computes demand for price-sensitive users.
     #
     # These users want energy, but only if the price of energy is less or equal to the price they
-    # are willing to pay. These are run after calculating dispatchable loads.
-    #
-    # This method contains many instances of non-idiomatic Ruby due to slightly better performance
-    # or fewer allocations; a single allocation in a loop can add up to tens of thousands of
-    # allocations throughout the calculation. While loops are used for iteration, where a nice
-    # helper method used to do the same job, as doing so avoids an object allocation when the helper
-    # `yield`ed.
+    # are willing to pay.
     #
     # Returns nothing.
     def compute_price_sensitives(point, users, dispatchables, disp_index)
       disp_length = dispatchables.length
 
+      # Exit immediately if no dispatchables are available, or there are no users.
       return unless (disp_length - disp_index).positive? && users.length.positive?
 
       users_index = 0
@@ -207,9 +188,6 @@ module Merit
 
     # Internal: Given a point, a price-sensitive user, and the available dispatchables, returns how
     # much energy those dispatchables can provide the user at the price the user is willing to pay.
-    #
-    # A while loop is used as this is faster than an Enumerable-based helper, and avoids
-    # allocations.
     #
     # point         - The point in the hour being calculated.
     # user          - The user that wishes energy.
