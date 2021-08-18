@@ -145,6 +145,7 @@ Style/MethodCallWithArgsParentheses:
   - require
   - require_dependency
   - require_relative
+  - shared_examples
   - to
   - yield
   Exclude:
