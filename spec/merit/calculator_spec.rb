@@ -107,8 +107,8 @@ describe Merit::Calculator do
       expect(load_value).to eql(volatile_two.max_load_at(0))
     end
 
-    it 'assigns the price setting producer to be the last dispatchable' do
-      expect(order.price_curve.producer_at(0)).to eq(dispatchable_two)
+    it 'assigns no participant to be price-setting' do
+      expect(order.price_curve.participant_at(0)).to be_nil
     end
   end
 
@@ -118,8 +118,8 @@ describe Merit::Calculator do
 
     before { order.calculate(described_class.new) }
 
-    it 'assigns the price setting producer to be next dispatchable' do
-      expect(order.price_curve.producer_at(0)).to eql(dispatchable)
+    it 'assigns the price setting participant to be next dispatchable' do
+      expect(order.price_curve.participant_at(0)).to eql(dispatchable)
     end
   end
 
@@ -164,8 +164,8 @@ describe Merit::Calculator do
       expect(load_value).to eql(volatile_two.max_load_at(0))
     end
 
-    it 'assigns the price setting producer with the last-loaded dispatchable' do
-      expect(order.price_curve.producer_at(0)).to eql(dispatchable)
+    it 'assigns the price setting participant with the last-loaded dispatchable' do
+      expect(order.price_curve.participant_at(0)).to eql(dispatchable)
     end
 
     context 'and the dispatchable is a cost-function producer' do
@@ -175,7 +175,7 @@ describe Merit::Calculator do
 
       context 'with no remaining capacity' do
         it 'assigns the current dispatchable as price-setting' do
-          expect(order.price_curve.producer_at(0)).to eql(dispatchable)
+          expect(order.price_curve.participant_at(0)).to eql(dispatchable)
         end
       end
 
@@ -185,7 +185,7 @@ describe Merit::Calculator do
         end
 
         it 'assigns the current dispatchable as price-setting' do
-          expect(order.price_curve.producer_at(0)).to eql(dispatchable)
+          expect(order.price_curve.participant_at(0)).to eql(dispatchable)
         end
       end
     end
@@ -214,8 +214,8 @@ describe Merit::Calculator do
       expect(load_value).to be_within(0.001).of(0.0)
     end
 
-    it 'assigns the price setting producer to be the first producer' do
-      expect(order.price_curve.producer_at(0)).to eql(dispatchable)
+    it 'assigns the price setting participant to be the first producer' do
+      expect(order.price_curve.participant_at(0)).to eql(dispatchable)
     end
   end
 
@@ -312,7 +312,7 @@ describe Merit::Calculator do
       end
 
       it 'is price-setting' do
-        expect(order.price_curve.producer_at(0)).to eq(ic)
+        expect(order.price_curve.participant_at(0)).to eq(ic)
       end
     end
 
@@ -322,7 +322,7 @@ describe Merit::Calculator do
       end
 
       it 'is price-setting' do
-        expect(order.price_curve.producer_at(0)).to eq(ic)
+        expect(order.price_curve.participant_at(0)).to eq(ic)
       end
     end
 
@@ -332,7 +332,7 @@ describe Merit::Calculator do
       end
 
       it 'is not price-setting' do
-        expect(order.price_curve.producer_at(24)).not_to(eq(ic))
+        expect(order.price_curve.participant_at(24)).not_to(eq(ic))
       end
     end
   end

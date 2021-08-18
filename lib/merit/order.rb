@@ -37,6 +37,8 @@ module Merit
       production
     ].freeze
 
+    attr_accessor :fallback_price
+
     # Calculates the Merit Order and makes sure it happens only once.
     #
     # Optionally provide a Calculator instance if you want to use a faster, or more accurate,
@@ -56,15 +58,6 @@ module Merit
       @participants ||= ParticipantSet.new
     end
 
-    # Public: Returns the price for a certain moment in time.
-    #
-    # The price is determined by the 'price setting producer', or it is just the most expensive
-    # **installed** producer multiplied with a factor 7.22. If there is no dispatchable available,
-    # we just take 600.
-    def price_at(time)
-      price_curve.get(time)
-    end
-
     # Public: Returns the sum of demand in each hour of the year.
     #
     # Calling this prior to calculating is liable to result in an incorrect curve if any of the
@@ -82,22 +75,17 @@ module Merit
       @demand_calculator ||= DemandCalculator.create(participants.users)
     end
 
-    # Public: Returns a Curve with all the (known) prices
-    def price_curve
-      @price_curve ||= PriceCurves::LastLoaded.new(self)
-    end
-
-    # Public: Sets a new price curve class.
-    def price_curve_class=(klass)
-      @price_curve = klass.new(self)
-    end
-
     # Public: Returns a helper for calculating loss-of-load using the data given to this
     # Merit::Order.
     #
     # Returns a Merit::LOLE.
     def lole
       LOLE.new(self)
+    end
+
+    # Public: Returns a Curve with all the (known) prices
+    def price_curve
+      @price_curve ||= PriceCurve.new(self, fallback_price)
     end
 
     # Public: Returns a helper for calculating the excess of electricity for this Merit::Order
