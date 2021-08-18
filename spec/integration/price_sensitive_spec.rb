@@ -754,7 +754,7 @@ RSpec.describe 'Calculation of price-sensitive demands' do
 
   # The price-sensitives want 120 each, and flex has received 1.0 energy. As a Base flex it should
   # never discharge energy.
-  xcontext 'with two users and a Flex::Base with a load of -1' do
+  context 'with two users and a Flex::Base with a load of -1' do
     let(:flex) { FactoryBot.build(:flex) }
 
     before do
@@ -797,7 +797,7 @@ RSpec.describe 'Calculation of price-sensitive demands' do
   # The price-sensitives want 10 each and the storage has 1.0 stored. Assert that the storage may be
   # discharged to meet the needs of the first user, but not the second, while correctly setting the
   # new load on the technology.
-  xcontext 'with two users and a Flex::Storage with a load of -1' do
+  context 'with two users and a Flex::Storage with a load of -1' do
     let(:storage) { FactoryBot.build(:storage, volume_per_unit: 2.0) }
 
     before do
@@ -827,7 +827,7 @@ RSpec.describe 'Calculation of price-sensitive demands' do
     end
 
     # Storage may discharge an hour after inputting.
-    context 'when calculating the second hour' do
+    xcontext 'when calculating the second hour' do
       it 'sets demand of 1 on the first user' do
         expect(ps_flex.load_at(1)).to eq(-1)
       end
