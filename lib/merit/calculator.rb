@@ -113,7 +113,7 @@ module Merit
         # There is enough production to meet demand and have some left over for flexibles.
         produced -= demand
 
-        flex.each { |part| produced -= part.assign_excess(point, produced) } if produced.positive?
+        flex.each { |part| produced -= part.barter_at(point, produced, 0) } if produced.positive?
 
         demand = 0.0
       elsif produced < demand

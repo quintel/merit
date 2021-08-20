@@ -72,6 +72,41 @@ RSpec.describe 'Calculation of always ons and flex' do
     end
   end
 
+  context 'when there is demand of 10, 50 always-on production, and flex price is zero' do
+    # When the flex technology price is zero, we don't assign any energy to them. This is because
+    # we don't want to assign energy to an export interconnector when both the domestic and foreign
+    # prices are zero.
+    let(:ao_production) { 50.0 }
+
+    let(:flex_1) do
+      FactoryBot.build(
+        :flex,
+        marginal_costs: 0.0,
+        input_capacity_per_unit: 10.0,
+        output_capacity_per_unit: 10.0
+      )
+    end
+
+    let(:flex_2) do
+      FactoryBot.build(
+        :flex,
+        marginal_costs: flex_2_price.to_f,
+        input_capacity_per_unit: 10.0,
+        output_capacity_per_unit: 10.0
+      )
+    end
+
+    before { order.calculate }
+
+    it 'assigns no excess to flex 1' do
+      expect(flex_1.load_at(0)).to eq(0)
+    end
+
+    it 'assigns 10 excess to flex 2' do
+      expect(flex_2.load_at(0)).to eq(-10)
+    end
+  end
+
   context 'when there is a demand of 10, and 25 always-on production' do
     let(:ao_production) { 25.0 }
 

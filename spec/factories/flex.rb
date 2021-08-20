@@ -10,6 +10,7 @@ FactoryBot.define do
     input_capacity_per_unit { 2.0 }
     number_of_units { 1 }
     output_capacity_per_unit { 2.0 }
+    marginal_costs { 10.0 }
 
     factory :storage, class: 'Merit::Flex::Storage' do
       initialize_with { Merit::Flex::Storage.new(attributes) }

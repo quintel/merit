@@ -43,6 +43,10 @@ module Merit
         @input_capacity + @load_curve.get(point)
       end
 
+      # Public: Assigns energy consumption to the technology, but only when the technology is
+      # willing to pay greater than the given market price.
+      #
+      # Returns the amount of energy assigned.
       def barter_at(point, amount, price)
         if @cost_strategy.cost_at(point) > price
           assign_excess(point, amount)
@@ -54,7 +58,7 @@ module Merit
       # Public: Stores a given amount of energy in the technology. Not all given to the technology
       # is guaranteed to be stored.
       #
-      # Returns the amount of energy which was accepted by the storage device.
+      # Returns the amount of energy which was assigned.
       def assign_excess(point, amount)
         input_cap = @input_capacity + @load_curve.get(point)
 

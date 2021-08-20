@@ -76,6 +76,16 @@ module Merit
         end
       end
 
+      # Public: Assigns excess energy to the contained flex technologies, but only when they're
+      # willing to pay greater than the current market price.
+      def barter_at(point, amount, price)
+        if cost_strategy.cost_at(point) > price
+          assign_excess(point, amount)
+        else
+          0.0
+        end
+      end
+
       # Public: Assigns excess energy to the contained flex technologies. Energy is split fairly
       # between the participants based on their remaining input capacity.
       def assign_excess(point, amount)
