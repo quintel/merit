@@ -26,7 +26,7 @@ module Merit
         collection.at_point(point).each do |part|
           cost = part.cost_strategy.sortable_cost(point)
 
-          if cost == last_cost
+          if cost == last_cost && !part.infinite?
             groups.last.push(part)
           else
             groups.push([part])

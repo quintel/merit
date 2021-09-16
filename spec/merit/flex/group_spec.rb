@@ -103,6 +103,27 @@ RSpec.describe Merit::Flex::Group do
         expect(groups[2].to_a).to eq(participants[3..4])
       end
     end
+
+    context 'with two items with the same price, both with infinite capacities' do
+      let(:participants) do
+        [
+          FactoryBot.build(:flex, marginal_costs: 10.0, input_capacity_per_unit: Float::INFINITY),
+          FactoryBot.build(:flex, marginal_costs: 10.0, input_capacity_per_unit: Float::INFINITY)
+        ]
+      end
+
+      it 'returns two elements' do
+        expect(groups.length).to eq(2)
+      end
+
+      it 'does not group the first participant' do
+        expect(groups.first).to eq(participants.first)
+      end
+
+      it 'does not group the second participant' do
+        expect(groups.last).to eq(participants.last)
+      end
+    end
   end
 
   context 'when initialized with two items' do

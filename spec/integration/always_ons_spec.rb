@@ -107,6 +107,38 @@ RSpec.describe 'Calculation of always ons and flex' do
     end
   end
 
+  context 'when there is demand of 10, 50 always-on production, and a black hole' do
+    # Tests that a BlackHole will always consume regardless of price constraints.
+    let(:ao_production) { 50.0 }
+
+    let(:flex_1) do
+      FactoryBot.build(
+        :flex,
+        marginal_costs: 0.0,
+        input_capacity_per_unit: 10.0,
+        output_capacity_per_unit: 10.0
+      )
+    end
+
+    let(:flex_2) do
+      FactoryBot.build(
+        :black_hole,
+        marginal_costs: 0.0,
+        input_capacity_per_unit: 10.0
+      )
+    end
+
+    before { order.calculate }
+
+    it 'assigns no excess to flex 1' do
+      expect(flex_1.load_at(0)).to eq(0)
+    end
+
+    it 'assigns 10 excess to the black hole' do
+      expect(flex_2.load_at(0)).to eq(-10)
+    end
+  end
+
   context 'when there is a demand of 10, and 25 always-on production' do
     let(:ao_production) { 25.0 }
 

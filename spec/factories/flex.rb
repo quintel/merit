@@ -19,5 +19,9 @@ FactoryBot.define do
 
       volume_per_unit { 0.05 }
     end
+
+    factory :black_hole, class: 'Merit::Flex::BlackHole' do
+      initialize_with { Merit::Flex::BlackHole.new(attributes) }
+    end
   end
 end

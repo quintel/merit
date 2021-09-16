@@ -130,6 +130,10 @@ module Merit
 
       alias_method :total_consumption, :production
 
+      def infinite?
+        false
+      end
+
       # Public: Price-sensitive users can consume energy from dispatchable producers (price
       # permitting).
       def consume_from_dispatchables?

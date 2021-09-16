@@ -20,6 +20,10 @@ module Merit
         super(opts.merge(output_capacity_per_unit: 0.0))
       end
 
+      def barter_at(point, amount, _price)
+        assign_excess(point, amount)
+      end
+
       def max_load_at(_point)
         0.0
       end
