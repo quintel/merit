@@ -34,10 +34,10 @@ module Merit
     #
     # Returns the numeric price.
     def set(point, producer)
-      if producer.nil?
-        super(point, @fallback_price)
-      else
-        super(point, producer.cost_at(point))
+      case producer
+      when :deficit, nil then super(point, @fallback_price)
+      when :surplus      then super(point, 0.0)
+      else                    super(point, producer.cost_at(point))
       end
     end
 
@@ -57,7 +57,7 @@ module Merit
     # This may return `nil`, indicating that no participant sets the price, likely because all
     # producers are at full capacity.
     def participant_at(point)
-      deficit?(point) ? nil : price_sensitive_at(point) || dispatchable_at(point)
+      deficit?(point) ? :deficit : price_sensitive_at(point) || dispatchable_at(point) || :surplus
     end
 
     private
@@ -85,7 +85,7 @@ module Merit
     # Internal: Searches for a dispatchable producer which may set the energy price.
     def dispatchable_at(point)
       index = @dispatchables.rindex { |di| di.load_at(point).positive? }
-      index ? @dispatchables[index] : @dispatchables.first
+      index && @dispatchables[index]
     end
 
     def deficit?(point)

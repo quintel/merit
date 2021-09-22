@@ -6,12 +6,12 @@ require 'spec_helper'
 
 RSpec.shared_examples 'a last-loaded price curve' do
   describe 'when no producers have load' do
-    it 'sets the first producer to be price-setting' do
-      expect(curve.participant_at(0)).to eq(producer_one)
+    it 'sets surplus to be price-setting' do
+      expect(curve.participant_at(0)).to eq(:surplus)
     end
 
-    it 'sets the price using the first producer' do
-      expect(curve.get(0)).to eq(10.0)
+    it 'sets the price to 0' do
+      expect(curve.get(0)).to eq(0)
     end
   end
 
@@ -209,11 +209,29 @@ describe Merit::PriceCurve do
         ps_two.assign_excess(10, 1.0)
       end
 
-      it 'sets the first dispatchable to be price-setting' do
+      it 'sets surplus to be price-setting' do
+        expect(curve.participant_at(10)).to eq(:surplus)
+      end
+
+      it 'sets the price to 0' do
+        expect(curve.get(10)).to eq(0)
+      end
+    end
+
+    describe 'when all price-sensitives are fully-loaded, supplied by dispatchables' do
+      # This example tests when all price-sensitives have received energy from an always-on and
+      # are fully-loaded.
+      before do
+        ps_one.assign_excess(10, 1.0)
+        ps_two.assign_excess(10, 1.0)
+        producer_one.set_load(10, 1.0)
+      end
+
+      it 'sets the first loaded dispatchable to be price-setting' do
         expect(curve.participant_at(10)).to eq(producer_one)
       end
 
-      it 'sets the price equal to the price-sensitive' do
+      it 'sets the price equal to the dispatchable' do
         expect(curve.get(10)).to eq(10.0)
       end
     end
@@ -279,8 +297,8 @@ describe Merit::PriceCurve do
         ps_two.assign_excess(10, 1.0)
       end
 
-      it 'sets no producer to be price-setting' do
-        expect(curve.participant_at(10)).to be_nil
+      it 'sets deficit to be price-setting' do
+        expect(curve.participant_at(10)).to eq(:deficit)
       end
 
       it 'sets a fallback price' do

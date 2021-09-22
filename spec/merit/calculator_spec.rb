@@ -107,8 +107,8 @@ describe Merit::Calculator do
       expect(load_value).to eql(volatile_two.max_load_at(0))
     end
 
-    it 'assigns no participant to be price-setting' do
-      expect(order.price_curve.participant_at(0)).to be_nil
+    it 'assigns deficit to be price-setting' do
+      expect(order.price_curve.participant_at(0)).to eq(:deficit)
     end
   end
 
@@ -118,8 +118,8 @@ describe Merit::Calculator do
 
     before { order.calculate(described_class.new) }
 
-    it 'assigns the price setting participant to be next dispatchable' do
-      expect(order.price_curve.participant_at(0)).to eql(dispatchable)
+    it 'sets surplus to be price-setting' do
+      expect(order.price_curve.participant_at(0)).to eq(:surplus)
     end
   end
 
@@ -214,8 +214,8 @@ describe Merit::Calculator do
       expect(load_value).to be_within(0.001).of(0.0)
     end
 
-    it 'assigns the price setting participant to be the first producer' do
-      expect(order.price_curve.participant_at(0)).to eql(dispatchable)
+    it 'assigns the price setting participant to be :surplus' do
+      expect(order.price_curve.participant_at(0)).to eql(:surplus)
     end
   end
 
