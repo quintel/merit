@@ -51,7 +51,10 @@ module Merit
       ForCalculation.new(
         always_on,
         Sorting.by_sortable_cost(dispatchables),
-        Flex::Collection.new(Sorting.by_sortable_cost_desc(flex)),
+        Flex::Collection.new(
+          Sorting.by_consumption_price_desc(flex),
+          cost_direction: :consumption
+        ),
         Flex::Collection.new(Sorting.by_sortable_cost_desc(price_sensitive_users))
       )
     end

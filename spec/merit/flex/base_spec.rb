@@ -13,6 +13,42 @@ module Merit
       }
     end
 
+    describe '#consumption_price' do
+      context 'without a production_price attribute' do
+        let(:flex) { described_class.new(attrs.merge(marginal_costs: 10.0)) }
+
+        it 'defaults to the cost (production price) strategy' do
+          expect(flex.consumption_price).to be(flex.cost_strategy)
+        end
+
+        it 'sets a Constant CostStrategy' do
+          expect(flex.consumption_price).to be_a(Merit::CostStrategy::Constant)
+        end
+
+        it 'sets the sortable cost of the strategy' do
+          expect(flex.consumption_price.sortable_cost(0)).to eq(10.0)
+        end
+      end
+
+      context 'with a consumption_price attribute' do
+        let(:flex) do
+          described_class.new(attrs.merge(marginal_costs: 10.0, consumption_price: 20.0))
+        end
+
+        it 'does not default to the cost strategy' do
+          expect(flex.consumption_price).not_to be(flex.cost_strategy)
+        end
+
+        it 'sets a Constant CostStrategy' do
+          expect(flex.consumption_price).to be_a(Merit::CostStrategy::Constant)
+        end
+
+        it 'sets the sortable cost of the strategy' do
+          expect(flex.consumption_price.sortable_cost(0)).to eq(20.0)
+        end
+      end
+    end
+
     describe '#full_load_hours when number of units is zero' do
       let(:flex) do
         described_class.new(attrs.merge(input_capacity_per_unit: 1.0, number_of_units: 0.0))

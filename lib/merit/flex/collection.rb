@@ -15,16 +15,19 @@ module Merit
 
       def_delegator :@collection, :each
 
-      def initialize(sortable)
+      def initialize(sortable, cost_direction: :production)
         @collection = sortable
+        @cost_direction = cost_direction
 
         # When all items in the collection have fixed pricing, we can use the same groups rather
         # than having than having to rebuild the groups for every point in the calculation.
-        @sorted = Group.from_collection(sortable) unless sortable.is_a?(Sorting::Variable)
+        unless sortable.is_a?(Sorting::Variable)
+          @sorted = Group.from_collection(sortable, cost_direction: @cost_direction)
+        end
       end
 
       def at_point(point)
-        @sorted || Group.from_collection(@collection, point)
+        @sorted || Group.from_collection(@collection, point, cost_direction: @cost_direction)
       end
     end
   end

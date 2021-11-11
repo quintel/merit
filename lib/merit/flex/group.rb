@@ -19,12 +19,14 @@ module Merit
       # those with a unique price will be included in the output array without any changes.
       #
       # Returns Array[Flex::Base | Flex::Group]
-      def self.from_collection(collection, point = 0)
+      def self.from_collection(collection, point = 0, cost_direction: :production)
         groups = []
         last_cost = nil
 
+        cost_accessor = cost_direction == :consumption ? :consumption_price : :cost_strategy
+
         collection.at_point(point).each do |part|
-          cost = part.cost_strategy.sortable_cost(point)
+          cost = part.public_send(cost_accessor).sortable_cost(point)
 
           if cost == last_cost && !part.infinite?
             groups.last.push(part)
@@ -60,6 +62,10 @@ module Merit
 
       def cost_strategy
         @collection[0].cost_strategy
+      end
+
+      def production_price
+        @collection[0].production_price
       end
 
       def inspect

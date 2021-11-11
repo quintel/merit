@@ -36,10 +36,10 @@ module Merit
       end
     end
 
-    # Public: Creates a Variable sorting, set up to sort the members by their sortable cost in
+    # Public: Creates a Sorting set up to order the members by their sortable marginal cost in
     # ascending order.
     #
-    # Returns a Variable.
+    # Returns a Sorting.
     def self.by_sortable_cost(collection = [])
       for_collection(
         collection,
@@ -59,6 +59,18 @@ module Merit
         collection,
         Config.new(
           ->(part, point) { -part.cost_strategy.sortable_cost(point) },
+          ->(part) { part.cost_strategy.variable? }
+        )
+      )
+    end
+
+    # Public: Creates a Sorting set up to order members by their sortable consumption price in
+    # ascending order.
+    def self.by_consumption_price_desc(collection = [])
+      for_collection(
+        collection,
+        Config.new(
+          ->(part, point) { -part.consumption_price.sortable_cost(point) },
           ->(part) { part.cost_strategy.variable? }
         )
       )

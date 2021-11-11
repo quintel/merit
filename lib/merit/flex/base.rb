@@ -16,6 +16,11 @@ module Merit
       # Returns a float.
       attr_reader :input_capacity_per_unit
 
+      # Public: Returns a cost strategy which represents the price the technology will pay for
+      # energy in each hour. If no price was given when the technology was created, the default cost
+      # strategy is used instead.
+      attr_reader :consumption_price
+
       def initialize(opts)
         super(DEFAULTS.merge(opts))
 
@@ -24,6 +29,12 @@ module Merit
 
         @output_capacity = available_output_capacity
         @input_capacity  = available_input_capacity
+
+        @consumption_price = if opts[:consumption_price]
+          CostStrategy::Constant.new(self, opts[:consumption_price])
+        else
+          @cost_strategy
+        end
 
         @consume_from_dispatchables = opts.fetch(:consume_from_dispatchables, true)
       end

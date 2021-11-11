@@ -258,5 +258,38 @@ RSpec.describe Merit::Flex::Group do
         expect { assign }.to change { second.load_at(0) }.from(-1).to(-1 - assigned)
       end
     end
+
+    context 'when grouping using production pricing' do
+      let(:groups) do
+        described_class.from_collection(
+          Merit::Sorting.by_consumption_price_desc(participants),
+          cost_direction: :consumption
+        )
+      end
+
+      let(:participants) do
+        [
+          FactoryBot.build(:flex, marginal_costs: 1.0, consumption_price: 10.0),
+          FactoryBot.build(:flex, marginal_costs: 3.0, consumption_price: 10.0),
+          FactoryBot.build(:flex, marginal_costs: 2.0, consumption_price: 15.0)
+        ]
+      end
+
+      it 'returns two elements' do
+        expect(groups.length).to eq(2)
+      end
+
+      it 'does not create a group for the solo participant' do
+        expect(groups.first).to eq(participants.last)
+      end
+
+      it 'creates a group for the two price-eq participants' do
+        expect(groups.last).to be_a(described_class)
+      end
+
+      it 'assigns participants to the second group' do
+        expect(groups.last.to_a).to eq(participants[0..1])
+      end
+    end
   end
 end
