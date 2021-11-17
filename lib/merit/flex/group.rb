@@ -64,8 +64,8 @@ module Merit
         @collection[0].cost_strategy
       end
 
-      def production_price
-        @collection[0].production_price
+      def consumption_price
+        @collection[0].consumption_price
       end
 
       def inspect
@@ -85,7 +85,7 @@ module Merit
       # Public: Assigns excess energy to the contained flex technologies, but only when they're
       # willing to pay greater than the current market price.
       def barter_at(point, amount, price)
-        if cost_strategy.cost_at(point) > price
+        if consumption_price.cost_at(point) > price
           assign_excess(point, amount)
         else
           0.0

@@ -59,7 +59,7 @@ module Merit
       #
       # Returns the amount of energy assigned.
       def barter_at(point, amount, price)
-        if @cost_strategy.cost_at(point) > price
+        if @consumption_price.cost_at(point) > price
           assign_excess(point, amount)
         else
           0.0
