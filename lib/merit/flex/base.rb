@@ -83,6 +83,11 @@ module Merit
         @consume_from_dispatchables && !infinite?
       end
 
+      # Public: Returns the cost of the participant, based on whether it is charging or discharging.
+      def cost_at(point)
+        @load_curve[point] < 0 ? @consumption_price.cost_at(point) : super
+      end
+
       # Public: Calculates the number of hours that the technology would run in if it were receiving
       # energy at its effective input capacity.
       def full_load_hours
