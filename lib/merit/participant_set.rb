@@ -55,7 +55,10 @@ module Merit
           Sorting.by_consumption_price_desc(flex),
           cost_direction: :consumption
         ),
-        Flex::Collection.new(Sorting.by_sortable_cost_desc(price_sensitive_users))
+        Flex::Collection.new(
+          Sorting.by_consumption_price_desc(price_sensitive_users),
+          cost_direction: :consumption
+        ),
       )
     end
 
@@ -102,7 +105,7 @@ module Merit
           select_participants(User::PriceSensitive) +
           flex.flat_map { |f| Array(f) }.select(&:consume_from_dispatchables?)
 
-        ps_users.uniq.sort_by { |u| -u.cost_strategy.sortable_cost }
+        ps_users.uniq.sort_by { |u| -u.consumption_price.sortable_cost }
       end
     end
 
