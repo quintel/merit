@@ -200,6 +200,18 @@ describe Merit::PriceCurve do
       end
     end
 
+    describe 'when a price-sensitive is discharging' do
+      # Price-sensitives only set the price when charging. If they are price-setting when
+      # discharging then they'll be checked with other dispatchables.
+      before do
+        ps_one.set_load(10, 0.5)
+      end
+
+      it 'does not set the the price-sensitive to be price-setting' do
+        expect(curve.participant_at(10)).not_to eq(ps_one)
+      end
+    end
+
     # 2021 flex improvement project: Case 2b
     describe 'when all price-sensitives are fully-loaded' do
       # This example tests when all price-sensitives have received energy from an always-on and

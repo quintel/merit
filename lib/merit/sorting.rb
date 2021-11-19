@@ -109,6 +109,10 @@ module Merit
         false
       end
 
+      def empty?
+        @collection.empty?
+      end
+
       def to_a
         @collection.dup
       end

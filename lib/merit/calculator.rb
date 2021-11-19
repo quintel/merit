@@ -197,7 +197,7 @@ module Merit
     # Returns a numeric.
     def available_for_ps_user(point, user, dispatchables, index)
       available = 0.0
-      threshold = user.cost_strategy.cost_at(point)
+      threshold = user.consumption_price.cost_at(point)
 
       while (dispatchable = dispatchables[index])
         index += 1
