@@ -70,7 +70,7 @@ module Merit
     def price_sensitive_at(point)
       return nil if @price_sensitives.empty?
 
-      index = @price_sensitives.rindex { |ps| !ps.load_at(point).zero? }
+      index = @price_sensitives.rindex { |ps| ps.load_at(point).negative? }
       user = @price_sensitives[index] if index
 
       # If the user is completely fulfilled, it means there is extra unused production at the
