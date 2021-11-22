@@ -7,12 +7,14 @@ module Merit
     def initialize(order, fallback_price = nil)
       super([], Merit::POINTS, nil)
 
-      @dispatchables = order.participants.dispatchables
-      @price_sensitives = order.participants.price_sensitive_users
+      @dispatchables = Sorting.by_sortable_cost(order.participants.dispatchables)
+
+      @price_sensitives =
+        Sorting.by_consumption_price_desc(order.participants.price_sensitive_users)
 
       # Ensure the fallback price is not lower than the most expensive dispatchable.
       @fallback_price = [
-        @dispatchables.last&.cost_strategy&.sortable_cost(nil) || 0.0,
+        order.participants.dispatchables.last&.cost_strategy&.sortable_cost(nil) || 0.0,
         fallback_price || 3000.0
       ].max
     end
@@ -70,8 +72,10 @@ module Merit
     def price_sensitive_at(point)
       return nil if @price_sensitives.empty?
 
-      index = @price_sensitives.rindex { |ps| ps.load_at(point).negative? }
-      user = @price_sensitives[index] if index
+      collection = @price_sensitives.at_point(point)
+
+      index = collection.rindex { |ps| ps.load_at(point).negative? }
+      user = collection[index] if index
 
       # If the user is completely fulfilled, it means there is extra unused production at the
       # current price, and the producer should determine the price.
@@ -84,12 +88,13 @@ module Merit
 
     # Internal: Searches for a dispatchable producer which may set the energy price.
     def dispatchable_at(point)
-      index = @dispatchables.rindex { |di| di.load_at(point).positive? }
-      index && @dispatchables[index]
+      collection = @dispatchables.at_point(point)
+      index = collection.rindex { |di| di.load_at(point).positive? }
+      index && collection[index]
     end
 
     def deficit?(point)
-      last_producer = @dispatchables.last
+      last_producer = @dispatchables.at_point(point).last
       last_producer.load_at(point) == last_producer.max_load_at(point)
     end
   end

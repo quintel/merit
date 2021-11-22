@@ -317,6 +317,84 @@ describe Merit::PriceCurve do
         expect(curve.get(10)).to eq(3000.0)
       end
     end
+
+    describe 'with variable price-sensitive pricing' do
+      let(:ps_one) do
+        Merit::Flex::Base.new(
+          key: :ps_one,
+          availability: 1.0,
+          input_capacity_per_unit: 1.0,
+          cost_curve: [10.0, 20.0] * 4380,
+          number_of_units: 1.0,
+          output_capacity_per_unit: 0.0
+        )
+      end
+
+      let(:ps_two) do
+        Merit::Flex::Base.new(
+          key: :ps_two,
+          availability: 1.0,
+          input_capacity_per_unit: 1.0,
+          cost_curve: [20.0, 10.0] * 4380,
+          number_of_units: 1.0,
+          output_capacity_per_unit: 0.0
+        )
+      end
+
+      let(:curve) { described_class.new(order) }
+
+      before do
+        # Part-load both dispatchables. This isn't realistic but allows us to test that they swap
+        # position in each hour.
+        ps_one.load_curve.set(0, -5.0)
+        ps_one.load_curve.set(1, -5.0)
+
+        ps_two.load_curve.set(0, -5.0)
+        ps_two.load_curve.set(1, -5.0)
+      end
+
+      it 'sets the first price-sensitive to be price-setting when cheaper' do
+        expect(curve.participant_at(0)).to eq(ps_one)
+      end
+
+      it 'sets the second price-sensitive to be price-setting when cheaper' do
+        expect(curve.participant_at(1)).to eq(ps_two)
+      end
+    end
+  end
+
+  describe 'with variable dispatchable pricing' do
+    let(:producer_one) do
+      Merit::DispatchableProducer.new(participant_attrs.merge(
+        key: :one, cost_curve: [20.0, 10.0] * 4380
+      ))
+    end
+
+    let(:producer_two) do
+      Merit::DispatchableProducer.new(participant_attrs.merge(
+        key: :two, cost_curve: [10.0, 20.0] * 4380
+      ))
+    end
+
+    let(:curve) { described_class.new(order) }
+
+    before do
+      # Part-load both dispatchables. This isn't realistic but allows us to test that they swap
+      # position in each hour.
+      producer_one.load_curve.set(0, 5.0)
+      producer_one.load_curve.set(1, 5.0)
+
+      producer_two.load_curve.set(0, 5.0)
+      producer_two.load_curve.set(1, 5.0)
+    end
+
+    it 'sets the first dispatchable to be price-setting when more expensive' do
+      expect(curve.participant_at(0)).to eq(producer_one)
+    end
+
+    it 'sets the second dispatchable to be price-setting when more expensive' do
+      expect(curve.participant_at(1)).to eq(producer_two)
+    end
   end
 end
 
