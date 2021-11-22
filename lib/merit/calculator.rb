@@ -207,7 +207,6 @@ module Merit
       while (dispatchable = dispatchables[index])
         index += 1
 
-        next 0.0 if dispatchable.flex?
         break if dispatchable.cost_strategy.cost_at(point) >= threshold
 
         available += dispatchable.available_at(point)
@@ -236,8 +235,6 @@ module Merit
 
       while (dispatchable = dispatchables[index])
         index += 1
-
-        next if dispatchable.flex?
 
         available = dispatchable.available_at(point)
 
