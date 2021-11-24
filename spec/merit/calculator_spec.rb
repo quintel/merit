@@ -397,11 +397,11 @@ describe Merit::Calculator do
 
     context 'with an excess of production and relative share of 0.25' do
       let(:p2p_attrs) do
-        FactoryBot.attributes_for(:storage, input_capacity_per_unit: 0.5)
+        FactoryBot.attributes_for(:storage, input_capacity_per_unit: 0.5, volume_per_unit: 0.5)
       end
 
       before do
-        order.add(FactoryBot.build(:storage, input_capacity_per_unit: 1.5))
+        order.add(FactoryBot.build(:storage, input_capacity_per_unit: 1.5, volume_per_unit: 1.5))
         order.calculate
       end
 

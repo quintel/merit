@@ -21,6 +21,10 @@ module Merit
         )
       end
 
+      def unused_input_capacity_at(point)
+        [@input_capacity + @load_curve.get(point), @reserve.unfilled_at(point)].min
+      end
+
       def assign_excess(point, amount)
         input_cap = @input_capacity + @load_curve.get(point)
 
