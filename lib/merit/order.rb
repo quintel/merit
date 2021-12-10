@@ -67,7 +67,7 @@ module Merit
     # Returns a Merit::Curve.
     def demand_curve
       @demand_curve ||= CurveTools.add_curves(
-        participants.users.map(&:load_curve)
+        participants.users.reject(&:provides_price?).map(&:load_curve)
       )
     end
 
