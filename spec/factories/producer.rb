@@ -26,6 +26,14 @@ FactoryBot.define do
       load_curve { Merit::Curve.new([10.0] * Merit::POINTS) }
     end
 
+    factory :optimizing_storage_producer do
+      initialize_with { Merit::Flex::OptimizingStorage::Producer.new(attributes) }
+
+      sequence(:key) { |n| :"optimizing_storage_producer_#{n}" }
+
+      load_curve { Merit::Curve.new([10.0] * Merit::POINTS) }
+    end
+
     factory :dispatchable, class: 'Merit::DispatchableProducer' do
       initialize_with { Merit::DispatchableProducer.new(attributes) }
 

@@ -75,7 +75,7 @@ module Merit
     #
     # Returns a numeric.
     def load_at(point)
-      @load_curve.get(point)
+      @load_curve[point]
     end
 
     # Public: Tells you if this producer's marginal cost is a price (the final price charged to the
@@ -93,7 +93,7 @@ module Merit
     #
     # Returns the load.
     def set_load(point, amount)
-      load_curve.set(point, amount)
+      load_curve[point] = amount
     end
 
     # The full load hours are defined as the number of hours that the producer were on AS IF it were

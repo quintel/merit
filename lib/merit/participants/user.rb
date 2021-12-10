@@ -46,5 +46,10 @@ module Merit
     def dependent?
       false
     end
+
+    # Users do not set the electricity price.
+    def provides_price?
+      false
+    end
   end
 end
