@@ -5,6 +5,8 @@ require 'csv'
 require 'terminal-table'
 require 'forwardable'
 
+require 'numo/narray'
+
 module Merit
   POINTS = 8760
   MJ_IN_MWH = 3600
