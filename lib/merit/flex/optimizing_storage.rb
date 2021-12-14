@@ -64,11 +64,15 @@ module Merit
       # discharging_target - Curve describing the desired discharging in each hour
       #
       # Keyword arguments:
-      # volume          - The volume of the battery in MWh.
-      # input_capacity  - The input capacity of the battery in MW.
-      # output_capacity - The output capacity of the battery in MW.
-      # lookbehind      - How many hours the algorithm can look into the past to search for the
-      #                   minimum.
+      # volume            - The volume of the battery in MWh.
+      # input_capacity    - The input capacity of the battery in MW.
+      # output_capacity   - The output capacity of the battery in MW.
+      # lookbehind        - How many hours the algorithm can look into the past to search for the
+      #                     minimum.
+      # charging_limit    - An optional curve which describes how much the battery may charge in
+      #                     each hour. This will be further limited by the input capacity.
+      # discharging_limit - An optional curve which describes how much the battery may discharge in
+      #                     each hour. This will be further limited by the output capacity.
       #
       # Returns an array containing the amount stored in the battery in each hour.
       def self.run(
@@ -76,6 +80,8 @@ module Merit
         input_capacity:,
         output_capacity:,
         volume:,
+        charging_limit: nil,
+        discharging_limit: nil,
         lookbehind: 72,
         output_efficiency: 1.0
       )
@@ -83,8 +89,8 @@ module Merit
 
         # Creates curves which describe the maximum amount by which the battery can charge or
         # discharge in each hour.
-        charging_target = Numo::DFloat.cast([input_capacity] * data.length)
-        discharging_target = Numo::DFloat.cast([output_capacity] * data.length)
+        charging_target = build_target(charging_limit, input_capacity, data.length)
+        discharging_target = build_target(discharging_limit, output_capacity, data.length)
 
         # All values for the year converted into a frame.
         frames = data.to_a.map.with_index { |value, index| Frame.new(index, value) }
@@ -198,6 +204,21 @@ module Merit
           [1.0, output_efficiency]
         end
       end
+
+      # Builds a target curve for the battery to charge or discharge, limited by the given capacity.
+      #
+      # If an existing curve is given, it will be clipped to the capacity.
+      #
+      # Returns a Numo::DFloat.
+      def self.build_target(target_curve, capacity, length)
+        if target_curve
+          Numo::DFloat.cast(target_curve).clip(0.0, capacity)
+        else
+          Numo::DFloat.cast([capacity] * length)
+        end
+      end
+
+      private_class_method :build_target
     end
   end
 end

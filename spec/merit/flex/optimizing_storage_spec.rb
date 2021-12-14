@@ -14,9 +14,45 @@ RSpec.describe Merit::Flex::OptimizingStorage do
         )
       end
 
-      it 'calcualtes the stored energy, limited by capacity' do
+      it 'calculates the stored energy, limited by capacity' do
         expect(reserve.to_a[24...36]).to eq(
           [5000, 4000, 3000, 2000, 1000, 0, 1000, 2000, 3000, 4000, 5000, 6000]
+        )
+      end
+    end
+
+    context 'with [10000, ..., 5000, ...], output capacity [500, 1000, ...], volume 10000' do
+      let(:reserve) do
+        described_class.run(
+          ([10_000] * 6 + [5000] * 6) * 365,
+          input_capacity: 1000,
+          output_capacity: 1000,
+          discharging_limit: [500, 1000] * (8760 / 2),
+          volume: 10_000
+        )
+      end
+
+      it 'calculates the stored energy, limited by capacity' do
+        expect(reserve.to_a[24...30]).to eq(
+          [4000, 3000, 2500, 1500, 1000, 0]
+        )
+      end
+    end
+
+    context 'with [10000, ..., 5000, ...], input capacity [500, 1000, ...], volume 10000' do
+      let(:reserve) do
+        described_class.run(
+          ([10_000] * 6 + [5000] * 6) * 365,
+          charging_limit: [500, 1000] * (8760 / 2),
+          input_capacity: 1000,
+          output_capacity: 1000,
+          volume: 10_000
+        )
+      end
+
+      it 'calculates the stored energy, limited by capacity' do
+        expect(reserve.to_a[30...36]).to eq(
+          [500, 1500, 2000, 3000, 3500, 4500]
         )
       end
     end
