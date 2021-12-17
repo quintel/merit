@@ -2,184 +2,293 @@
 
 require 'spec_helper'
 
-describe Merit::Flex::ShareGroup do
-  let(:participant_one) do
-    Merit::Flex::BlackHole.new(
-      key: :a,
-      output_capacity_per_unit: 2.0,
-      number_of_units: 1,
-      group: :a,
-      input_capacity_per_unit: 2.0
-    )
-  end
+RSpec.describe Merit::Flex::Group do
+  describe '.from_collection' do
+    let(:groups) { described_class.from_collection(Merit::Sorting.by_sortable_cost(participants)) }
 
-  let(:participant_two) do
-    Merit::Flex::BlackHole.new(
-      key: :b,
-      output_capacity_per_unit: 2.0,
-      number_of_units: 1,
-      group: :a,
-      input_capacity_per_unit: 2.0
-    )
-  end
+    context 'when given no items' do
+      let(:participants) { [] }
 
-  let(:group) do
-    sorting = Merit::Sorting.by_sortable_cost
+      it 'creates no groups' do
+        expect(groups).to eq([])
+      end
+    end
 
-    Merit::Flex::Group.new(:a, sorting).tap do |group|
-      group.insert(participant_one)
-      group.insert(participant_two)
+    context 'with three items, two with the same price' do
+      let(:participants) do
+        [
+          FactoryBot.build(:flex, marginal_costs: 10.0),
+          FactoryBot.build(:flex, marginal_costs: 10.0),
+          FactoryBot.build(:flex, marginal_costs: 15.0)
+        ]
+      end
+
+      it 'returns two elements' do
+        expect(groups.length).to eq(2)
+      end
+
+      it 'creates a group for the two price-eq participants' do
+        expect(groups.first).to be_a(described_class)
+      end
+
+      it 'assigns participants to the first group' do
+        expect(groups.first.to_a).to eq(participants[0..1])
+      end
+
+      it 'does not create a group for the solo participant' do
+        expect(groups.last).to eq(participants.last)
+      end
+    end
+
+    context 'when three items, all the same price and one is variable' do
+      let(:participants) do
+        [
+          FactoryBot.build(:flex, marginal_costs: 10.0),
+          FactoryBot.build(:flex, marginal_costs: 10.0),
+          FactoryBot.build(:flex, cost_curve: [10.0])
+        ]
+      end
+
+      it 'returns one element' do
+        expect(groups.length).to eq(1)
+      end
+    end
+
+    context 'when three items and one is variable' do
+      let(:participants) do
+        [
+          FactoryBot.build(:flex, marginal_costs: 10.0),
+          FactoryBot.build(:flex, marginal_costs: 10.0),
+          FactoryBot.build(:flex, cost_curve: [12.0])
+        ]
+      end
+
+      it 'returns two elements' do
+        expect(groups.length).to eq(2)
+      end
+    end
+
+    context 'with five items, two groups having the same price' do
+      let(:participants) do
+        [
+          FactoryBot.build(:flex, marginal_costs: 10.0),
+          FactoryBot.build(:flex, marginal_costs: 10.0),
+          FactoryBot.build(:flex, marginal_costs: 15.0),
+          FactoryBot.build(:flex, marginal_costs: 20.0),
+          FactoryBot.build(:flex, marginal_costs: 20.0)
+        ]
+      end
+
+      it 'returns three elements' do
+        expect(groups.length).to eq(3)
+      end
+
+      it 'creates a group for the first pair of price-eq participants' do
+        expect(groups[0]).to be_a(described_class)
+      end
+
+      it 'assigns participants to the first group' do
+        expect(groups[0].to_a).to eq(participants[0..1])
+      end
+
+      it 'does not create a group for the solo participant' do
+        expect(groups[1]).to eq(participants[2])
+      end
+
+      it 'creates a group for the second pair of price-eq participants' do
+        expect(groups[2]).to be_a(described_class)
+      end
+
+      it 'assigns participants to the second group' do
+        expect(groups[2].to_a).to eq(participants[3..4])
+      end
+    end
+
+    context 'with two items with the same price, both with infinite capacities' do
+      let(:participants) do
+        [
+          FactoryBot.build(:flex, marginal_costs: 10.0, input_capacity_per_unit: Float::INFINITY),
+          FactoryBot.build(:flex, marginal_costs: 10.0, input_capacity_per_unit: Float::INFINITY)
+        ]
+      end
+
+      it 'returns two elements' do
+        expect(groups.length).to eq(2)
+      end
+
+      it 'does not group the first participant' do
+        expect(groups.first).to eq(participants.first)
+      end
+
+      it 'does not group the second participant' do
+        expect(groups.last).to eq(participants.last)
+      end
     end
   end
 
-  describe '#simplify' do
-    context 'with no participants' do
-      it 'returns itself' do
-        group = Merit::Flex::Group.new(:a)
-        expect(group.simplify).to eq(group)
+  context 'when initialized with two items' do
+    let(:first) { FactoryBot.build(:flex, marginal_costs: 10.0, input_capacity_per_unit: 5.0) }
+    let(:second) { FactoryBot.build(:flex, marginal_costs: 10.0, input_capacity_per_unit: 10.0) }
+    let(:group) { described_class.new([first, second]) }
+
+    it 'can iterate through each item' do
+      items = []
+      group.each { |part| items.push(part) }
+
+      expect(items).to eq([first, second])
+    end
+
+    it 'can return the items in an array' do
+      expect(group.to_a).to eq([first, second])
+    end
+
+    it 'calculates the unused input capacity of all members' do
+      expect(group.unused_input_capacity_at(0)).to eq(15.0)
+    end
+
+    context 'when assigning 6 excess to members with no load' do
+      let(:assign) { group.assign_excess(0, 6.0) }
+
+      it 'returns 6' do
+        expect(assign).to eq(6)
+      end
+
+      it 'assigns 2 to the first member' do
+        expect { assign }.to change { first.load_at(0) }.from(0).to(-2)
+      end
+
+      it 'assigns 4 to the second member' do
+        expect { assign }.to change { second.load_at(0) }.from(0).to(-4)
       end
     end
 
-    context 'with one participant' do
-      it 'returns the participant' do
-        group = Merit::Flex::Group.new(:a)
-        part = FactoryBot.build(:flex)
+    context 'when assigning 0 excess to members with no load' do
+      let(:assign) { group.assign_excess(0, 0.0) }
 
-        group.insert(part)
+      it 'returns 0' do
+        expect(assign).to be_zero
+      end
 
-        expect(group.simplify).to eq(part)
+      it 'assigns nothing to the first member' do
+        expect { assign }.not_to change { first.load_at(0) }.from(0)
+      end
+
+      it 'assigns nothing to the second member' do
+        expect { assign }.not_to change { second.load_at(0) }.from(0)
       end
     end
 
-    context 'with two participants' do
-      it 'returns itself' do
-        group = Merit::Flex::Group.new(:a)
-        group.insert(FactoryBot.build(:flex))
-        group.insert(FactoryBot.build(:flex))
+    context 'when assigning 60 excess to members with no load' do
+      let(:assign) { group.assign_excess(0, 60.0) }
 
-        expect(group.simplify).to eq(group)
-      end
-    end
-  end
-
-  context 'with two participants cap 2.0' do
-    context 'when assigning 2.0' do
-      let!(:assign) { group.assign_excess(0, 2.0) }
-
-      it 'assigns 2 to participant one' do
-        expect(participant_one.load_at(0)).to eq(-2)
+      it 'returns 15' do
+        expect(assign).to eq(15)
       end
 
-      it 'assigns nothing to participant two' do
-        expect(participant_two.load_at(0)).to eq(0)
+      it 'assigns 5 to the first member' do
+        expect { assign }.to change { first.load_at(0) }.from(0).to(-5)
       end
 
-      it 'returns 2' do
-        expect(assign).to eq(2)
+      it 'assigns 10 to the second member' do
+        expect { assign }.to change { second.load_at(0) }.from(0).to(-10)
       end
     end
 
-    context 'when assigning 5.0' do
-      let!(:assign) { group.assign_excess(0, 5.0) }
+    context 'when assigning 6 excess to members which are 50% loaded' do
+      let(:assign) { group.assign_excess(0, 6.0) }
 
-      it 'assigns 2 to participant one' do
-        expect(participant_one.load_at(0)).to eq(-2)
-      end
-
-      it 'assigns 2 to participant two' do
-        expect(participant_two.load_at(0)).to eq(-2)
-      end
-
-      it 'returns 4' do
-        expect(assign).to eq(4)
-      end
-    end
-
-    context 'when assigning 10.0' do
-      let!(:assign) { group.assign_excess(0, 10.0) }
-
-      it 'assigns 2.0 to participant one' do
-        expect(participant_one.load_at(0)).to eq(-2.0)
-      end
-
-      it 'assigns 2.0 to participant two' do
-        expect(participant_two.load_at(0)).to eq(-2.0)
-      end
-
-      it 'returns 4.0' do
-        expect(assign).to eq(4.0)
-      end
-    end
-  end
-
-  context 'when the participants swap order in point 1' do
-    let(:participant_one) do
-      Merit::Flex::BlackHole.new(
-        key: :a,
-        output_capacity_per_unit: 2.0,
-        number_of_units: 1,
-        excess_share: 0.25,
-        group: :a,
-        input_capacity_per_unit: 2.0,
-        cost_curve: [1.0, 2.0]
-      )
-    end
-
-    let(:participant_two) do
-      Merit::Flex::BlackHole.new(
-        key: :b,
-        output_capacity_per_unit: 2.0,
-        number_of_units: 1,
-        excess_share: 0.75,
-        group: :a,
-        input_capacity_per_unit: 2.0,
-        cost_curve: [2.0, 1.0]
-      )
-    end
-
-    context 'when assigning 2.0' do
       before do
-        group.assign_excess(0, 2.0)
-        group.assign_excess(1, 2.0)
+        first.assign_excess(0, 2.5)
+        second.assign_excess(0, 5.0)
       end
 
-      it 'assigns 2 to participant one in frame 0' do
-        expect(participant_one.load_at(0)).to eq(-2)
+      it 'returns 6' do
+        expect(assign).to eq(6)
       end
 
-      it 'assigns nothing to participant two in frame 0' do
-        expect(participant_two.load_at(0)).to eq(0)
+      it 'increases the load of the first member to 4.5' do
+        expect { assign }.to change { first.load_at(0) }.from(-2.5).to(-4.5)
       end
 
-      it 'assigns nothing to participant one in frame 1' do
-        expect(participant_one.load_at(1)).to eq(0)
-      end
-
-      it 'assigns 2 to participant two in frame 1' do
-        expect(participant_two.load_at(1)).to eq(-2)
+      it 'increases the load of the second member to 9' do
+        expect { assign }.to change { second.load_at(0) }.from(-5).to(-9)
       end
     end
 
-    context 'when assigning 10.0' do
+    context 'when assigning 6 excess to members which are fully-loaded' do
+      let(:assign) { group.assign_excess(0, 6.0) }
+
       before do
-        group.assign_excess(0, 10.0)
-        group.assign_excess(1, 10.0)
+        first.assign_excess(0, 5.0)
+        second.assign_excess(0, 10.0)
       end
 
-      it 'assigns 2 to participant one in frame 0' do
-        expect(participant_one.load_at(0)).to eq(-2)
+      it 'returns 0.0' do
+        expect(assign).to eq(0)
       end
 
-      it 'assigns 2 to participant two in frame 0' do
-        expect(participant_two.load_at(0)).to eq(-2)
+      it 'does not change the load of the first member' do
+        expect { assign }.not_to change { first.load_at(0) }.from(-5)
       end
 
-      it 'assigns 2 to participant one in frame 1' do
-        expect(participant_one.load_at(1)).to eq(-2)
+      it 'does not change the load of the second member' do
+        expect { assign }.not_to change { second.load_at(0) }.from(-10)
+      end
+    end
+
+    context 'when assigning 6 excess to members which are unevenly loaded' do
+      let(:assign) { group.assign_excess(0, 6.0) }
+
+      before do
+        first.assign_excess(0, 1.0) # 4 remaining (80%)
+        second.assign_excess(0, 1.0) # 9 remaining (90%)
       end
 
-      it 'assigns 2 to participant two in frame 1' do
-        expect(participant_two.load_at(1)).to eq(-2)
+      it 'returns 6' do
+        expect(assign).to eq(6)
+      end
+
+      it 'increases the load of the first member to 2.2' do
+        assigned = 6.0 * (4.0 / (4 + 9))
+        expect { assign }.to change { first.load_at(0) }.from(-1).to(-1 - assigned)
+      end
+
+      it 'increases the load of the second member to 6.8' do
+        assigned = 6.0 * (9.0 / (4 + 9))
+        expect { assign }.to change { second.load_at(0) }.from(-1).to(-1 - assigned)
+      end
+    end
+
+    context 'when grouping using production pricing' do
+      let(:groups) do
+        described_class.from_collection(
+          Merit::Sorting.by_consumption_price_desc(participants),
+          cost_direction: :consumption
+        )
+      end
+
+      let(:participants) do
+        [
+          FactoryBot.build(:flex, marginal_costs: 1.0, consumption_price: 10.0),
+          FactoryBot.build(:flex, marginal_costs: 3.0, consumption_price: 10.0),
+          FactoryBot.build(:flex, marginal_costs: 2.0, consumption_price: 15.0)
+        ]
+      end
+
+      it 'returns two elements' do
+        expect(groups.length).to eq(2)
+      end
+
+      it 'does not create a group for the solo participant' do
+        expect(groups.first).to eq(participants.last)
+      end
+
+      it 'creates a group for the two price-eq participants' do
+        expect(groups.last).to be_a(described_class)
+      end
+
+      it 'assigns participants to the second group' do
+        expect(groups.last.to_a).to eq(participants[0..1])
       end
     end
   end

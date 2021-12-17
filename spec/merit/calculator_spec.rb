@@ -107,8 +107,8 @@ describe Merit::Calculator do
       expect(load_value).to eql(volatile_two.max_load_at(0))
     end
 
-    it 'assigns the price setting producer to be the last dispatchable' do
-      expect(order.price_curve.producer_at(0)).to eq(dispatchable_two)
+    it 'assigns deficit to be price-setting' do
+      expect(order.price_curve.participant_at(0)).to eq(:deficit)
     end
   end
 
@@ -118,8 +118,8 @@ describe Merit::Calculator do
 
     before { order.calculate(described_class.new) }
 
-    it 'assigns the price setting producer to be next dispatchable' do
-      expect(order.price_curve.producer_at(0)).to eql(dispatchable)
+    it 'sets surplus to be price-setting' do
+      expect(order.price_curve.participant_at(0)).to eq(:surplus)
     end
   end
 
@@ -164,8 +164,8 @@ describe Merit::Calculator do
       expect(load_value).to eql(volatile_two.max_load_at(0))
     end
 
-    it 'assigns the price setting producer with the last-loaded dispatchable' do
-      expect(order.price_curve.producer_at(0)).to eql(dispatchable)
+    it 'assigns the price setting participant with the last-loaded dispatchable' do
+      expect(order.price_curve.participant_at(0)).to eql(dispatchable)
     end
 
     context 'and the dispatchable is a cost-function producer' do
@@ -175,7 +175,7 @@ describe Merit::Calculator do
 
       context 'with no remaining capacity' do
         it 'assigns the current dispatchable as price-setting' do
-          expect(order.price_curve.producer_at(0)).to eql(dispatchable)
+          expect(order.price_curve.participant_at(0)).to eql(dispatchable)
         end
       end
 
@@ -185,7 +185,7 @@ describe Merit::Calculator do
         end
 
         it 'assigns the current dispatchable as price-setting' do
-          expect(order.price_curve.producer_at(0)).to eql(dispatchable)
+          expect(order.price_curve.participant_at(0)).to eql(dispatchable)
         end
       end
     end
@@ -214,8 +214,8 @@ describe Merit::Calculator do
       expect(load_value).to be_within(0.001).of(0.0)
     end
 
-    it 'assigns the price setting producer to be the first producer' do
-      expect(order.price_curve.producer_at(0)).to eql(dispatchable)
+    it 'assigns the price setting participant to be :surplus' do
+      expect(order.price_curve.participant_at(0)).to eql(:surplus)
     end
   end
 
@@ -312,7 +312,7 @@ describe Merit::Calculator do
       end
 
       it 'is price-setting' do
-        expect(order.price_curve.producer_at(0)).to eq(ic)
+        expect(order.price_curve.participant_at(0)).to eq(ic)
       end
     end
 
@@ -322,7 +322,7 @@ describe Merit::Calculator do
       end
 
       it 'is price-setting' do
-        expect(order.price_curve.producer_at(0)).to eq(ic)
+        expect(order.price_curve.participant_at(0)).to eq(ic)
       end
     end
 
@@ -332,7 +332,7 @@ describe Merit::Calculator do
       end
 
       it 'is not price-setting' do
-        expect(order.price_curve.producer_at(24)).not_to(eq(ic))
+        expect(order.price_curve.participant_at(24)).not_to(eq(ic))
       end
     end
   end
@@ -395,31 +395,13 @@ describe Merit::Calculator do
       end
     end
 
-    context 'with an excess of production and excess_share of 0.25' do
+    context 'with an excess of production and relative share of 0.25' do
       let(:p2p_attrs) do
-        FactoryBot.attributes_for(
-          :storage,
-          excess_share: 0.25,
-          group: :flex_group
-        )
+        FactoryBot.attributes_for(:storage, input_capacity_per_unit: 0.5, volume_per_unit: 0.5)
       end
 
       before do
-        order.add(
-          FactoryBot.build(
-            :storage,
-            excess_share: 0.75,
-            group: :flex_group
-          )
-        )
-
-        order.participants.flex_groups.define(
-          Merit::Flex::ShareGroup.new(
-            :flex_group,
-            Merit::Sorting.by_sortable_cost
-          )
-        )
-
+        order.add(FactoryBot.build(:storage, input_capacity_per_unit: 1.5, volume_per_unit: 1.5))
         order.calculate
       end
 
@@ -427,50 +409,6 @@ describe Merit::Calculator do
         # 0.01141552511424 is the excess
         expect(p2p.load_curve.to_a.take(4))
           .to eq([-0.01141552511424 / 4.0] * 4)
-      end
-    end
-
-    context 'with a partial excess of production and excess_share of 0.25x2' do
-      let(:p2p_attrs) do
-        {
-          key: :p2p,
-          volume_per_unit: 10.0,
-          output_capacity_per_unit: 20.0,
-          availability: 1.0,
-          number_of_units: 1,
-          excess_share: 0.25,
-          input_capacity_per_unit: 0.01,
-          group: :flex_group
-        }
-      end
-
-      let(:p2p_2) do
-        Merit::Flex::Storage.new(p2p_attrs.merge(key: :p2p2))
-      end
-
-      let(:order) do
-        super().tap { |order| order.add(p2p_2) }
-      end
-
-      before do
-        order.participants.flex_groups.define(
-          Merit::Flex::ShareGroup.new(
-            :flex_group,
-            Merit::Sorting.by_sortable_cost
-          )
-        )
-
-        order.calculate
-      end
-
-      it 'charges the first flex' do
-        expect(p2p.load_curve.to_a.take(4))
-          .to eq([-0.01141552511424 / 4] * 4)
-      end
-
-      it 'charges the second flex' do
-        expect(p2p_2.load_curve.to_a.take(4))
-          .to eq([-0.01141552511424 / 4] * 4)
       end
     end
 

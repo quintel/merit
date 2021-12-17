@@ -10,7 +10,7 @@
 
 The **merit order** predicts/calculates which electricity generating
 **producers** are producing the power to meet the demand/load of the
-different **users** of electricity. 
+different **users** of electricity.
 It does this for each of the 8760 hours in a year and computes several
 yearly averaged quantities for each producer such as
 
@@ -25,25 +25,25 @@ yearly averaged quantities for each producer such as
 
 The above quantities are defined and explained in the main text below.
 
-Both **users** and **producers** are participants in the Merit Order 
+Both **users** and **producers** are participants in the Merit Order
 calculation. Examples of users include the transport sector, the household
 sector, electric heating devices, etc. Producers may be nuclear reactors, wind
-turbines or solar panels.  Producers can be one of three types 
+turbines or solar panels.  Producers can be one of three types
 
-* dispatchable (can be switched on and off at will) 
+* dispatchable (can be switched on and off at will)
 * volatile (can be switched off but not on at will)
 * must-run (produces electricity as a by-product and is insensitive to changes
   in electricity demand)
 
-Every user has a demand for electricity (which can be zero) at every 
-point in time , which we call its **load**. The description of the load of a 
+Every user has a demand for electricity (which can be zero) at every
+point in time , which we call its **load**. The description of the load of a
 user is described by a **load profile**.
 
 Also, every must-run- or volatile producer has a load profile, but instead of
 demand it describes its production at each point in time.
 
 Let's get more familiar with the terms mentioned above by looking at a quick
-demonstration of the Merit Order moule. 
+demonstration of the Merit Order moule.
 
 ## Quick Demonstration
 
@@ -57,7 +57,7 @@ and take you into an irb or pry session (that is an interactive Ruby session).
 Then you can start to request output, e.g. a summary of the 'Merit Order':
 
 ```
->merit_order.info
+> order.info
 +------------------------------------------------------+-----------------------------+----------------+--------------------+
 | key                                                  | class                       | marginal costs | full load hours    |
 +------------------------------------------------------+-----------------------------+----------------+--------------------+
@@ -170,9 +170,9 @@ merit order.
 
 Users are those 'things' that use electricity. This can be one 'thing', such
 as the total demand for a particular country, but Merit is also capable of
-adding different demands together, such as the demand of the household sector 
-and the transport sector, or certain demand shifting technologies, such as 
-pumped storage, or intensive electricity demands with load curves such as 
+adding different demands together, such as the demand of the household sector
+and the transport sector, or certain demand shifting technologies, such as
+pumped storage, or intensive electricity demands with load curves such as
 'loading strategies' for electric cars.
 
 For each demand, a **demand profile** has to be defined, and the **total
@@ -184,16 +184,16 @@ Total consumption must be supplied in **MJ**. It is the sum of all electricity
 consumption of the users **plus** losses of the electricity network. Note that
  the losses only need to be taken into account once.
 
-For the demand of **all** the converters in the ETM, the electricity consumption 
-of the final demand converter group can be used ( **plus** losses of the 
+For the demand of **all** the converters in the ETM, the electricity consumption
+of the final demand converter group can be used ( **plus** losses of the
 electricity network).
 
 ### Demand profile
 
-The **demand profile** describes the **variation** of the demand of a user as a 
-function of time. The demand profile is normalized to **1 MJ** surface area. 
+The **demand profile** describes the **variation** of the demand of a user as a
+function of time. The demand profile is normalized to **1 MJ** surface area.
 It has to be scaled to its proper dimensions of **MW** by multiplying it with
-the total conumption. The demand profile is equivalent to the load profiles 
+the total conumption. The demand profile is equivalent to the load profiles
 defined for must-run and dispatchable producers.
 
 ## Producers
@@ -206,15 +206,15 @@ properly:
 
 * key (Symbol)
 * load_profile_key (Symbol)
-* marginal_costs (EUR/MWh) 
+* marginal_costs (EUR/MWh)
 * output_capacity_per_unit (MW electric/unit)
 * number_of_units (float)
 * availability (%)
 * fixed_costs_per_unit (EUR/unit/year)
 * fixed_om_costs_per_unit (EUR/unit/year)
 
-Have a look at 
-[the stub](https://github.com/quintel/merit/blob/master/examples/stub.rb) for 
+Have a look at
+[the stub](https://github.com/quintel/merit/blob/master/examples/stub.rb) for
 some examples.
 
 ### Different types of Producers:
@@ -298,7 +298,7 @@ an input for calculating the operational_expenses per participant. The
 operational_expenses will be used as an output to indicate the extent of
 profitability of a participant (see also the list of outputs).
 
-The fixed_om_costs_per_unit can be queried from the 
+The fixed_om_costs_per_unit can be queried from the
 ETEngine's GQL with the following query:
 
     V(converter_key, fixed_operation_and_maintenance_costs_per_year)
@@ -310,7 +310,7 @@ ETEngine's GQL with the following query:
 
 #### Load profile key
 
-Gives the name of the load profile. 
+Gives the name of the load profile.
 
 ##### Current Load Profiles
 
@@ -333,28 +333,28 @@ participant at every point in time can be found by multiplying its load profile
 with its **electricity production** (note that this is not equal to its
 demand).
 
-**NOTE: The scaling of MO load_profiles can result in loads (MW) larger 
+**NOTE: The scaling of MO load_profiles can result in loads (MW) larger
 then the available efficiency**
 
-This happens because the area under the profiles needs to be scaled to the 
-total produced electricity but the shape of the profiles does not always 
+This happens because the area under the profiles needs to be scaled to the
+total produced electricity but the shape of the profiles does not always
 include all information.
 
-For example, the profiles for wind may not describe every gush of wind that 
-has been converted into electricity and therefore 'misses' features, i.e., it 
-has a trough where it should have a peak. This is inevitable as we do not have 
-measurement of every location in the Netherlands where a turbine is situated 
-and we do not know the exact relation between the wind speeds (measured) and 
+For example, the profiles for wind may not describe every gush of wind that
+has been converted into electricity and therefore 'misses' features, i.e., it
+has a trough where it should have a peak. This is inevitable as we do not have
+measurement of every location in the Netherlands where a turbine is situated
+and we do not know the exact relation between the wind speeds (measured) and
 the production of a turbine.
 
-This means that to reproduce the total production, the profile has to be 
-scaled vertically (to make up for the lost peaks) and peaks in the load may 
-become unphysically high. This is not a fundamental problem, as the curve is 
-only indicative of the variability of the technology, but it might confuse 
+This means that to reproduce the total production, the profile has to be
+scaled vertically (to make up for the lost peaks) and peaks in the load may
+become unphysically high. This is not a fundamental problem, as the curve is
+only indicative of the variability of the technology, but it might confuse
 the user.
 
-For a guideline on how to generate merit order profiles, please check out the 
-[profile_generation_guidelines.md](https://github.com/quintel/merit/blob/master/profile_generation_guidelines.md). 
+For a guideline on how to generate merit order profiles, please check out the
+[profile_generation_guidelines.md](https://github.com/quintel/merit/blob/master/profile_generation_guidelines.md).
 
 #### Full load hours
 
@@ -461,7 +461,7 @@ load is equal to 0.
 ### Financial output
 
 Financial ouptut is calculated **per participant**. To obtain the output **per
- unit**, the output must be divided through the number of units of the 
+ unit**, the output must be divided through the number of units of the
  participant.
 
 #### Total revenue [EUR/year]
@@ -478,7 +478,7 @@ summing up the `fixed_costs` (which is input) and the `variable_costs`:
 
 #### Fixed costs [EUR/year]
 
-The fixed_costs 
+The fixed_costs
 
     fixed_costs = fixed_costs_per_unit * number_of_units
 
@@ -588,7 +588,7 @@ Merit::LoadProfile.load(:total_demand).valid?
 #### List
 
 * load: **MW**
-* marginal_costs: **EUR/MWh** 
+* marginal_costs: **EUR/MWh**
 * output_capacity_per_unit: **MW electric/unit**
 * number_of_units: **#**
 * availability: **fraction** (between 0 and 1)

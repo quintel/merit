@@ -117,17 +117,6 @@ module Merit
       end
     end
 
-    describe '#price_curve' do
-      it 'defaults to a FirstUnloaded' do
-        expect(order.price_curve).to be_a(PriceCurves::FirstUnloaded)
-      end
-
-      it 'accepts other price curves during initialization' do
-        order.price_curve_class = PriceCurves::LastLoaded
-        expect(order.price_curve).to be_a(PriceCurves::LastLoaded)
-      end
-    end
-
     describe '#demand_calculator' do
       it 'returns a DemandCalculator' do
         expect(order.demand_calculator).to be_a(Merit::DemandCalculator)

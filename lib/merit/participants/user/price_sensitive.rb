@@ -107,6 +107,13 @@ module Merit
         true
       end
 
+      # Public: Price-sensitives consume at the same price as they produce.
+      #
+      # Returns a CostStrategy.
+      def consumption_price
+        @cost_strategy
+      end
+
       # Public: The total amount of energy consumed by the user.
       #
       # Defaults to MJ, but may return MWh. For example:
@@ -129,6 +136,16 @@ module Merit
       end
 
       alias_method :total_consumption, :production
+
+      def infinite?
+        false
+      end
+
+      # Public: Price-sensitive users can consume energy from dispatchable producers (price
+      # permitting).
+      def consume_from_dispatchables?
+        true
+      end
 
       def inspect
         "#<#{self.class.name} #{key} (#{@inner.class.name})>"

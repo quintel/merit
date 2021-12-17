@@ -8,7 +8,7 @@ module Merit
       {
         key: :bh,
         number_of_units: 1,
-        output_capacity_per_unit: 10.0,
+        input_capacity_per_unit: 10.0,
         input_efficiency: 1.0,
         output_efficiency: 1.0
       }
@@ -17,12 +17,16 @@ module Merit
     let(:bh) { described_class.new(attrs) }
 
     describe 'cost strategy' do
-      it 'is Null' do
-        expect(bh.cost_strategy).to be_a(CostStrategy::Null)
+      it 'is a custom strategy' do
+        expect(bh.cost_strategy).to be_a(Merit::Flex::BlackHole::CostStrategy)
+      end
+
+      it 'has a negative sortable cost' do
+        expect(bh.cost_strategy.sortable_cost(0)).to be_negative
       end
 
       it 'is not price-setting' do
-        expect(bh.cost_strategy.price_setting?(0)).not_to(be)
+        expect(bh.cost_strategy.price_setting?(0)).to be(false)
       end
     end
 
@@ -47,7 +51,7 @@ module Merit
       end
 
       context 'with a capacity of 1.0' do
-        let(:attrs) { super().merge(output_capacity_per_unit: 1.0) }
+        let(:attrs) { super().merge(input_capacity_per_unit: 1.0) }
 
         it 'returns 1.0' do
           expect(assign_load).to eq(1.0)
@@ -62,7 +66,7 @@ module Merit
       context 'with a capacity of 3.0, 2.0 already stored' do
         before { bh.assign_excess(1, 2.0) }
 
-        let(:attrs) { super().merge(output_capacity_per_unit: 3.0) }
+        let(:attrs) { super().merge(input_capacity_per_unit: 3.0) }
         let(:assign_load) { bh.assign_excess(1, 2.0) }
 
         it 'returns 1.0' do
@@ -90,7 +94,7 @@ module Merit
         context 'with a capacity of 3.0, 2.0 already stored' do
           before { bh.assign_excess(1, 2.0) }
 
-          let(:attrs) { super().merge(output_capacity_per_unit: 3.0) }
+          let(:attrs) { super().merge(input_capacity_per_unit: 3.0) }
           let(:assign_load) { bh.assign_excess(1, 2.0) }
 
           it 'returns 1.0' do

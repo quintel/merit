@@ -5,28 +5,25 @@ module Merit
   module Util
     module_function
 
-    # Public: Given an array, and start and finish indexes, iterates through the slice yielding each
-    # element. This provides an alternative to Enumerable#sum which doesn't require allocating the
-    # array sub-slice first (`arr[1..3].sum`).
-    #
-    # Both indicies are INCLUSIVE.
+    # Public: Given an array, and start and finish indexes, iterates through the slice yielding
+    # each element. The yielded elements are inclusive of the `start` and `finish` indices.
     #
     # For example:
     #
-    #   Util.sum_slice([1, 2, 3, 4, 5], 1, 3) { |v| v } # => 9
+    #   Util.slice_each([1, 2, 3, 4, 5], 1, 3) { |v| ... }
     #   #                  ^  ^  ^
     #   #              Yielded values
     #
-    # Returns the sum of the values returned to block.
-    def sum_slice(elements, start, finish)
-      memo = 0.0
+    # Returns the elements.
+    def slice_each(elements, start, finish = nil)
+      finish ||= elements.length - 1
 
       while start <= finish
-        memo += yield(elements[start])
+        yield elements[start]
         start += 1
       end
 
-      memo
+      elements
     end
   end
 end

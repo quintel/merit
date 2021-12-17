@@ -1,25 +1,17 @@
 # frozen_string_literal: true
 
 module Merit
-  # Undertakes the arduous task of calculating the production load for the merit order.
+  # Calculates the load of all participants in the merit order.
   #
-  #   Calculator.new.calculate(order)
-  #
-  # Terminology:
-  #
-  #   "always-on"  - Producers which must always be running, and therefore demand / load is assigned
-  #                  to these first.
-  #
-  #   "transients" - The opposite of an always-on producer, these may be turned on and off as
-  #                  necessary in order to fulfil any demand which cannot be provided by an
-  #                  always-on producer.
-  #
+  # Development note: A number of methods in this class use `while` loops rather than the more
+  # idiomatic `Enumerable#each`. Doing so provides slightly better performance (up to 10ms in
+  # demanding scenarios) and in some cases avoids allocating an object for each iteration.
   class Calculator
     # Floating-point arithmetic errors are common during merit calculations and it is practically
     # impossible to check that a value is zero. Values less than this will be regarded as zero.
     APPROX_ZERO = 1e-11
 
-    # Public: Performs the calculation. This sets the load curve values for each transient producer.
+    # Public: Performs the calculation.
     #
     # order - The Merit::Order instance to be calculated.
     #
@@ -44,23 +36,33 @@ module Merit
       Merit::POINTS.times(&block)
     end
 
-    # Internal: Computes the total energy demand for a given +point+.
+    # Internal: Computes the total energy demand for a given `point`.
     #
     # order - The merit order.
     # point - The point in time.
     #
     # Returns a float.
-    def demand(order, point)
+    def demand_at(order, point)
       order.demand_calculator.demand_at(point)
     end
 
-    # Internal: For a given +point+ in time, calculates the load which should be handled by
-    # transient energy producers, and assigns the calculated values to the producer's load curve.
+    # Internal: For a given `point` in time, calculates the load of all the participants at that
+    # point.
     #
-    # This is the "jumping off point" for calculating the merit order, and note that the method is
-    # called once per Merit::POINT. Since Calculator computes a value for every point (default 8,760
-    # of them) even tiny changes can have large effects on the time taken to run the calculation.
-    # Therefore, always benchmark / profile your changes!
+    # This first determines the total amount of baseload demand; the energy demand which must be
+    # satisfied at any cost. This is then followed by meeting that demand using always-on producers.
+    # If demand is completely satisfied, excess energy from always-ons is then provided to flexible
+    # technologies for storage or conversion to other energy carriers.
+    #
+    # If demand is not yet met, dispatchable energy producers are used in order of lowest to highest
+    # cost until either demand is met or all dispatchables are fully loaded.
+    #
+    # Finally, when dispatchable capacity still remains, flexible technologies may be provided with
+    # their energy when willing to pay more than the price of the dispatchable.
+    #
+    # Since Calculator computes a value for every point (defaults to 8,760), even tiny changes can
+    # have large effects on the time taken to run the calculation. Always benchmark / profile your
+    # changes!
     #
     # order        - The Merit::Order being calculated.
     # point        - The point in time, as an integer. Should be a value between zero and
@@ -69,56 +71,21 @@ module Merit
     #
     # Returns nothing.
     def compute_point(order, point, participants)
-      # Optimisation: This is order-dependent; it requires that always-on producers are before the
-      # transient producers, otherwise "remaining" load will not be correct.
-      #
-      # Since this method is called a lot, being able to handle always-on and transient producers in
-      # separate loops allows us to skip calling #always_on? in every iteration. This accounts for a
-      # 20% reduction in the calculation runtime.
-
-      if (remaining = demand(order, point)).negative?
-        raise SubZeroDemand.new(point, remaining)
+      if (demand = demand_at(order, point)).negative?
+        raise SubZeroDemand.new(point, demand)
       end
 
-      flex = participants.flex
-
-      participants.always_on.each do |producer|
-        produced = producer.max_load_at(point)
-
-        if produced > remaining
-          # The producer has enough to meet demand, and then have some left over for flex
-          # consumption.
-          produced -= remaining
-          remaining = 0.0
-
-          if produced.positive?
-            flex.each do |tech|
-              produced -= tech.assign_excess(point, produced)
-
-              # If there is no energy remaining to be assigned we can exit early and, as an added
-              # bonus, prevent assigning tiny negatives resulting from floating point errors, which
-              # messes up technologies which have a Reserve with volume 0.0.
-              break if produced <= APPROX_ZERO
-            end
-          end
-
-          # Not all excess could be assigned; no point in trying to assign energy from any more must
-          # runs.
-          break if produced > APPROX_ZERO
-        elsif produced < remaining
-          # The producer is emitting less energy that demanded. Take it all and continue with the
-          # next producer.
-          remaining -= produced
-        end
-
-        remaining = 0.0 if remaining.negative?
-      end
+      demand = compute_always_ons(
+        point, demand,
+        participants.always_on,
+        participants.flex.at_point(point)
+      )
 
       dispatchables = participants.dispatchables.at_point(point)
       next_idx = 0
 
-      if remaining.positive?
-        next_idx = compute_dispatchables(point, dispatchables, remaining)
+      if demand.positive?
+        next_idx = compute_dispatchables(point, dispatchables, demand)
 
         # There was unmet demand after running all dispatchables. It is not possible to satisfy any
         # price-sensitive demands (below).
@@ -135,15 +102,36 @@ module Merit
       nil
     end
 
+    # Internal: Computes always-on loads, assigning excess to flexibles.
+    #
+    # Returns the amount of demand which was not satisfied by energy produced by the always-on (the
+    # deficit).
+    def compute_always_ons(point, demand, always_ons, flex)
+      produced = always_ons.sum { |producer| producer.max_load_at(point) }
+
+      if produced > demand
+        # There is enough production to meet demand and have some left over for flexibles.
+        produced -= demand
+
+        if produced.positive?
+          flex.each do |part|
+            produced -= part.barter_at(point, produced, 0)
+            break if produced <= 0
+          end
+        end
+
+        demand = 0.0
+      elsif produced < demand
+        demand -= produced
+      end
+
+      demand.negative? ? 0.0 : demand
+    end
+
     # Internal: Computes the dispatchables load.
     #
     # Takes an enumerable of dispatchable producers and the remaining demand to be satisifed, and
-    # sets the load on the producers needed to meet demand.
-    #
-    # Returns the amount of energy still to be satisfied after running dispatchables.
-    #
-    # Returns the `dispatchables` array, minus those producers which have no remaining capacity.
-    # Note that the original `dispatchables` is modified in place for performance reasons.
+    # sets the load on the producers needed to meet that demand.
     #
     # Returns the index of the first dispatchable which has capacity remaining, or nil if there is
     # no remaining capacity.
@@ -175,94 +163,99 @@ module Merit
     # Internal: Computes demand for price-sensitive users.
     #
     # These users want energy, but only if the price of energy is less or equal to the price they
-    # are willing to pay. These are run after calculating dispatchable loads.
+    # are willing to pay.
     #
     # Returns nothing.
-    def compute_price_sensitives(point, users, dispatchables, index)
-      length = dispatchables.length
+    def compute_price_sensitives(point, users, dispatchables, disp_index)
+      disp_length = dispatchables.length
 
-      return unless (length - index).positive? && users.any?
+      # Exit immediately if no dispatchables are available, or there are no users.
+      return unless (disp_length - disp_index).positive? && users.length.positive?
 
-      # It's possible for the first dispatchable to have a current load exactly equal to the max
-      # load. If this is the case we can skip it. This enables the `break if initial_load ==
-      # producer_load` optimisation after the `users.each` loop (otherwise the loop may terminate
-      # early).
-      first_disp = dispatchables[index]
-      index += 1 if first_disp.max_load_at(point) == first_disp.load_at(point)
+      users_index = 0
 
-      # This is an attempt to loop through the dispatchables array a second time, starting where
-      # `compute_dispatchables` left off, without having to allocate another array or Enumerator.
-      #
-      # While `dispatchables[index..-1].each` would be more idiomatic, the while loop requires no
-      # extra allocations.
-      while index < length
-        producer = dispatchables[index]
+      while (user = users[users_index])
+        users_index += 1
 
-        assigned = assign_excess_to_price_sensitives(
-          point, producer.available_at(point), producer.cost_at(point), users
+        available = available_for_ps_user(point, user, dispatchables, disp_index)
+
+        # Price is now too high to assign any more energy.
+        break if available.zero?
+
+        disp_index = assign_ps_used_to_dispatchables(
+          point,
+          user.assign_excess(point, available),
+          dispatchables,
+          disp_index
         )
-
-        # If nothing as assigned, we can stop iterating as it means that the current price is too
-        # high for any price-sensitive user. Subsequent dispatchables will be even more expensive.
-        break if assigned.zero?
-
-        producer.set_load(point, producer.load_at(point) + assigned)
-        index += 1
       end
     end
 
-    # Internal: Assigns an amount of excess energy to the price-sensitive users.
+    # Internal: Given a point, a price-sensitive user, and the available dispatchables, returns how
+    # much energy those dispatchables can provide the user at the price the user is willing to pay.
     #
-    # This splits the assignment into two phases, which broadly correspond with the outer and inner
-    # loops:
+    # point         - The point in the hour being calculated.
+    # user          - The user that wishes energy.
+    # dispatchables - The list of all dispatchables.
+    # index         - The index of the first dispatchable which can provide energy.
     #
-    #   1. Group users by their price, so that users with the same price will receive an equal share
-    #      of energy.
-    #
-    #   2. Assign the available energy to users in each group.
-    #
-    # Once again, while loops are heavily used to avoid extra object allocations when iterating
-    # through array slices.
-    #
-    # Returns a numeric: the amount of energy assigned.
-    def assign_excess_to_price_sensitives(point, available, price, users)
-      index = 0
-      initial_available = available
+    # Returns a numeric.
+    def available_for_ps_user(point, user, dispatchables, index)
+      available = 0.0
+      threshold = user.consumption_price.cost_at(point)
 
-      while index < users.length
-        break unless available.positive?
-        break if users[index].cost_strategy.sortable_cost(point) <= price
+      while (dispatchable = dispatchables[index])
+        index += 1
 
-        # Determine the index of the latest user with the same price as the current user. This
-        # allows determining if energy should be assigned to one user, or shared equally between
-        # several users.
-        max_index = Flex::CostBasedShareGroup.max_index_with_same_price(users, point, index)
+        break if dispatchable.cost_strategy.cost_at(point) >= threshold
 
-        if index == max_index
-          # Only one user at the current price.
-          available -= users[index].assign_excess(point, available)
-          index += 1
+        available += dispatchable.available_at(point)
+      end
+
+      available
+    end
+
+    # Internal: Given an amount of energy which was assigned to a price-sensitive user, sets the
+    # load on the dispatchables to reflect this energy use.
+    #
+    # Returns the index of the first dispatchable with remaining capacity (this index can be used
+    # to more quickly calculate loads for other price-sensitive users).
+    #
+    # A while loop is used as this is faster than an Enumerable-based helper, and avoids
+    # allocations.
+    #
+    # point         - The point in the hour being calculated.
+    # assigned      - The amount of energy to be assigned.
+    # dispatchables - The list of all dispatchables.
+    # index         - The index of the first dispatchable which can provide energy.
+    #
+    # Returns a numeric.
+    def assign_ps_used_to_dispatchables(point, assigned, dispatchables, disp_index)
+      index = disp_index
+
+      while (dispatchable = dispatchables[index])
+        index += 1
+
+        available = dispatchable.available_at(point)
+
+        if available > assigned
+          # Producer could emit more than was used; these users are full.
+          dispatchable.set_load(point, dispatchable.load_at(point) + assigned)
+          assigned = 0
+
+          # We've filled up all the users; any further dispatchables are unused.
+          break
         else
-          # Multiple users with the same price. Assign energy equally.
-          total_capacity = Flex::CostBasedShareGroup.total_unused_capacity(
-            point, users, index, max_index
-          )
+          # Producer is at max capacity.
+          dispatchable.set_load(point, dispatchable.load_at(point) + available)
+          assigned -= available
 
-          if total_capacity.positive?
-            available -=
-              Util.sum_slice(users, index, max_index) do |part|
-                part.assign_excess(
-                  point,
-                  available * (part.unused_input_capacity_at(point) / total_capacity)
-                )
-              end
-          end
-
-          index = max_index + 1
+          # This dispatchable is fully used. Further users should start with the next one.
+          disp_index += 1
         end
       end
 
-      initial_available - available
+      disp_index
     end
   end
 

@@ -16,18 +16,10 @@ module Merit
       # Returns a float.
       attr_reader :input_capacity_per_unit
 
-      # Public: Returns the share of excess which may be assigned.
-      #
-      # When a Flex producer belongs to a group of many other flex producers, assigning a share will
-      # limit how much excess may be assigned, so as to leave some for the other group members.
-      #
-      # Returns a float.
-      attr_reader :excess_share
-
-      # Public: The group of flexibles to which the participant optionally belongs.
-      #
-      # Returns a Symbol.
-      attr_reader :group
+      # Public: Returns a cost strategy which represents the price the technology will pay for
+      # energy in each hour. If no price was given when the technology was created, the default cost
+      # strategy is used instead.
+      attr_reader :consumption_price
 
       def initialize(opts)
         super(DEFAULTS.merge(opts))
@@ -38,10 +30,13 @@ module Merit
         @output_capacity = available_output_capacity
         @input_capacity  = available_input_capacity
 
-        raise(MissingGroup, opts[:key]) if opts[:excess_share] && !opts[:group]
+        @consumption_price = if opts[:consumption_price]
+          CostStrategy::Constant.new(self, opts[:consumption_price])
+        else
+          @cost_strategy
+        end
 
-        @excess_share = opts[:excess_share] || 1.0
-        @group = opts[:group]
+        @consume_from_dispatchables = opts.fetch(:consume_from_dispatchables, true)
       end
 
       # Public: The total input capacity of all units of this technology.
@@ -59,10 +54,22 @@ module Merit
         @input_capacity + @load_curve.get(point)
       end
 
+      # Public: Assigns energy consumption to the technology, but only when the technology is
+      # willing to pay greater than the given market price.
+      #
+      # Returns the amount of energy assigned.
+      def barter_at(point, amount, price)
+        if @consumption_price.cost_at(point) > price
+          assign_excess(point, amount)
+        else
+          0.0
+        end
+      end
+
       # Public: Stores a given amount of energy in the technology. Not all given to the technology
       # is guaranteed to be stored.
       #
-      # Returns the amount of energy which was accepted by the storage device.
+      # Returns the amount of energy which was assigned.
       def assign_excess(point, amount)
         input_cap = @input_capacity + @load_curve.get(point)
 
@@ -70,6 +77,15 @@ module Merit
         @load_curve.set(point, @load_curve.get(point) - amount)
 
         amount
+      end
+
+      def consume_from_dispatchables?
+        @consume_from_dispatchables && !infinite?
+      end
+
+      # Public: Returns the cost of the participant, based on whether it is charging or discharging.
+      def cost_at(point)
+        @load_curve[point] < 0 ? @consumption_price.cost_at(point) : super
       end
 
       # Public: Calculates the number of hours that the technology would run in if it were receiving
@@ -114,6 +130,12 @@ module Merit
         when :mwh then mwh
         else           raise "Unknown unit: #{unit}"
         end
+      end
+
+      def infinite?
+        input_capacity_per_unit == Float::INFINITY ||
+          output_capacity_per_unit == Float::INFINITY ||
+          number_of_units == Float::INFINITY
       end
 
       def flex?

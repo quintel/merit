@@ -39,3 +39,5 @@ tmp
 
 ## PROJECT::SPECIFIC
 output/*
+!examples/*.yml
+!examples/*.gz

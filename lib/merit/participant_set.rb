@@ -9,21 +9,12 @@ module Merit
 
     def_delegators :@members, :[], :length, :key?
 
-    ForCalculation =
-      Struct.new(:always_on, :dispatchables, :flex, :price_sensitive_users)
-
-    # Contains pre-defined flexibility groups.
-    #
-    # This permits setting a custom configuration for a Flex::Group. If a flexibilty participant
-    # belongs to a group which isn't defined in `flex_groups`, ParticipantSet will fall back to the
-    # default group: Flex::Group (first-come, first-served) with Sorting::Fixed.
-    attr_reader :flex_groups
+    ForCalculation = Struct.new(:always_on, :dispatchables, :flex, :price_sensitive_users)
 
     # Creates a new ParticipantSet.
     def initialize
       @members = {}
       @locked = false
-      @flex_groups = Flex::GroupSet.new
     end
 
     # Public: returns an +ordered+ Array of all the producers
@@ -60,8 +51,14 @@ module Merit
       ForCalculation.new(
         always_on,
         Sorting.by_sortable_cost(dispatchables),
-        flex,
-        Sorting.by_sortable_cost_desc(price_sensitive_users)
+        Flex::Collection.new(
+          Sorting.by_consumption_price_desc(flex),
+          cost_direction: :consumption
+        ),
+        Flex::Collection.new(
+          Sorting.by_consumption_price_desc(price_sensitive_users),
+          cost_direction: :consumption
+        ),
       )
     end
 
@@ -71,7 +68,7 @@ module Merit
     def dispatchables
       @dispatchables || begin
         dispatchables = select_participants(DispatchableProducer)
-        flexibles = flex
+          .reject { |p| p.output_capacity_per_unit.zero? }
 
         # This ensures a stable sort: that if two participants have the same cost their original
         # order will be preserved.
@@ -84,12 +81,7 @@ module Merit
         pos = 0
 
         dispatchables.sort_by! do |participant|
-          flex_index = flexibles.index(participant)
-
-          [
-            participant.cost_strategy.sortable_cost,
-            flex_index ? -flex_index : pos += 1
-          ]
+          [participant.cost_strategy.sortable_cost, pos += 1]
         end
 
         dispatchables
@@ -98,7 +90,7 @@ module Merit
 
     # Public: Returns all participants which are flexible technologies.
     def flex
-      @flex || FlexListBuilder.build(self)
+      @flex || select(&:flex?)
     end
 
     # Public: Returns all the users of energy except those which are price sensitive.
@@ -108,9 +100,13 @@ module Merit
 
     # Public: Returns users which are price sensitive.
     def price_sensitive_users
-      @price_sensitive_users ||
-        select_participants(User::PriceSensitive)
-          .sort_by { |u| -u.cost_strategy.sortable_cost }
+      @price_sensitive_users || begin
+        ps_users =
+          select_participants(User::PriceSensitive) +
+          flex.flat_map { |f| Array(f) }.select(&:consume_from_dispatchables?)
+
+        ps_users.uniq.sort_by { |u| -u.consumption_price.sortable_cost }
+      end
     end
 
     # Public: Returns all normal users, plus price-sensitive users.

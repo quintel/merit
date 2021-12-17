@@ -27,8 +27,8 @@ module Merit
       @fixed_costs_per_unit      = opts[:fixed_costs_per_unit]
       @fixed_om_costs_per_unit   = opts[:fixed_om_costs_per_unit]
 
-      @load_curve    = Curve.new(Array.new(Merit::POINTS, 0.0))
-      @cost_strategy = CostStrategy.create(self, opts)
+      @load_curve = Curve.new(Array.new(Merit::POINTS, 0.0))
+      @cost_strategy ||= CostStrategy.create(self, opts)
     end
 
     # Public: The cost for the producer to output a MW. This may be a constant, or it may vary
@@ -75,7 +75,7 @@ module Merit
     #
     # Returns a numeric.
     def load_at(point)
-      @load_curve.get(point)
+      @load_curve[point]
     end
 
     # Public: Tells you if this producer's marginal cost is a price (the final price charged to the
@@ -93,7 +93,7 @@ module Merit
     #
     # Returns the load.
     def set_load(point, amount)
-      load_curve.set(point, amount)
+      load_curve[point] = amount
     end
 
     # The full load hours are defined as the number of hours that the producer were on AS IF it were
@@ -174,11 +174,16 @@ module Merit
     end
 
     # Public: determined what the max produced load is at a point in time
+    #
+    # This method delegates to `max_production` or `available_output_capacity` whose value is cached
+    # in an instance variable. We check these variables explicitly in this method as reading them is
+    # much faster than dispatching a message; this matters as this method is called extremely
+    # frequently in real-world merit-order calculations.
     def max_load_at(point_in_time)
       if @load_profile
-        @load_profile.values[point_in_time] * max_production
+        @load_profile[point_in_time] * (@max_production || max_production)
       else
-        available_output_capacity
+        @available_output_capacity || available_output_capacity
       end
     end
 

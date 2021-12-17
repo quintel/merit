@@ -36,10 +36,10 @@ module Merit
       end
     end
 
-    # Public: Creates a Variable sorting, set up to sort the members by their sortable cost in
+    # Public: Creates a Sorting set up to order the members by their sortable marginal cost in
     # ascending order.
     #
-    # Returns a Variable.
+    # Returns a Sorting.
     def self.by_sortable_cost(collection = [])
       for_collection(
         collection,
@@ -64,6 +64,18 @@ module Merit
       )
     end
 
+    # Public: Creates a Sorting set up to order members by their sortable consumption price in
+    # ascending order.
+    def self.by_consumption_price_desc(collection = [])
+      for_collection(
+        collection,
+        Config.new(
+          ->(part, point) { -part.consumption_price.sortable_cost(point) },
+          ->(part) { part.cost_strategy.variable? }
+        )
+      )
+    end
+
     # Represents a collection of participants with no explicit order.
     #
     # Note that because collections store "seen" items in a hash, the performance of `initialize`
@@ -71,7 +83,9 @@ module Merit
     # of an object stored in the collection).
     class Unsorted
       extend Forwardable
-      def_delegators :@collection, :first, :length
+      include Enumerable
+
+      def_delegators :@collection, :each, :empty?, :first, :length
 
       def initialize(collection = [])
         @collection = collection.dup
@@ -93,6 +107,10 @@ module Merit
 
       def sortable?
         false
+      end
+
+      def empty?
+        @collection.empty?
       end
 
       def to_a

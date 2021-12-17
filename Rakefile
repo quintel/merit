@@ -34,12 +34,19 @@ namespace :console do
     exec "#{ command } -I./lib -r./lib/merit.rb"
   end
 
-  desc 'Open a pry or irb session with a stub graph on `Merit.stub`'
+  desc 'Open a pry or irb session with a stub'
   task :stub do
-    command = system("which pry > /dev/null 2>&1") ? 'pry' : 'irb'
-    exec "#{ command } -I./lib -r./lib/merit.rb -r./examples/stub.rb" \
-         " -e 'puts(\"Please hold on while running mo.calculate...\");" \
-         "mo = merit_order = Merit.stub; mo.calculate'" \
+    require 'pry'
+    require_relative 'lib/merit/examples'
+
+    print 'Loading stub data...'
+    order = Merit::Examples.load('examples/much-flex.yml.gz')
+    order.calculate
+    puts ' done.'
+
+    # rubocop:disable Lint/Debugger
+    binding.pry
+    # rubocop:enable Lint/Debugger
   end
 end
 
@@ -51,16 +58,60 @@ task console: ['console:run']
 namespace :performance do
   require 'benchmark'
   require 'merit'
-  require './examples/stub'
-  desc 'Run performance metrics for financial calculations on producers'
-  task :loads do
-    merit_order = Merit.stub
-    puts Benchmark.realtime { merit_order.calculate }
-  end
-  task :profit do
-    merit_order = Merit.stub
-    merit_order.calculate
-    puts Benchmark.realtime { merit_order.producers.map(&:profit) }
+  require 'time'
+  require_relative 'lib/merit/examples'
+
+  # Loads and runs a scenario, outputing benchmark and profile data
+  #
+  # For example:
+  #   $ be rake performance:profile PROFILE=true ITERATIONS=10 FILE=examples/much-flex.yml.gz
+  task :profile do
+    # Put any initial startup code which you don't want profiling here:
+    Merit::Curve.reader = Merit::Curve::CachingReader.new
+
+    iterations = (ENV['ITERATIONS'] || 10).to_i
+    path = ENV['FILE']
+
+    if path.nil? || path.empty?
+      raise 'You must supply a FILE=path to set up the scenario to be profiled'
+    end
+
+    print 'Loading stub data... '
+    stub = Merit::Examples.read(path)
+    puts 'done'
+
+    # Warm up.
+    Merit::Examples.build(stub).calculate
+
+    if iterations.positive?
+      print "#{iterations} iterations in ... "
+      time = Benchmark.realtime { iterations.times { Merit::Examples.build(stub).calculate } }
+      puts("#{time}s")
+    end
+
+    unless %w[0 no false off].include?(ENV['PROFILE'])
+      require 'ruby-prof'
+      print 'Profiling one run... '
+
+      order = Merit::Examples.build(stub)
+      GC.disable
+
+      RubyProf.measure_mode = RubyProf::ALLOCATIONS
+      RubyProf.start
+
+      order.calculate
+      result = RubyProf.stop
+
+      printer = RubyProf::GraphHtmlPrinter.new(result)
+      profile_name = "measurements/#{Time.now.strftime('%Y-%h-%m-%H%M-%S')}.html"
+      File.open(profile_name, 'w') do |file|
+        printer.print(file, min_percent: 0)
+      end
+
+      puts "saved to ./#{profile_name}"
+
+      GC.enable
+    end
   end
   task :reserve do
     require 'benchmark/ips'
@@ -138,77 +189,5 @@ namespace :performance do
         end
       end
     end
-    end
-end
-
-task :profile do
-  # This is a simple profiler which loads the merit library, and calculates the
-  # default example stub ten times. The stub is calculated ten times instead of
-  # one so as to give the profiler enough time to gather data.
-  #
-  # The script accepts a single argument which will be used as the name for the
-  # profiling data and PDF; supply this is you want to create a new profile for
-  # comparison with a previous run. No argument will just use "profile".
-  #
-  # The output PDF is saved to measurements/ and opened automatically.
-  #
-  # To run this script, first install the additional dependencies:
-  #
-  #   $ gem install perftools.rb term-ansicolor
-  #
-  # It can be run with the following arguments:
-  #
-  #   $ ruby measurements/profile.rb [PROFILE_NAME] [ITERATIONS]
-  #
-  # PROFILE_NAME is an optional name to which the profile results are saved, and
-  # will also be used to name the PDF. Supply a different name with each run if
-  # you want to compare results. Supplying "-" will skip creation of the PDF and
-  # simply outputs the runtime information.
-  #
-  # ITERATIONS, which defaults to 10, controls how many times to calculate the
-  # stub merit order.
-
-  ROOT = File.expand_path(File.dirname(__FILE__) + '/..')
-  $LOAD_PATH.push(ROOT + '/lib')
-
-  require 'merit'
-  require 'perftools'
-  require 'term/ansicolor'
-  require 'fileutils'
-  require_relative 'examples/stub'
-
-  if (name = ARGV[0] || 'profile').match(/\.|\s/)
-    raise 'No "." or spaces are allowed in the profile name.'
-  end
-
-  # Put any initial startup code which you don't want profiling here:
-  Merit::LoadProfile.reader = Merit::LoadProfile::CachingReader.new
-
-  puts 'Beginning profiling...'
-
-  iterations = (ARGV[1] || 10).to_i
-  started    = Time.now
-
-  PerfTools::CpuProfiler.start("measurements/#{ name }") do
-    iterations.times { Merit.stub.calculate }
-  end
-
-  duration = Time.now - started
-
-  include Term::ANSIColor
-  print green, "Finished profiling #{ iterations } calculations in ",
-        underline, "#{ duration.round(4) } seconds", reset, green,
-        " (", underline, "#{ ((duration / iterations) * 1000).round(2) } ms",
-        reset, green, " per calculation).", reset, "\n"
-
-  # Don't generate the profiling output if the user doesn't want it.
-  exit if name == '-'
-
-  system "pprof.rb --pdf measurements/#{ name } > measurements/#{ name }.pdf"
-  system "open measurements/#{ name }.pdf"
-
-  %W( #{ name } #{ name }.symbols ).each do |artifact|
-    path = ROOT + "/measurements/#{ artifact }"
-    FileUtils.rm(path) if File.exist?(path)
   end
 end

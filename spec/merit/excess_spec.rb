@@ -22,6 +22,13 @@ module Merit
         load_profile: consumption,
         total_consumption: 1
       ))
+
+      storage = FactoryBot.build(:storage)
+      allow(storage).to receive(:load_curve).and_return(
+        Curve.new([-1.0, 1.0, -1.0, 1.0])
+      )
+
+      merit_order.add(storage)
     end
 
     context 'empty curves' do

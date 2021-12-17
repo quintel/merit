@@ -5,6 +5,8 @@ require 'csv'
 require 'terminal-table'
 require 'forwardable'
 
+require 'numo/narray'
+
 module Merit
   POINTS = 8760
   MJ_IN_MWH = 3600
@@ -23,12 +25,11 @@ require_relative 'merit/curve'
 require_relative 'merit/demand_calculator'
 require_relative 'merit/order'
 require_relative 'merit/load_profile'
-require_relative 'merit/price_curves'
+require_relative 'merit/price_curve'
 require_relative 'merit/load_curve_presenter'
 require_relative 'merit/sorting'
 
 require_relative 'merit/participant_set'
-require_relative 'merit/participant_set/flex_list_builder'
 
 require_relative 'merit/participants/participant'
 require_relative 'merit/participants/producer'
@@ -41,12 +42,11 @@ require_relative 'merit/participants/user/total_consumption'
 require_relative 'merit/participants/user/with_curve'
 
 require_relative 'merit/flex/base'
-require_relative 'merit/flex/group'
 require_relative 'merit/flex/black_hole'
-require_relative 'merit/flex/cost_based_share_group'
-require_relative 'merit/flex/group_set'
+require_relative 'merit/flex/collection'
+require_relative 'merit/flex/group'
+require_relative 'merit/flex/optimizing_storage'
 require_relative 'merit/flex/reserve'
-require_relative 'merit/flex/share_group'
 require_relative 'merit/flex/simple_reserve'
 require_relative 'merit/flex/storage'
 

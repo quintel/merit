@@ -19,6 +19,25 @@ module Merit
 
     # --
 
+    describe '#unused_input_capacity_at' do
+      it 'defaults to the input capacity' do
+        expect(storage.unused_input_capacity_at(0)).to eq(10.0)
+      end
+
+      it 'accounts for energy already assigned' do
+        storage.assign_excess(0, 5.0)
+        expect(storage.unused_input_capacity_at(0)).to eq(5.0)
+      end
+
+      it 'accounts for remaining volume' do
+        storage.assign_excess(0, 5.0)
+        storage.reserve.add(0, 2.5) # Add another 2.5 to the reserve, as if from a prior hour.
+        expect(storage.unused_input_capacity_at(0)).to eq(2.5)
+      end
+    end
+
+    # --
+
     describe 'max_load_at' do
       context 'when empty' do
         it 'returns zero' do

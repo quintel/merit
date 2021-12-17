@@ -33,6 +33,10 @@ module Merit
 
     private
 
+    def production
+      CurveTools.add_curves(@order.participants.always_on.map(&:load_curve))
+    end
+
     def over_producing
       ->(point) { point > 1e-5 }
     end
