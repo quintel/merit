@@ -23,6 +23,10 @@ module Merit
       })
     end
 
+    include_examples 'a producer' do
+      let(:producer) { ic }
+    end
+
     # --------------------------------------------------------------------------
 
     describe '#initialze' do

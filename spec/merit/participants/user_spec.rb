@@ -23,6 +23,10 @@ module Merit
       ))
     end
 
+    include_examples 'a user' do
+      let(:user) { tc_user(total_consumption: 1) }
+    end
+
     describe '#load_curve' do
       let(:user) { tc_user(total_consumption: 300 * 10**9) }
 
@@ -61,6 +65,10 @@ module Merit
     end
 
     let(:user) { User.create(key: :with_curve, load_curve: curve) }
+
+    include_examples 'a user' do
+      let(:user) { User.create(key: :with_curve, load_curve: curve) }
+    end
 
     describe '#load_curve' do
       it 'returns the load curve we provided' do

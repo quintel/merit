@@ -39,6 +39,18 @@ module Merit
       !always_on?
     end
 
+    # Public: Returns whether this participant is a user. Note that flexible technologies can
+    # consume energy, but are not classed as users.
+    def user?
+      is_a?(Merit::User)
+    end
+
+    # Public: Returns whether this participant is a producer. Note that flexible technologies can
+    # produce energy, but are not classed as producers.
+    def producer?
+      !user? && !flex?
+    end
+
     # Public: Is this participant a flexible technology.
     #
     # Flexible technologies receive excess energy from always-on production.

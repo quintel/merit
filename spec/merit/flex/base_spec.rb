@@ -13,6 +13,10 @@ module Merit
       }
     end
 
+    include_examples 'a flex' do
+      let(:flex) { described_class.new(attrs) }
+    end
+
     describe '#consumption_price' do
       context 'without a production_price attribute' do
         let(:flex) { described_class.new(attrs.merge(marginal_costs: 10.0)) }

@@ -17,6 +17,10 @@ module Merit
 
     let(:storage) { described_class.new(attrs) }
 
+    include_examples 'a flex' do
+      let(:flex) { described_class.new(attrs) }
+    end
+
     # --
 
     describe '#unused_input_capacity_at' do

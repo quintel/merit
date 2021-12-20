@@ -18,6 +18,22 @@ module Merit
       )
     end
 
+    include_examples 'a producer' do
+      let(:producer) do
+        described_class.new(
+          key: :foo,
+          marginal_costs: 11.1,
+          output_capacity_per_unit: 1,
+          number_of_units: 5,
+          availability: 0.95,
+          fixed_costs_per_unit: 222.9245208,
+          fixed_om_costs_per_unit: 35.775,
+          load_profile: LoadProfile.new([0.05]),
+          full_load_hours: 1050
+        )
+      end
+    end
+
     describe '#new' do
       it 'remembers (more attributes than basic participants)' do
         expect(producer.key).to be(:foo)

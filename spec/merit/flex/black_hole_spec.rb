@@ -16,6 +16,10 @@ module Merit
 
     let(:bh) { described_class.new(attrs) }
 
+    include_examples 'a flex' do
+      let(:flex) { described_class.new(attrs) }
+    end
+
     describe 'cost strategy' do
       it 'is a custom strategy' do
         expect(bh.cost_strategy).to be_a(Merit::Flex::BlackHole::CostStrategy)

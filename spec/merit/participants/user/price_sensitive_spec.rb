@@ -116,6 +116,19 @@ RSpec.describe Merit::User::PriceSensitive do
 
   let(:price_curve) { [5.0, 10.0] }
 
+  include_examples 'a flex' do
+    let(:flex) do
+      described_class.new(
+        Merit::User.create(
+          key: :a,
+          total_consumption: 1.0,
+          load_profile: Merit::Curve.new([1.0, 2.0] * 4380)
+        ),
+        Merit::CostStrategy::FromCurve.new(nil, Merit::Curve.new(price_curve))
+      )
+    end
+  end
+
   describe 'wrapping a TotalConsumption' do
     let(:user) do
       Merit::User.create(

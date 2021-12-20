@@ -107,6 +107,14 @@ module Merit
         true
       end
 
+      def user?
+        false
+      end
+
+      def producer?
+        false
+      end
+
       # Public: Price-sensitives consume at the same price as they produce.
       #
       # Returns a CostStrategy.

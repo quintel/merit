@@ -24,6 +24,10 @@ module Merit
       end
     end
 
+    include_examples 'a producer' do
+      let(:producer) { described_class.new(attrs) }
+    end
+
     describe '#new' do
       it 'does not raise an error when all the attributes are there' do
         expect(-> { described_class.new(attrs) }).not_to(raise_error)
