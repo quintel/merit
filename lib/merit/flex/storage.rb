@@ -26,6 +26,8 @@ module Merit
       end
 
       def assign_excess(point, amount)
+        return 0.0 if @load_curve.get(point).positive?
+
         input_cap = @input_capacity + @load_curve.get(point)
 
         amount  = amount > input_cap ? input_cap : amount

@@ -827,7 +827,7 @@ RSpec.describe 'Calculation of price-sensitive demands' do
     end
 
     # Storage may discharge an hour after inputting.
-    xcontext 'when calculating the second hour' do
+    context 'when calculating the second hour' do
       it 'sets demand of 1 on the first user' do
         expect(ps_flex.load_at(1)).to eq(-1)
       end
@@ -849,7 +849,7 @@ RSpec.describe 'Calculation of price-sensitive demands' do
   # The price-sensitives want at most 10 each and the storage has 25 stored. Assert that the storage
   # may be discharged to meet the needs of the users, while correctly setting the new load on the
   # technology.
-  xcontext 'with two low-capacity users and a Flex::Storage with a load of -25' do
+  context 'with two low-capacity users and a Flex::Storage with a load of -25' do
     let(:storage) do
       FactoryBot.build(
         :storage,

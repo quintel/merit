@@ -245,6 +245,10 @@ module Merit
 
           # We've filled up all the users; any further dispatchables are unused.
           break
+        elsif available.zero?
+          # Check positive? because storage may return a negative load. We don't want to assign
+          # anything in that case.
+          disp_index += 1
         else
           # Producer is at max capacity.
           dispatchable.set_load(point, dispatchable.load_at(point) + available)
