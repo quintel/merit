@@ -46,6 +46,7 @@ module Merit
           super
 
           @limiting_curve = opts.fetch(:limiting_curve)
+          @deficit_capacity = [opts[:deficit_capacity] || Float::INFINITY, 0].max
           @deficit = 0.0
         end
 
@@ -63,7 +64,13 @@ module Merit
           # Can't output if the participant already has input.
           return 0.0 if current.negative? || mandatory_input_at(point).positive?
 
-          [@output_capacity, @limiting_curve[point]].compact.min - current
+          headroom = [
+            @deficit_capacity - @deficit,
+            @output_capacity,
+            @limiting_curve[point]
+          ].min
+
+          headroom - current
         end
 
         alias_method :max_load_at, :available_at

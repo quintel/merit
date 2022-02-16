@@ -4,13 +4,15 @@ require 'spec_helper'
 
 RSpec.describe Merit::Flex::LoadShifting::Flexible do
   let(:limiting_curve) { [1.0] * 8760 }
+  let(:deficit_capacity) { nil }
 
   let(:part) do
     described_class.new(
       FactoryBot.attributes_for(:dispatchable).merge(
         key: :load_shaving,
         output_capacity_per_unit: 1.0,
-        limiting_curve: limiting_curve
+        limiting_curve: limiting_curve,
+        deficit_capacity: deficit_capacity
       )
     )
   end
@@ -158,6 +160,42 @@ RSpec.describe Merit::Flex::LoadShifting::Flexible do
       it 'has nothing available for output' do
         assign
         expect(part.available_at(1)).to eq(0)
+      end
+    end
+  end
+
+  context 'with a deficit cap of 0.5' do
+    let(:deficit_capacity) { 0.5 }
+
+    context 'when the participant has no deficit' do
+      it 'has 0.5 available for output' do
+        expect(part.available_at(1)).to eq(0.5)
+      end
+    end
+
+    context 'when the participant has a deficit of 0.2' do
+      before { part.set_load(0, 0.2) }
+
+      it 'has 0.3 available for output' do
+        expect(part.available_at(1)).to eq(0.3)
+      end
+    end
+
+    context 'when the participant has a deficit of 0.5' do
+      before { part.set_load(0, 0.5) }
+
+      it 'has 0 available for output' do
+        expect(part.available_at(1)).to eq(0)
+      end
+    end
+  end
+
+  context 'with a deficit cap of -1' do
+    let(:deficit_capacity) { -1 }
+
+    context 'when the participant has no deficit' do
+      it 'has 0 available for output' do
+        expect(part.available_at(0)).to eq(0)
       end
     end
   end
