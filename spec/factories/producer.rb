@@ -39,5 +39,12 @@ FactoryBot.define do
 
       sequence(:key) { |n| :"dispatchable_#{n}" }
     end
+
+    factory :variable_dispatchable, class: 'Merit::VariableDispatchableProducer' do
+      initialize_with { Merit::VariableDispatchableProducer.new(attributes) }
+
+      sequence(:key) { |n| :"variable_dispatchable_#{n}" }
+      availability { [1.0] * 8760 }
+    end
   end
 end

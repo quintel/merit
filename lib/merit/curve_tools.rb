@@ -50,6 +50,27 @@ module Merit
         end
       end
 
+      # Given an something expected to look like an availability curve, returns an array that
+      # describes the availability of the of the participant in each hour.
+      #
+      # Ensures that the given value is an array of the correct length and clamps each value to be
+      # between 0 and 1.
+      #
+      # Returns an Array.
+      def availability_curve(from)
+        return [from.clamp(0.0, 1.0)] * Merit::POINTS if from.is_a?(Numeric)
+
+        unless from.length == Merit::POINTS
+          raise(
+            ArgumentError,
+            "availability curve must have #{Merit::POINTS} elements (got #{from.length})"
+          )
+        end
+
+        from.map { |value| value.clamp(0.0, 1.0) }
+      end
+
+
       private
 
       # Internal: Adds an arbitrary number of curves together using the largest available adder

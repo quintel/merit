@@ -23,5 +23,9 @@ FactoryBot.define do
     factory :black_hole, class: 'Merit::Flex::BlackHole' do
       initialize_with { Merit::Flex::BlackHole.new(attributes) }
     end
+
+    factory :variable_consumer, class: 'Merit::Flex::VariableConsumer' do
+      initialize_with { Merit::Flex::VariableConsumer.new(attributes) }
+    end
   end
 end
