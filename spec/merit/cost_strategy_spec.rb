@@ -153,6 +153,11 @@ module Merit
           it 'calculates the marginal cost per MWh' do
             expect(strategy.marginal_cost).to eq(100.0)
           end
+
+          it 'returns the average cost if the participant has no load' do
+            allow(producer).to receive(:load_curve).and_return(Merit::Curve.new([0.0] * 8760))
+            expect(strategy.marginal_cost).to eq(price.sum / price.length)
+          end
         end
 
         describe '#sortable_cost' do

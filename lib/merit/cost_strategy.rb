@@ -165,7 +165,11 @@ module Merit
       end
 
       def marginal_cost
-        variable_cost / @producer.production(:mwh)
+        if @producer.production(:mwh).zero?
+          @curve.sum / @curve.length
+        else
+          variable_cost / @producer.production(:mwh)
+        end
       end
 
       def variable_cost
