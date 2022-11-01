@@ -64,13 +64,10 @@ module Merit
           # Can't output if the participant already has input.
           return 0.0 if current.negative? || mandatory_input_at(point).positive?
 
-          headroom = [
-            @deficit_capacity - @deficit,
-            @output_capacity,
-            @limiting_curve[point]
-          ].min
+          headroom = [@output_capacity, @limiting_curve[point]].min
+          available = [headroom - current, 0.0].max
 
-          headroom - current
+          [@deficit_capacity - @deficit, available].min
         end
 
         alias_method :max_load_at, :available_at

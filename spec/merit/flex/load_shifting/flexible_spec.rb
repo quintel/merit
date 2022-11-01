@@ -200,6 +200,18 @@ RSpec.describe Merit::Flex::LoadShifting::Flexible do
     end
   end
 
+  context 'with deficit cap of 1.0' do
+    let(:deficit_capacity) { 1.0 }
+
+    context 'when outputting 1.0 in hour 0' do
+      before { part.set_load(0, 1.0) }
+
+      it 'works' do
+        expect(part.available_at(0)).to eq(0)
+      end
+    end
+  end
+
   # Asserts that assigning load does not increase deficit.
   context 'when setting output to 0.5 twice in hour 0' do
     before do
