@@ -99,7 +99,11 @@ module Merit
     #
     # Returns a Merit::Blackout
     def blackout
-      Blackout.new(self)
+      Blackout.new(net_load)
+    end
+
+    def net_load
+      @net_load ||= NetLoad.new(self).net_load
     end
 
     # Public: adds a participant to this order

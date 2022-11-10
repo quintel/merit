@@ -10,6 +10,7 @@ module Merit
       super([], Merit::POINTS, nil)
 
       @dispatchables = Sorting.by_sortable_cost(order.participants.dispatchables)
+      @net_load = order.net_load
 
       @price_sensitives =
         Sorting.by_consumption_price_desc(order.participants.price_sensitive_users)
@@ -132,25 +133,7 @@ module Merit
     end
 
     def deficit?(point)
-      last_producer = last_available_dispatchable(point)
-      #last_producer = @dispatchables.at_point(point).last
-
-      return false if last_producer.nil?
-
-      d = last_producer.load_at(point) == last_producer.max_load_at(point)
-
-      if d && point == 33
-        count = @dispatchables.at_point(point).count do |d|
-          d.max_load_at(point).round > d.load_at(point).round && !d.key.to_s.include?('load_shifting')
-        end
-
-        if count > 0
-          # puts [point, count].inspect
-          binding.pry
-        end
-      end
-
-      d
+      @net_load[point] < -1e-5
     end
 
     # Internal: Returns the most expensive dispatchable which has non-zero possible load at the

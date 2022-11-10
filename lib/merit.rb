@@ -55,6 +55,7 @@ require_relative 'merit/flex/variable_consumer'
 
 require_relative 'merit/lole'
 require_relative 'merit/net_load_helper'
+require_relative 'merit/net_load'
 require_relative 'merit/excess'
 require_relative 'merit/blackout'
 

@@ -82,6 +82,8 @@ describe Merit::PriceCurve do
     order.add(producer_two)
     order.add(producer_three)
 
+    allow(order).to receive(:net_load).and_return([1] * 8760)
+
     order
   end
 
@@ -308,6 +310,8 @@ describe Merit::PriceCurve do
         producer_three.load_curve.set(10, 1.0)
         ps_one.assign_excess(10, 1.0)
         ps_two.assign_excess(10, 1.0)
+
+        allow(order).to receive(:net_load).and_return([-1] * 8760)
       end
 
       it 'sets deficit to be price-setting' do
