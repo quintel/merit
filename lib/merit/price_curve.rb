@@ -18,10 +18,7 @@ module Merit
       @inflex_producer_marker = inflexible_production_marker(order)
 
       # Ensure the fallback price is not lower than the most expensive dispatchable.
-      @fallback_price = [
-        order.participants.dispatchables.last&.cost_strategy&.sortable_cost(nil) || 0.0,
-        fallback_price || 3000.0
-      ].max
+      @fallback_price = [fallback_price || 3000.0].max
     end
 
     # Public: Gets the price for the given point in the year.
@@ -42,9 +39,18 @@ module Merit
     # Returns the numeric price.
     def set(point, producer)
       case producer
-      when :deficit, nil then super(point, @fallback_price)
-      when :surplus      then super(point, 0.0)
-      else                    super(point, producer.cost_at(point))
+      when :deficit, nil
+        super(
+          point,
+          [
+            @fallback_price,
+            last_available_dispatchable(point)&.cost_strategy&.cost_at(point)
+          ].compact.max
+        )
+      when :surplus
+        super(point, 0.0)
+      else
+        super(point, producer.cost_at(point))
       end
     end
 
@@ -126,8 +132,39 @@ module Merit
     end
 
     def deficit?(point)
-      last_producer = @dispatchables.at_point(point).last
-      last_producer.load_at(point) == last_producer.max_load_at(point)
+      last_producer = last_available_dispatchable(point)
+      #last_producer = @dispatchables.at_point(point).last
+
+      return false if last_producer.nil?
+
+      d = last_producer.load_at(point) == last_producer.max_load_at(point)
+
+      if d && point == 33
+        count = @dispatchables.at_point(point).count do |d|
+          d.max_load_at(point).round > d.load_at(point).round && !d.key.to_s.include?('load_shifting')
+        end
+
+        if count > 0
+          # puts [point, count].inspect
+          binding.pry
+        end
+      end
+
+      d
+    end
+
+    # Internal: Returns the most expensive dispatchable which has non-zero possible load at the
+    # given point.
+    #
+    # Returns a Producer or nil if no dispatchables are available.
+    def last_available_dispatchable(point)
+      dispatchables = @dispatchables.at_point(point)
+
+      dispatchables.reverse_each do |producer|
+        return producer if producer.max_load_at(point).positive?
+      end
+
+      nil
     end
 
     # When the merit order contains one or more inflexible consumers which are allowed to set a
