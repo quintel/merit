@@ -27,5 +27,10 @@ FactoryBot.define do
     factory :variable_consumer, class: 'Merit::Flex::VariableConsumer' do
       initialize_with { Merit::Flex::VariableConsumer.new(attributes) }
     end
+
+    factory :export do
+      consume_from_dispatchables { true }
+      output_capacity_per_unit { 0.0 }
+    end
   end
 end
