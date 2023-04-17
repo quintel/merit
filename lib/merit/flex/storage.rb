@@ -45,7 +45,9 @@ module Merit
         return 0.0 if @load_curve.get(point).negative?
 
         in_reserve = @reserve.at(point) * @output_efficiency
-        in_reserve > @output_capacity ? @output_capacity : in_reserve
+        output_capacity_left = @output_capacity - @load_curve.get(point)
+
+        in_reserve > output_capacity_left ? output_capacity_left : in_reserve
       end
 
       # Public: Assigns the load to the storage technology and retains the energy in the reserve for
