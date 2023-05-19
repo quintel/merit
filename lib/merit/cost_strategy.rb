@@ -2,7 +2,7 @@
 
 module Merit
   # Contains classes which know how to calculate the cost of a producer. Each strategy should
-  # implement at least one method: "marginal_cost". This accetps an optional "point" argument
+  # implement at least one method: "marginal_cost". This accepts an optional "point" argument
   # telling it for which hour in the year we want to calculate the cost.
   #
   # An optional "sortable_cost" method, with the same signature, is used to sort producers prior to
