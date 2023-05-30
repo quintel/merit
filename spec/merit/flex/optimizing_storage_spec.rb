@@ -125,7 +125,7 @@ RSpec.describe Merit::Flex::OptimizingStorage do
           output_capacity: 1000,
           input_capacity: 1000,
           volume: 5_000,
-          roundtrip_efficiency: 0.8
+          output_efficiency: 0.8
         )
       end
 
@@ -152,7 +152,7 @@ RSpec.describe Merit::Flex::OptimizingStorage do
           output_capacity: 1000,
           input_capacity: 2000,
           volume: 10_000,
-          roundtrip_efficiency: 0.75
+          output_efficiency: 0.75
         )
       end
 
@@ -179,7 +179,7 @@ RSpec.describe Merit::Flex::OptimizingStorage do
           output_capacity: 1000,
           input_capacity: 1000,
           volume: 10_000,
-          roundtrip_efficiency: 1.25
+          output_efficiency: 1.25
         )
       end
 
@@ -206,7 +206,7 @@ RSpec.describe Merit::Flex::OptimizingStorage do
           output_capacity: output_capacity,
           input_capacity: 1000,
           volume: 10_000,
-          roundtrip_efficiency: 0.75
+          output_efficiency: 0.75
         )
       end
 
