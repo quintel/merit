@@ -1,0 +1,28 @@
+version: v1.0
+name: Test Merit
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu2004
+blocks:
+  - name: RSpec
+    task:
+      jobs:
+        - name: Test
+          commands:
+            - checkout
+            - sem-version ruby $RUBY_VERSION
+            - gem install bundler -v ">= 2.0"
+            - bundle install
+            - bundle exec rspec --format RspecJunitFormatter --out junit.xml --format progress
+          matrix:
+            - env_var: RUBY_VERSION
+              values:
+                - 2.7.5
+                - 3.1.1
+      secrets:
+        - name: Atlas
+      epilogue:
+        always:
+          commands:
+            - test-results publish junit.xml
