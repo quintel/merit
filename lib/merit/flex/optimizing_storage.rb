@@ -95,7 +95,7 @@ module Merit
 
         # Contains all hours where there is room to discharge, sorted in ascending order (hour of
         # largest value is last).
-        charge_frames = frames.select { |f| discharging_target[f.index].positive? }.sort_by(&:value)
+        charge_frames = frames.select { |f| discharging_target[f.index].positive? }.sort_by{ |f| [f.value, f.index] }
 
         # Keeps track of how much energy is stored in each hour.
         reserve = Numo::DFloat.zeros(data.length)
@@ -110,6 +110,8 @@ module Merit
           next if available_output_energy.zero?
 
           # Only charge from an hour whose value is 95% or less than the max frame value.
+          # This effectively ensures that a discharge hour will not be matched to a charge 
+          # hour of roughly the same value.
           desired_low = max_frame.value * 0.95
 
           # Contains the hour within the lookbehind period with the minimum value.
