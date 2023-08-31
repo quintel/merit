@@ -117,6 +117,116 @@ RSpec.describe Merit::Flex::OptimizingStorage do
       end
     end
 
+    context 'with [3000, 10000, ..., 5000, ...], input capacity 1000, ' \
+            'output capacity 1000, volume 10000, output efficiency 0.8' do
+      let(:reserve) do
+        described_class.run(
+          (([15_000] * 5 + [30_000]) + ([5_000] * 6 )) * 7,
+          output_capacity: 1000,
+          input_capacity: 1000,
+          volume: 5_000,
+          output_efficiency: 0.8
+        )
+      end
+
+      it 'allows up to 1000 hourly discharging' do
+        slice = reserve.to_a
+        deltas = slice.map.with_index { |value, index| value - reserve[index - 1] }
+
+        expect(deltas.min.round(2)).to eq((-1000 / 0.8).round(2))
+      end
+
+      it 'allows up to 1000 hourly charging' do
+        slice = reserve.to_a
+        deltas = slice.map.with_index { |value, index| value - reserve[index - 1] }
+
+        expect(deltas.max.round(2)).to eq(1000)
+      end
+    end
+
+    context 'with [3000, 10000, ..., 5000, ...], input capacity 2000, ' \
+            'output capacity 1000, volume 10000, output efficiency 0.75' do
+      let(:reserve) do
+        described_class.run(
+          (([3_000] + [10_000] * 5) + [5000] * 6) * 365,
+          output_capacity: 1000,
+          input_capacity: 2000,
+          volume: 10_000,
+          output_efficiency: 0.75
+        )
+      end
+
+      it 'allows up to 1000 hourly discharging' do
+        slice = reserve.to_a[0...24]
+        deltas = slice.map.with_index { |value, index| value - reserve[index - 1] }
+
+        expect(deltas.min.round(2)).to eq((-1000 / 0.75).round(2))
+      end
+
+      it 'allows up to 2000 hourly charging' do
+        slice = reserve.to_a[0...24]
+        deltas = slice.map.with_index { |value, index| value - reserve[index - 1] }
+
+        expect(deltas.max.round(2)).to eq(2000)
+      end
+    end
+
+    context 'with [3000, 10000, ..., 5000, ...], input capacity 2000, ' \
+            'output capacity 1000, volume 10000, output efficiency 1.25' do
+      let(:reserve) do
+        described_class.run(
+          (([3_000] + [10_000] * 5) + [5000] * 6) * 365,
+          output_capacity: 1000,
+          input_capacity: 1000,
+          volume: 10_000,
+          output_efficiency: 1.25
+        )
+      end
+
+      it 'allows up to 1000 hourly discharging' do
+        slice = reserve.to_a[0...24]
+        deltas = slice.map.with_index { |value, index| value - reserve[index - 1] }
+
+        expect(deltas.min.round(2)).to eq((-1000 / 1.25).round(2))
+      end
+
+      it 'allows up to 1000 hourly charging' do
+        slice = reserve.to_a[0...24]
+        deltas = slice.map.with_index { |value, index| value - reserve[index - 1] }
+
+        expect(deltas.max.round(2)).to eq(1000)
+      end
+    end
+
+    context 'with [12000, 10000, ..., 5000, ...], input capacity 1000, ' \
+            'output capacity 2000, volume 10000, output efficiency 0.75' do
+      let(:reserve) do
+        described_class.run(
+          (([12_000] + [10_000] * 5) + [5000] * 6) * 365,
+          output_capacity: output_capacity,
+          input_capacity: 1000,
+          volume: 10_000,
+          output_efficiency: 0.75
+        )
+      end
+
+      let(:output_capacity) { 2000 }
+
+      it 'allows up to 2000 hourly discharging' do
+        slice = reserve.to_a
+        deltas = slice.map.with_index { |value, index| value - reserve[index - 1] }
+
+        expect(deltas.min.round(2)).to eq((-output_capacity / 0.75).round(2))
+      end
+
+      it 'allows up to 1000 hourly charging' do
+        slice = reserve.to_a[0...24]
+        deltas = slice.map.with_index { |value, index| value - reserve[index - 1] }
+
+        expect(deltas.max.round(2)).to eq(1000)
+      end
+    end
+
     context 'with [3000, 10000, ..., 5000, ...], input capacity 2000, ' \
             'output capacity 1000, volume 10000' do
       let(:reserve) do

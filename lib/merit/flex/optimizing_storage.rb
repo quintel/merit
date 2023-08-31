@@ -85,8 +85,6 @@ module Merit
         lookbehind: 72,
         output_efficiency: 1.0
       )
-        input_efficiency, output_efficiency = normalized_efficiencies(output_efficiency)
-
         # Creates curves which describe the maximum amount by which the battery can charge or
         # discharge in each hour.
         charging_target = build_target(charging_limit, input_capacity, data.length)
@@ -97,7 +95,7 @@ module Merit
 
         # Contains all hours where there is room to discharge, sorted in ascending order (hour of
         # largest value is last).
-        charge_frames = frames.select { |f| discharging_target[f.index].positive? }.sort_by(&:value)
+        charge_frames = frames.select { |f| discharging_target[f.index].positive? }.sort_by{ |f| [f.value, f.index] }
 
         # Keeps track of how much energy is stored in each hour.
         reserve = Numo::DFloat.zeros(data.length)
@@ -105,14 +103,15 @@ module Merit
         while charge_frames.length.positive?
           max_frame = charge_frames.pop
 
-          # Eventually will contain the amount of energy to be charged in the min frame and
-          # discharged at the max frame.
-          available_energy = discharging_target[max_frame.index]
+          # Eventually will contain the amount of energy to be discharged at the max frame.
+          available_output_energy = discharging_target[max_frame.index]
 
           # The frame cannot be discharged any further.
-          next if available_energy.zero?
+          next if available_output_energy.zero?
 
           # Only charge from an hour whose value is 95% or less than the max frame value.
+          # This effectively ensures that a discharge hour will not be matched to a charge 
+          # hour of roughly the same value.
           desired_low = max_frame.value * 0.95
 
           # Contains the hour within the lookbehind period with the minimum value.
@@ -126,10 +125,13 @@ module Merit
 
             current = frames[min_index]
 
-            # Limit charging by the remaining volume in the frame.
-            available_energy = [volume - reserve[min_index], available_energy].min
+            # Limit charging by the remaining volume in the frame, combined with the
+            # efficiency to ensure we have enough in reserve to account for the losses.
+            available_output_energy = [
+              (volume - reserve[min_index]) * output_efficiency,
+              available_output_energy].min
 
-            next unless available_energy.positive? &&
+            next unless available_output_energy.positive? &&
               charging_target[current.index].positive? &&
               (!min_frame || current.value < min_frame.value) &&
               current.value < desired_low
@@ -141,37 +143,36 @@ module Merit
           # on the max frame.
           next if min_frame.nil?
 
-          # The amount of energy to be charged in the min frame and discharged at the max frame.
+          # Limit discharging by input capacity left for charging
+          available_output_energy = [
+            (charging_target[min_frame.index] * output_efficiency),
+            available_output_energy].min
+
+          # The amount of energy to be discharged at the max frame.
           # Limited to 1/4 of the difference in order to assign frames back on to the stack to so
           # that their energy may be more fairly shared with other nearby frames.
-          available_energy = [charging_target[min_frame.index], available_energy].min
+          available_output_energy = [(max_frame.value - min_frame.value) / 4, available_output_energy].min
 
-          # The amount of energy to be charged in the min frame and discharged at the max frame.
-          # Limited to 1/4 of the difference in order to assign frames back on to the stack to so
-          # that their energy may be more fairly shared with other nearby frames.
-          available_energy = [(max_frame.value - min_frame.value) / 4, available_energy].min
+          next if available_output_energy < 1e-5
 
-          next if available_energy < 1e-5
+          input_energy = available_output_energy / output_efficiency
 
           # Add the charge and discharge to the reserve.
           if min_frame.index > max_frame.index
             # Wrapped from end of the year to the beginning
-            reserve[min_frame.index..-1] += available_energy
-            reserve[0...max_frame.index] += available_energy if max_frame.index.positive?
+            reserve[min_frame.index..-1] += input_energy
+            reserve[0...max_frame.index] += input_energy if max_frame.index.positive?
           else
-            reserve[min_frame.index...max_frame.index] += available_energy
+            reserve[min_frame.index...max_frame.index] += input_energy
           end
 
-          input_energy = available_energy * input_efficiency
-          output_energy = available_energy * output_efficiency
-
           min_frame.value += input_energy
-          max_frame.value -= output_energy
+          max_frame.value -= available_output_energy
 
           charging_target[min_frame.index] -= input_energy
           discharging_target[min_frame.index] = 0 # Frame is no longer allowed to discharge.
 
-          discharging_target[max_frame.index] -= output_energy
+          discharging_target[max_frame.index] -= available_output_energy
           charging_target[max_frame.index] = 0 # Frame is no longer allowed to charge.
 
           next unless discharging_target[max_frame.index].positive?
@@ -187,22 +188,6 @@ module Merit
         end
 
         reserve
-      end
-
-      # Determines the input and output efficiency of a battery based on a given output efficiency.
-      #
-      # The simulation of energy stored in the battery assumes energy in equals energy out. To
-      # adjust the residual load curve currently, we have to account for the output efficiency of
-      # the battery. This is done either by lowering the amount of energy discharged when the
-      # efficiency is lower than 1.0, or lowering the charge amount when greater than 1.0.
-      #
-      # Returns an array containing the input and output efficiencies.
-      def self.normalized_efficiencies(output_efficiency)
-        if output_efficiency > 1.0
-          [1.0 / output_efficiency, 1.0]
-        else
-          [1.0, output_efficiency]
-        end
       end
 
       # Builds a target curve for the battery to charge or discharge, limited by the given capacity.
