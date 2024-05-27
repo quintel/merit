@@ -72,7 +72,6 @@ module Merit
       # Returns the amount of energy which was assigned.
       def assign_excess(point, amount)
         input_cap = @input_capacity + @load_curve.get(point)
-
         amount = amount > input_cap ? input_cap : amount
         @load_curve.set(point, @load_curve.get(point) - amount)
 
