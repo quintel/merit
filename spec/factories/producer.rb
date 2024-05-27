@@ -46,5 +46,13 @@ FactoryBot.define do
       sequence(:key) { |n| :"variable_dispatchable_#{n}" }
       availability { [1.0] * 8760 }
     end
+
+    factory :constrained_volatile_producer, class: 'Merit::ConstrainedVolatileProducer' do
+      initialize_with { Merit::ConstrainedVolatileProducer.new(attributes) }
+
+      sequence(:key) { |n| :"constrained_volatile_producer_#{n}" }
+
+      load_profile { Merit::Curve.new([1.0 / 8760 / 3600] * Merit::POINTS) }
+    end
   end
 end

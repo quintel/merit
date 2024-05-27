@@ -13,6 +13,20 @@ module Merit
     end
   end
 
+  # A producer whose output is fixed, but part of production is constrained by
+  # external factors
+  class ConstrainedVolatileProducer < VolatileProducer
+    def initialize(opts)
+      super
+      @constraint = opts[:constraint]
+    end
+
+    def max_load_at(point)
+      amount = super
+      @constraint.call(point, amount).clamp(0.0, amount)
+    end
+  end
+
   # A producer whose output is fixed.
   class MustRunProducer < Producer
     def initialize(opts)
