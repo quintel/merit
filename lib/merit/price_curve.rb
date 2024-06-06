@@ -102,7 +102,7 @@ module Merit
 
       collection = @price_sensitives.at_point(point)
 
-      index = collection.rindex { |ps| ps.load_at(point).negative? }
+      index = collection.rindex { |ps| ps.load_at(point).negative? && ps.price_setting?(point) }
       user = collection[index] if index
 
       if user.nil? && @inflex_consumer_marker&.active_at?(point)
