@@ -140,6 +140,10 @@ module Merit
       def flex?
         true
       end
+
+      def price_setting?(point)
+        true
+      end
     end
   end
 end
