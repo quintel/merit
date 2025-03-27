@@ -3,7 +3,7 @@
 module Merit
   class PriceCurve < Curve
     # When a merit order contains optimized storage, the loads of these batteries are represented
-    # with always-on producers and curve-based producers. These are not normally price-setting and
+    # with always-on producers and curve-based consumers. These are not normally price-setting and
     # don't have an explicit price of their own. Rather, they should compete with the marginal
     # producer or consumer.
     #
