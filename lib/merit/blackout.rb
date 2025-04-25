@@ -24,8 +24,8 @@ module Merit
 
     # Peak hourly shortfall (the largest single-hour deficit)
     def peak
-      worst = @net_load.min                # most negative value
-      worst < -EPSILON ? -worst : 0.0      # if it’s a deficit, flip sign; otherwise return zero
+      minimum = @net_load.min                # most negative value
+      minimum < -EPSILON ? -minimum : 0.0      # if it’s a deficit, flip sign; otherwise return zero
     end
   end
 end
