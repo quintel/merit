@@ -18,14 +18,14 @@ module Merit
     # Total volume of shortfall (sum of all deficits)
     def volume
       @net_load
-        .select { |val| val < -EPSILON }    # only deficit hours
-        .sum     { |val| -val }             # flip sign and sum
+        .select { |val| val < -EPSILON } # only deficit hours
+        .sum { |val| -val } # flip sign and sum
     end
 
     # Peak hourly shortfall (the largest single-hour deficit)
     def peak
-      minimum = @net_load.min                # most negative value
-      minimum < -EPSILON ? -minimum : 0.0      # if it’s a deficit, flip sign; otherwise return zero
+      minimum = @net_load.min # most negative value
+      minimum < -EPSILON ? -minimum : 0.0 # if it’s a deficit, flip sign; otherwise return zero
     end
   end
 end
