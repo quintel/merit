@@ -6,6 +6,7 @@ module Merit
   class Participant
     attr_reader   :key, :load_profile
     attr_accessor :order
+    include Profitable
 
     # Public: creates a new participant
     #

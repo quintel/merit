@@ -60,6 +60,14 @@ module Merit
       fixed_om_costs_per_unit * number_of_units
     end
 
+    # Returns the operating costs per MWh produced
+    def operating_costs_per_mwh
+      production_mwh = production(:mwh)
+      return nil if production_mwh.zero?
+
+      operating_costs / production_mwh
+    end
+
     # Returns the profits per MWh produced
     def profit_per_mwh_electricity
       production_mwh = production(:mwh)
