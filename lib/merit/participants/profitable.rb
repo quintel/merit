@@ -67,5 +67,13 @@ module Merit
 
       profit / production_mwh
     end
+
+    # Returns the revenue per MWh of electricity produced.
+    def revenue_hourly_electricity_per_mwh
+      production_mwh = production(:mwh)
+      return nil if production_mwh.zero?
+
+      revenue / production_mwh
+    end
   end
 end
