@@ -4,21 +4,37 @@ module Merit
   # A participant is a plant or technology that participates in in the Merit Order, such as a coal
   # power plant, a wind turbine or a CHP.
   class Participant
-    attr_reader   :key, :load_profile
+    attr_reader :key,
+            :load_profile,
+            :fixed_costs_per_unit,
+            :fixed_om_costs_per_unit,
+            :cost_strategy,
+            :output_capacity_per_unit,
+            :availability,
+            :number_of_units
+
     attr_accessor :order
     include Profitable
 
+    # TODO re-assess attr_reader attributes
     # Public: creates a new participant
     #
     # params opts[Hash] set the attributes
     #
     # returns Participant
     def initialize(opts)
+      # Rails.logger.debug "[Merit::Participant] opts: #{opts.inspect}"
       @opts = opts
       require_attributes(:key)
 
       @key = opts[:key]
       @load_profile = opts[:load_profile]
+      @availability              = opts[:availability]
+      @number_of_units           = opts[:number_of_units]
+      @fixed_costs_per_unit      = opts[:fixed_costs_per_unit]
+      @fixed_om_costs_per_unit   = opts[:fixed_om_costs_per_unit]
+      @output_capacity_per_unit = opts[:output_capacity_per_unit]
+      @cost_strategy            = opts[:cost_strategy]
     end
 
     def to_s

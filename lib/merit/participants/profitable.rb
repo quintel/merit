@@ -70,7 +70,9 @@ module Merit
 
     # Returns the profits per MWh produced
     def profit_per_mwh_electricity
+      puts 'profit per mwh'
       production_mwh = production(:mwh)
+      puts production_mwh
       return nil if production_mwh.zero?
 
       profit / production_mwh
