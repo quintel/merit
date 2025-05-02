@@ -24,6 +24,7 @@ module Merit
       end
     end
 
+    include Profitable
     attr_reader :load_curve
 
     # Public: Returns the load on the participant for a certain point in time.
