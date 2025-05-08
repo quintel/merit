@@ -9,6 +9,8 @@ module Merit
     # The algorithm respects the input capacity, output capacity, and volume of the battery, and
     # optionally supports an output efficiency for modelling round-trip losses.
     module OptimizingStorage
+      # COSTS: revenue & fuel costs (per_mwh)
+
       # Contains behavior for the production half of the optimizing storage.
       class Producer < Merit::CurveProducer
       end

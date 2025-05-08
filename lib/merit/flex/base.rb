@@ -5,6 +5,8 @@ module Merit
     # Base class for all flexible producers which may store or use excess energy from always-on
     # producers.
     class Base < DispatchableProducer
+      # COSTS: fuel costs (per_mwh) - for p2g & generic
+
       # Default attributes for all storage technologies. May be customised as needed.
       DEFAULTS = { availability: 1.0, marginal_costs: :null }.freeze
 
