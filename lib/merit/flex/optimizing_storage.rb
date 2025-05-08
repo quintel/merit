@@ -9,6 +9,8 @@ module Merit
     # The algorithm respects the input capacity, output capacity, and volume of the battery, and
     # optionally supports an output efficiency for modelling round-trip losses.
     module OptimizingStorage
+      # COSTS: revenue & fuel costs (per_mwh)
+
       # Contains behavior for the production half of the optimizing storage.
       #
       # Production is determined by a curve. Unlike other always-on producers, optimizing storage
@@ -110,7 +112,7 @@ module Merit
           next if available_output_energy.zero?
 
           # Only charge from an hour whose value is 95% or less than the max frame value.
-          # This effectively ensures that a discharge hour will not be matched to a charge 
+          # This effectively ensures that a discharge hour will not be matched to a charge
           # hour of roughly the same value.
           desired_low = max_frame.value * 0.95
 

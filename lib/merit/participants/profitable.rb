@@ -4,6 +4,8 @@ module Merit
   # This (mixin) module includes every method for Producers with respect to finance, such as profit,
   # revenue and cost.
   module Profitable
+    include Finance
+
     def profitability
       if revenue > total_costs
         :profitable
@@ -27,11 +29,6 @@ module Merit
         else
           revenue_curve.sum
         end
-    end
-
-    # Returns a Curve with the revenue in EUR per point in time.
-    def revenue_curve
-      @revenue_curve ||= load_curve * order.price_curve
     end
 
     # Return the absolute total costs for the participant in EUR.
@@ -70,16 +67,14 @@ module Merit
 
     # Returns the profits per MWh produced
     def profit_per_mwh_electricity
-      puts 'profit per mwh'
       production_mwh = production(:mwh)
-      puts production_mwh
       return nil if production_mwh.zero?
 
       profit / production_mwh
     end
 
-    # Returns the revenue per MWh of electricity produced.
-    def revenue_hourly_electricity_per_mwh
+    # Returns the revenue per MWh produced.
+    def revenue_per_mwh
       production_mwh = production(:mwh)
       return nil if production_mwh.zero?
 
