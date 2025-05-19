@@ -3,8 +3,6 @@
 module Merit
   module Flex
     class Storage < Base
-      # COSTS: revenue & fuel costs (per_mwh)
-
       attr_reader :reserve
 
       # Public: Creates a new Storage participant which may retain excess energy produced by

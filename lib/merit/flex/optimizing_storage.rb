@@ -31,6 +31,22 @@ module Merit
         def provides_price?
           true
         end
+
+        # TODO: Move to consmer price mixin
+        def fuel_costs
+          @fuel_costs ||= fuel_costs_curve.sum
+        end
+
+        def fuel_costs_curve
+          @fuel_costs_curve ||= @load_curve * order.price_curve
+        end
+
+        def fuel_costs_per_mwh
+          consumpition_mwh = @load_curve.sum(0.0).abs
+          return if consumpition_mwh.zero?
+
+          fuel_costs / consumpition_mwh
+        end
       end
 
       # Stores each hour and its current value.

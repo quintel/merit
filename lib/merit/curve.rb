@@ -114,9 +114,9 @@ module Merit
     end
 
     # Public: Returns a new curve with only the negative values. All positive values are
-    # set to 0.0
+    # set to 0.0. All values are absolute
     def clip_negative
-      self.class.new(@values.map { |val| [val, 0].min })
+      self.class.new(@values.map { |val| [val, 0].min.abs })
     end
 
     # Internal: Sets which reader class to use for retrieving load profile data from disk. Anything
