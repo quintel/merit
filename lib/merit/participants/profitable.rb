@@ -4,8 +4,6 @@ module Merit
   # This (mixin) module includes every method for Producers with respect to finance, such as profit,
   # revenue and cost.
   module Profitable
-    include Finance
-
     def profitability
       if revenue > total_costs
         :profitable
@@ -29,6 +27,11 @@ module Merit
         else
           revenue_curve.sum
         end
+    end
+
+    # Returns a Curve with the revenue in EUR per point in time.
+    def revenue_curve
+      @revenue_curve ||= load_curve * order.price_curve
     end
 
     # Return the absolute total costs for the participant in EUR.
