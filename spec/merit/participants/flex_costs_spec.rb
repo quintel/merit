@@ -36,6 +36,19 @@ module Merit
       )
     end
 
+    # Optimising storage (standard load curve of only 10.0)
+    let(:optimizing_storage_producer) do
+      FactoryBot.build(:optimizing_storage_producer)
+    end
+
+    let(:optimizing_storage_consumer) do
+      FactoryBot.build(:optimizing_storage_consumer)
+    end
+
+    # Missing optimizing storage:
+    # Producer shoudl have it
+    # How do we
+
     let(:order) { Order.new }
     let(:fluctuating_price_cuve) { Curve.new([0.05, 0.1, 0.05] * 2920) }
 
@@ -60,6 +73,8 @@ module Merit
       flex_base.order = order
       storage.order = order
       storage_with_decay.order = order
+      optimizing_storage_producer.order = order
+      optimizing_storage_consumer.order = order
     end
 
     describe '#revenue' do
@@ -81,6 +96,12 @@ module Merit
           allow(storage_with_decay).to receive(:number_of_units).and_return(0)
           expect(storage_with_decay.revenue).to be(0.0)
         end
+
+        # Optimising storage (producer)
+        it 'optimising storage returns zero' do
+          allow(optimizing_storage_producer).to receive(:number_of_units).and_return(0)
+          expect(optimizing_storage_producer.revenue).to be(0.0)
+        end
       end
 
       context 'with > 0 number of units' do
@@ -97,6 +118,11 @@ module Merit
         # Flex::Storage with decay
         it 'the storage with decay returns the correct number' do
           expect(storage_with_decay.revenue).to eq(100 * 0.05)
+        end
+
+        # Optimising storage (producer)
+        it 'the optimising storage returns the correct number' do
+          expect(optimizing_storage_producer.revenue).to eq(10.0 * 0.05 * 8760)
         end
       end
 
@@ -119,6 +145,11 @@ module Merit
         # Flex::Storage with decay
         it 'the storage with decay returns the correct number' do
           expect(storage_with_decay.revenue).to eq((50 * 0.05) + (50 * 0.1))
+        end
+
+        # Optimising storage (producer)
+        it 'the optimised storage returns the correct number' do
+          expect(optimizing_storage_producer.revenue).to eq((5840 * 10.0 * 0.05) + (2920 * 10.0 * 0.1))
         end
       end
     end
@@ -155,6 +186,15 @@ module Merit
         expect(storage_with_decay.revenue_curve.to_a[1]).to eq(0.05)
       end
 
+      # Optimising storage (producer)
+      it 'the optimised storage has a correct revenue for the first hour' do
+        expect(optimizing_storage_producer.revenue_curve.to_a.first).to eq(0.5)
+      end
+
+      it 'the optimised storage has a correct revenue for the second hour' do
+        expect(optimizing_storage_producer.revenue_curve.to_a[1]).to eq(0.5)
+      end
+
       context 'when the price curve fluctuates' do
         before do
           allow(order).to receive(:price_curve)
@@ -187,6 +227,15 @@ module Merit
         it 'the storage_with_decay has a correct revenue for the second hour' do
           expect(storage_with_decay.revenue_curve.to_a[1]).to eq(0.1)
         end
+
+        # Optimising storage (producer)
+        it 'the optimised storage has a correct revenue for the first hour' do
+          expect(optimizing_storage_producer.revenue_curve.to_a.first).to eq(0.5)
+        end
+
+        it 'the optimised storage has a correct revenue for the second hour' do
+          expect(optimizing_storage_producer.revenue_curve.to_a[1]).to eq(1.0)
+        end
       end
     end
 
@@ -213,6 +262,11 @@ module Merit
         it 'the storage_with_decay returns the correct number' do
           expect(storage_with_decay.fuel_costs).to eq(50 * 2 * 0.05)
         end
+
+        # Optimising storage (consumer)
+        it 'the optimised storage returns the correct number' do
+          expect(optimizing_storage_consumer.fuel_costs).to eq(10.0 * 0.05 * 8760)
+        end
       end
 
       context 'when the price curve fluctuates' do
@@ -231,9 +285,14 @@ module Merit
           expect(storage.fuel_costs).to eq(100 * 0.05)
         end
 
-        # Flex::Storage
+        # Flex::Storage with decay
         it 'the storage_with_decay returns the correct number' do
           expect(storage_with_decay.fuel_costs).to eq(100 * 0.05)
+        end
+
+        # Optimising storage (consumer)
+        it 'the optimised storage returns the correct number' do
+          expect(optimizing_storage_consumer.fuel_costs).to eq((5840 * 10.0 * 0.05) + (2920 * 10.0 * 0.1))
         end
       end
     end
@@ -270,6 +329,15 @@ module Merit
         expect(storage_with_decay.fuel_costs_curve.to_a[1]).to eq(0.0)
       end
 
+      # Optimising storage (consumer)
+      it 'the optimised storage has a correct fuel cost for the first hour' do
+        expect(optimizing_storage_consumer.fuel_costs_curve.to_a.first).to eq(10.0 * 0.05)
+      end
+
+      it 'the optimised storage has a correct fuel cost for the second hour' do
+        expect(optimizing_storage_consumer.fuel_costs_curve.to_a[1]).to eq(10.0 * 0.05)
+      end
+
       context 'when the price curve fluctuates' do
         before do
           allow(order).to receive(:price_curve)
@@ -302,6 +370,15 @@ module Merit
         it 'the storage_with_decay has a correct fuel cost for the second hour' do
           expect(storage_with_decay.fuel_costs_curve.to_a[1]).to eq(0.0)
         end
+
+        # Optimising storage (consumer)
+        it 'the optimised storage has a correct fuel cost for the first hour' do
+          expect(optimizing_storage_consumer.fuel_costs_curve.to_a.first).to eq(10.0 * 0.05)
+        end
+
+        it 'the optimised storage has a correct fuel cost for the second hour' do
+          expect(optimizing_storage_consumer.fuel_costs_curve.to_a[1]).to eq(10.0 * 0.1)
+        end
       end
     end
 
@@ -319,6 +396,11 @@ module Merit
       # Flex::Storage with decay
       it 'the storage_with_decay returns the correct number' do
         expect(storage_with_decay.fuel_costs_per_mwh).to eq(0.05)
+      end
+
+      # Optimising storage (consumer)
+      it 'the optimised storage returns the correct number' do
+        expect(optimizing_storage_consumer.fuel_costs_per_mwh).to eq(0.05)
       end
 
       context 'when the price curve fluctuates' do
@@ -341,6 +423,11 @@ module Merit
         it 'the storage_with_decay returns the correct number' do
           expect(storage_with_decay.fuel_costs_per_mwh).to eq(0.05)
         end
+
+        # Optimising storage (consumer)
+        it 'the optimised storage returns the correct number' do
+          expect(optimizing_storage_consumer.fuel_costs_per_mwh).to eq((0.1 + 0.05 + 0.05) / 3)
+        end
       end
     end
 
@@ -358,6 +445,11 @@ module Merit
       # Flex::Storage with decay
       it 'the storage_with_decay returns the correct number' do
         expect(storage_with_decay.revenue_per_mwh).to eq(0.05)
+      end
+
+      # Optimising storage (producer)
+      it 'the optimised storage returns the correct number' do
+        expect(optimizing_storage_producer.revenue_per_mwh).to eq(0.05)
       end
 
       context 'when the price curve fluctuates' do
@@ -382,6 +474,11 @@ module Merit
         it 'the storage_with_decay returns the correct number' do
           # ((50 * 0.05) + (50 * 0.1)) / 100 = 0.075
           expect(storage_with_decay.revenue_per_mwh).to eq(0.075)
+        end
+
+        # Optimising storage (producer)
+        it 'the optimised storage returns the correct number' do
+          expect(optimizing_storage_producer.revenue_per_mwh).to eq((0.1 + 0.05 + 0.05) / 3)
         end
       end
     end

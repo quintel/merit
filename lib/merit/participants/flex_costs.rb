@@ -16,12 +16,11 @@ module Merit
         if number_of_units.zero? || input_capacity_per_unit.zero?
           0.0
         else
-          # TODO: no need for abs when fuel costs curve becomes positive
-          fuel_costs_curve.sum.abs
+          fuel_costs_curve.sum
         end
     end
 
-    # It's negativeeeee :(
+    # It's negativeeeee :( - do it in curve.rb?
     def fuel_costs_curve
       @fuel_costs_curve ||= load_price_curve.clip_negative
     end
@@ -36,11 +35,8 @@ module Merit
       @load_price_curve ||= load_curve * order.price_curve
     end
 
-
-
     # Is production same as emitted same as stored? Always? What about decay?
     # And is it the same as consumption? What if the battery is left with stored energy inside?
-
 
     def fuel_costs_per_mwh
       # TODO: double check here -> consumption is not neccessarily the same for all participants??
