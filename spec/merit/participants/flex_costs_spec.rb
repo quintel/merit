@@ -13,34 +13,112 @@ module Merit
       )
     end
 
+    let(:storage) do
+      Flex::Storage.new(
+        key: :storage,
+        number_of_units: 1,
+        output_capacity_per_unit: 10.0,
+        input_efficiency: 1.0,
+        output_efficiency: 1.0,
+        volume_per_unit: 10.0
+      )
+    end
+
+    let(:storage_with_decay) do
+      Flex::Storage.new(
+        key: :storage,
+        number_of_units: 1,
+        output_capacity_per_unit: 10.0,
+        input_efficiency: 1.0,
+        output_efficiency: 1.0,
+        volume_per_unit: 10.0,
+        decay: ->(*) { 1.0 }
+      )
+    end
+
     let(:order) { Order.new }
+    let(:fluctuating_price_cuve) { Curve.new([0.05, 0.1, 0.05] * 2920) }
+
+    # Charge 2 for 50 hours and emits 1 for 100 hours
+    def mock_load_curve(participant)
+      50.times do |i|
+        participant.assign_excess(i * 3, 2.0)
+        participant.set_load((i * 3) + 1, 1.0)
+        participant.set_load((i * 3) + 2, 1.0)
+      end
+    end
 
     before do
-      # Flex::Base charges 2 for 50 hours and emits 1 for 100 hours
-      50.times do |i|
-        flex_base.assign_excess(i * 3, 2.0)
-        flex_base.set_load((i * 3) + 1, 1.0)
-        flex_base.set_load((i * 3) + 2, 1.0)
-      end
+      mock_load_curve(flex_base)
+      mock_load_curve(storage)
+      mock_load_curve(storage_with_decay)
 
       # Add participants to our fake order, and mock a price curve
       allow(order).to receive(:price_curve)
         .and_return(Curve.new(Array.new(8760, 0.05)))
 
       flex_base.order = order
+      storage.order = order
+      storage_with_decay.order = order
     end
 
     describe '#revenue' do
       context 'when the flex_base has 0 units' do
-        it 'returns zero' do
+        # Flex::Base
+        it 'flex_base returns zero' do
           allow(flex_base).to receive(:number_of_units).and_return(0)
           expect(flex_base.revenue).to be(0.0)
         end
+
+        # Flex::Storage
+        it 'storage returns zero' do
+          allow(storage).to receive(:number_of_units).and_return(0)
+          expect(storage.revenue).to be(0.0)
+        end
+
+        # Flex::Storage with decay
+        it 'storage with decay returns zero' do
+          allow(storage_with_decay).to receive(:number_of_units).and_return(0)
+          expect(storage_with_decay.revenue).to be(0.0)
+        end
       end
 
-      context 'whith > 0 number of units' do
+      context 'with > 0 number of units' do
+        # Flex::Base
         it 'the flex_base returns the correct number' do
           expect(flex_base.revenue).to eq(100 * 0.05)
+        end
+
+        # Flex::Storage
+        it 'the storage returns the correct number' do
+          expect(storage.revenue).to eq(100 * 0.05)
+        end
+
+        # Flex::Storage with decay
+        it 'the storage with decay returns the correct number' do
+          expect(storage_with_decay.revenue).to eq(100 * 0.05)
+        end
+      end
+
+      context 'when the price curve fluctuates' do
+        before do
+          allow(order).to receive(:price_curve)
+            .and_return(fluctuating_price_cuve)
+        end
+
+        # Flex::Base
+        it 'the flex_base returns the correct number' do
+          expect(flex_base.revenue).to eq((50 * 0.05) + (50 * 0.1))
+        end
+
+        # Flex::Storage
+        it 'the storage returns the correct number' do
+          expect(storage.revenue).to eq((50 * 0.05) + (50 * 0.1))
+        end
+
+        # Flex::Storage with decay
+        it 'the storage with decay returns the correct number' do
+          expect(storage_with_decay.revenue).to eq((50 * 0.05) + (50 * 0.1))
         end
       end
     end
@@ -50,12 +128,65 @@ module Merit
         expect(flex_base.revenue_curve).to be_a(Curve)
       end
 
+      # Flex::Base
       it 'the flex_base has a correct revenue for the first hour' do
         expect(flex_base.revenue_curve.to_a.first).to eq(0.0)
       end
 
       it 'the flex_base has a correct revenue for the second hour' do
         expect(flex_base.revenue_curve.to_a[1]).to eq(0.05)
+      end
+
+      # Flex::Storage
+      it 'the storage has a correct revenue for the first hour' do
+        expect(storage.revenue_curve.to_a.first).to eq(0.0)
+      end
+
+      it 'the storage has a correct revenue for the second hour' do
+        expect(storage.revenue_curve.to_a[1]).to eq(0.05)
+      end
+
+      # Flex::Storage with decay
+      it 'the storage_with_decay has a correct revenue for the first hour' do
+        expect(storage_with_decay.revenue_curve.to_a.first).to eq(0.0)
+      end
+
+      it 'the storage_with_decay has a correct revenue for the second hour' do
+        expect(storage_with_decay.revenue_curve.to_a[1]).to eq(0.05)
+      end
+
+      context 'when the price curve fluctuates' do
+        before do
+          allow(order).to receive(:price_curve)
+            .and_return(fluctuating_price_cuve)
+        end
+
+        # Flex::Base
+        it 'the flex_base has a correct revenue for the first hour' do
+          expect(flex_base.revenue_curve.to_a.first).to eq(0.0)
+        end
+
+        it 'the flex_base has a correct revenue for the second hour' do
+          expect(flex_base.revenue_curve.to_a[1]).to eq(0.1)
+        end
+
+        # Flex::Storage
+        it 'the storage has a correct revenue for the first hour' do
+          expect(storage.revenue_curve.to_a.first).to eq(0.0)
+        end
+
+        it 'the storage has a correct revenue for the second hour' do
+          expect(storage.revenue_curve.to_a[1]).to eq(0.1)
+        end
+
+        # Flex::Storage with decay
+        it 'the storage_with_decay has a correct revenue for the first hour' do
+          expect(storage_with_decay.revenue_curve.to_a.first).to eq(0.0)
+        end
+
+        it 'the storage_with_decay has a correct revenue for the second hour' do
+          expect(storage_with_decay.revenue_curve.to_a[1]).to eq(0.1)
+        end
       end
     end
 
@@ -67,9 +198,42 @@ module Merit
         end
       end
 
-      context 'whith > 0 number of units' do
+      context 'with > 0 number of units' do
+        # Flex::Base
         it 'the flex_base returns the correct number' do
           expect(flex_base.fuel_costs).to eq(50 * 2 * 0.05)
+        end
+
+        # Flex::Storage
+        it 'the storage returns the correct number' do
+          expect(storage.fuel_costs).to eq(50 * 2 * 0.05)
+        end
+
+        # Flex::Storage with decay
+        it 'the storage_with_decay returns the correct number' do
+          expect(storage_with_decay.fuel_costs).to eq(50 * 2 * 0.05)
+        end
+      end
+
+      context 'when the price curve fluctuates' do
+        before do
+          allow(order).to receive(:price_curve)
+            .and_return(fluctuating_price_cuve)
+        end
+
+        # Flex::Base
+        it 'the flex_base returns the correct number' do
+          expect(flex_base.fuel_costs).to eq(100 * 0.05)
+        end
+
+        # Flex::Storage
+        it 'the storage returns the correct number' do
+          expect(storage.fuel_costs).to eq(100 * 0.05)
+        end
+
+        # Flex::Storage
+        it 'the storage_with_decay returns the correct number' do
+          expect(storage_with_decay.fuel_costs).to eq(100 * 0.05)
         end
       end
     end
@@ -79,18 +243,146 @@ module Merit
         expect(flex_base.fuel_costs_curve).to be_a(Curve)
       end
 
-      it 'the flex_base has a correct revenue for the first hour' do
+      # Flex::Base
+      it 'the flex_base has a correct fuel cost for the first hour' do
         expect(flex_base.fuel_costs_curve.to_a.first).to eq(0.1)
       end
 
-      it 'the flex_base has a correct revenue for the second hour' do
+      it 'the flex_base has a correct fuel cost for the second hour' do
         expect(flex_base.fuel_costs_curve.to_a[1]).to eq(0.0)
+      end
+
+      # Flex::Storage
+      it 'the storage has a correct fuel cost for the first hour' do
+        expect(storage.fuel_costs_curve.to_a.first).to eq(0.1)
+      end
+
+      it 'the storage has a correct fuel cost for the second hour' do
+        expect(storage.fuel_costs_curve.to_a[1]).to eq(0.0)
+      end
+
+      # Flex::Storage with decay
+      it 'the storage_with_decay has a correct fuel cost for the first hour' do
+        expect(storage_with_decay.fuel_costs_curve.to_a.first).to eq(0.1)
+      end
+
+      it 'the storage_with_decay has a correct fuel cost for the second hour' do
+        expect(storage_with_decay.fuel_costs_curve.to_a[1]).to eq(0.0)
+      end
+
+      context 'when the price curve fluctuates' do
+        before do
+          allow(order).to receive(:price_curve)
+            .and_return(fluctuating_price_cuve)
+        end
+
+        # Flex::Base
+        it 'the flex_base has a correct fuel cost for the first hour' do
+          expect(flex_base.fuel_costs_curve.to_a.first).to eq(0.1)
+        end
+
+        it 'the flex_base has a correct fuel cost for the second hour' do
+          expect(flex_base.fuel_costs_curve.to_a[1]).to eq(0.0)
+        end
+
+        # Flex::Storage
+        it 'the storage has a correct fuel cost for the first hour' do
+          expect(storage.fuel_costs_curve.to_a.first).to eq(0.1)
+        end
+
+        it 'the storage has a correct fuel cost for the second hour' do
+          expect(storage.fuel_costs_curve.to_a[1]).to eq(0.0)
+        end
+
+        # Flex::Storage with decay
+        it 'the storage_with_decay has a correct fuel cost for the first hour' do
+          expect(storage_with_decay.fuel_costs_curve.to_a.first).to eq(0.1)
+        end
+
+        it 'the storage_with_decay has a correct fuel cost for the second hour' do
+          expect(storage_with_decay.fuel_costs_curve.to_a[1]).to eq(0.0)
+        end
       end
     end
 
     describe '#fuel_costs_per_mwh' do
+      # Flex::Base
       it 'the flex_base returns the correct number' do
         expect(flex_base.fuel_costs_per_mwh).to eq(0.05)
+      end
+
+      # Flex::Storage
+      it 'the storage returns the correct number' do
+        expect(storage.fuel_costs_per_mwh).to eq(0.05)
+      end
+
+      # Flex::Storage with decay
+      it 'the storage_with_decay returns the correct number' do
+        expect(storage_with_decay.fuel_costs_per_mwh).to eq(0.05)
+      end
+
+      context 'when the price curve fluctuates' do
+        before do
+          allow(order).to receive(:price_curve)
+            .and_return(fluctuating_price_cuve)
+        end
+
+        # Flex::Base
+        it 'the flex_base returns the correct number' do
+          expect(flex_base.fuel_costs_per_mwh).to eq(0.05)
+        end
+
+        # Flex::Storage
+        it 'the storage returns the correct number' do
+          expect(storage.fuel_costs_per_mwh).to eq(0.05)
+        end
+
+        # Flex::Storage with decay
+        it 'the storage_with_decay returns the correct number' do
+          expect(storage_with_decay.fuel_costs_per_mwh).to eq(0.05)
+        end
+      end
+    end
+
+    describe '#revenue_per_mwh' do
+      # Flex::Base
+      it 'the flex_base returns the correct number' do
+        expect(flex_base.revenue_per_mwh).to eq(0.05)
+      end
+
+      # Flex::Storage
+      it 'the storage returns the correct number' do
+        expect(storage.revenue_per_mwh).to eq(0.05)
+      end
+
+      # Flex::Storage with decay
+      it 'the storage_with_decay returns the correct number' do
+        expect(storage_with_decay.revenue_per_mwh).to eq(0.05)
+      end
+
+      context 'when the price curve fluctuates' do
+        before do
+          allow(order).to receive(:price_curve)
+            .and_return(fluctuating_price_cuve)
+        end
+
+        # Flex::Base
+        it 'the flex_base returns the correct number' do
+          # ((50 * 0.05) + (50 * 0.1)) / 100 = 0.075
+          expect(flex_base.revenue_per_mwh).to eq(0.075)
+        end
+
+        # Flex::Storage
+        it 'the storage returns the correct number' do
+          # ((50 * 0.05) + (50 * 0.1)) / 100 = 0.075
+          expect(storage.revenue_per_mwh).to eq(0.075)
+        end
+
+        # Flex::Storage with decay
+        it 'the storage_with_decay returns the correct number' do
+          # ((50 * 0.05) + (50 * 0.1)) / 100 = 0.075
+          expect(storage_with_decay.revenue_per_mwh).to eq(0.075)
+        end
       end
     end
   end

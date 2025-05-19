@@ -6,7 +6,6 @@ module Merit
     # producers.
     class Base < DispatchableProducer
       include FlexCosts
-      # COSTS: fuel costs (per_mwh) - for p2g & generic
 
       # Default attributes for all storage technologies. May be customised as needed.
       DEFAULTS = { availability: 1.0, marginal_costs: :null }.freeze
