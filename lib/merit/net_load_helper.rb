@@ -21,7 +21,11 @@ module Merit
     end
 
     def consumption
-      @order.demand_curve
+      CurveTools.add_curves(
+        @order.participants.consumers
+          .reject { |part| @excludes.include?(part.key) }
+          .map(&:load_curve)
+      )
     end
   end
 end
