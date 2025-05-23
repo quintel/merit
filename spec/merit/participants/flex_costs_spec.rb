@@ -36,7 +36,7 @@ module Merit
       )
     end
 
-    # Optimising storage (standard load curve of only 10.0)
+    # Optimising storage (spec default load curve of only 10.0)
     let(:optimizing_storage_producer) do
       FactoryBot.build(:optimizing_storage_producer)
     end
@@ -44,10 +44,6 @@ module Merit
     let(:optimizing_storage_consumer) do
       FactoryBot.build(:optimizing_storage_consumer)
     end
-
-    # Missing optimizing storage:
-    # Producer shoudl have it
-    # How do we
 
     let(:order) { Order.new }
     let(:fluctuating_price_cuve) { Curve.new([0.05, 0.1, 0.05] * 2920) }
@@ -426,7 +422,7 @@ module Merit
 
         # Optimising storage (consumer)
         it 'the optimised storage returns the correct number' do
-          expect(optimizing_storage_consumer.fuel_costs_per_mwh).to eq((0.1 + 0.05 + 0.05) / 3)
+          expect(optimizing_storage_consumer.fuel_costs_per_mwh).to eq((0.05 + 0.1 + 0.05) / 3)
         end
       end
     end
