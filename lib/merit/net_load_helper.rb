@@ -6,34 +6,36 @@ module Merit
     def initialize(order, excludes = [])
       @order    = order
       @excludes = Set.new(excludes)
-      Rails.logger.debug "[NetLoadHelper] init excludes=#{@excludes.to_a}"
-    end
-
-    def net_load
-      p = production
-      c = consumption
-      net = p.each_with_index.map { |prod, i| (prod - c[i]).round(4) }
-      Rails.logger.debug "[NetLoadHelper] net_load length=#{net.size} first5=#{net.first(5)} last5=#{net.last(5)}"
-      net
     end
 
     def production
       parts = @order.participants.producers.reject { |part| @excludes.include?(part.key) }
-      Rails.logger.debug "[NetLoadHelper] raw producer keys=#{@order.participants.producers.map(&:key)}"
-      Rails.logger.debug "[NetLoadHelper] filtered producer keys=#{parts.map(&:key)} excludes=#{@excludes.to_a}"
+      curves = parts.map(&:load_curve).map(&:to_a)
 
-      curves = parts.map(&:load_curve)
-      Rails.logger.debug "[NetLoadHelper] individual production curve lengths=#{curves.map(&:size)}"
+      # **log 389–391 for each non-zero producer**
+      parts.zip(curves).each do |part, curve|
+        slice = curve[389..391]
+        next if slice.all?(&:zero?)
+        Rails.logger.debug "[NetLoadHelper] producer #{part.key} @389–391 = #{slice.inspect}"
+      end
 
-      total = CurveTools.add_curves(curves)
-      Rails.logger.debug "[NetLoadHelper] combined production length=#{total.size} sample first5=#{total.first(5)}"
-      total
+      CurveTools.add_curves(curves)
     end
 
     def consumption
-      curve = @order.demand_curve
-      Rails.logger.debug "[NetLoadHelper] demand_curve length=#{curve.size} sample first5=#{curve.first(5)}"
-      curve
+      curve = @order.demand_curve.to_a
+      slice = curve[389..391]
+      Rails.logger.debug "[NetLoadHelper] demand_curve @389–391 = #{slice.inspect}" unless slice.all?(&:zero?)
+      @order.demand_curve
+    end
+
+    def net_load
+      p = production.to_a
+      c = consumption
+      net = p.each_with_index.map { |prod, i| (prod - c[i]).round(4) }
+      slice = net[389..391]
+      Rails.logger.debug "[NetLoadHelper] net_load @389–391 = #{slice.inspect}" unless slice.all?(&:zero?)
+      net
     end
   end
 end
