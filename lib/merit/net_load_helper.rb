@@ -22,8 +22,11 @@ module Merit
 
     def consumption
       CurveTools.add_curves(
-        @order.participants.consumers
-          .reject { |part| @excludes.include?(part.key) }
+        # combine all the “consumer‐type” participants
+        (@order.participants.users +
+         @order.participants.flex +
+         @order.participants.price_sensitives)
+          .reject { |p| @excludes.include?(p.key) }
           .map(&:load_curve)
       )
     end
