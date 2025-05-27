@@ -3,7 +3,7 @@
 module Merit
   # The Producer within the Merit Order is reponsible for producing electricity to meet demand
   class Producer < Participant
-    include Profitable
+    include Merit::Finance::Base
 
     attr_accessor :load_profile
     attr_writer :load_curve

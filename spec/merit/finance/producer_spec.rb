@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 module Merit
-  describe Profitable do
+  describe Finance::Base do
     let(:producer) do
       MustRunProducer.new(
         key: :coal,

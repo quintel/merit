@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 module Merit
-  describe FlexCosts do
+  describe Finance::Flex do
     let(:flex_base) do
       Flex::Base.new(
         key: :base,

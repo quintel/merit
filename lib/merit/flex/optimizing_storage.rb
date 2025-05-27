@@ -9,31 +9,15 @@ module Merit
     # The algorithm respects the input capacity, output capacity, and volume of the battery, and
     # optionally supports an output efficiency for modelling round-trip losses.
     module OptimizingStorage
-      # COSTS: revenue & fuel costs (per_mwh)
-
       # Contains behavior for the production half of the optimizing storage.
       class Producer < Merit::CurveProducer
       end
 
       # Contains behavior for the consumption half of the optimizing storage.
       class Consumer < Merit::User::WithCurve
+        include Merit::Finance::Consumption
+
         public_class_method :new
-
-        # TODO: Move to consmer price mixin
-        def fuel_costs
-          @fuel_costs ||= fuel_costs_curve.sum
-        end
-
-        def fuel_costs_curve
-          @fuel_costs_curve ||= @load_curve * order.price_curve
-        end
-
-        def fuel_costs_per_mwh
-          consumpition_mwh = @load_curve.sum(0.0).abs
-          return if consumpition_mwh.zero?
-
-          fuel_costs / consumpition_mwh
-        end
       end
 
       # Stores each hour and its current value.
