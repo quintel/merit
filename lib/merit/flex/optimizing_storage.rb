@@ -14,9 +14,7 @@ module Merit
       # Production is determined by a curve. Unlike other always-on producers, optimizing storage
       # has a price and can be used to set the hourly price in Merit::PriceCurve.
       class Producer < Merit::CurveProducer
-        def provides_price?
-          true
-        end
+
       end
 
       # Contains behavior for the consumption half of the optimizing storage.
@@ -26,9 +24,6 @@ module Merit
       class Consumer < Merit::User::WithCurve
         public_class_method :new
 
-        def provides_price?
-          true
-        end
       end
 
       # Stores each hour and its current value.
@@ -110,7 +105,7 @@ module Merit
           next if available_output_energy.zero?
 
           # Only charge from an hour whose value is 95% or less than the max frame value.
-          # This effectively ensures that a discharge hour will not be matched to a charge 
+          # This effectively ensures that a discharge hour will not be matched to a charge
           # hour of roughly the same value.
           desired_low = max_frame.value * 0.95
 
