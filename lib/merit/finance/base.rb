@@ -36,7 +36,7 @@ module Merit
           if load_curve.is_a?(Merit::Curve)
             load_curve * order.price_curve
           else
-            Merit::Curve.new(load_curve.values) * order.price_curve
+            Merit::Curve.new(load_curve.to_a) * order.price_curve
           end
       end
 
