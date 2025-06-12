@@ -23,7 +23,7 @@ module Merit
       # Returns the absolute amount of revenue in EUR.
       def revenue
         @revenue ||=
-          if number_of_units.zero? || output_capacity_per_unit.zero?
+          if number_of_units&.zero? || output_capacity_per_unit&.zero?
             0.0
           else
             revenue_curve.sum
