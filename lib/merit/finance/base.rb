@@ -32,7 +32,12 @@ module Merit
 
       # Returns a Curve with the revenue in EUR per point in time.
       def revenue_curve
-        @revenue_curve ||= order.price_curve * load_curve
+        @revenue_curve ||=
+          if load_curve.is_a?(Merit::Curve)
+            load_curve * order.price_curve
+          else
+            Merit::Curve.new(load_curve.values) * order.price_curve
+          end
       end
 
       # Return the absolute total costs for the participant in EUR.
