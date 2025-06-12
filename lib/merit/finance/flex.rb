@@ -35,15 +35,6 @@ module Merit
       def load_price_curve
         @load_price_curve ||= load_curve * order.price_curve
       end
-
-      # TODO: remove because we need to divide with output later in engine
-      # Public: Fuel costs per mwh of consumption
-      def fuel_costs_per_mwh
-        consumpition_mwh = load_curve.select(&:positive?).sum(0.0).abs
-        return if consumpition_mwh.zero?
-
-        fuel_costs / consumpition_mwh
-      end
     end
   end
 end
