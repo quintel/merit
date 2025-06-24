@@ -15,6 +15,8 @@ module Merit
 
       # Contains behavior for the consumption half of the optimizing storage.
       class Consumer < Merit::User::WithCurve
+        include Merit::Finance::Consumption
+
         public_class_method :new
       end
 
@@ -82,7 +84,7 @@ module Merit
 
         # Contains all hours where there is room to discharge, sorted in ascending order (hour of
         # largest value is last).
-        charge_frames = frames.select { |f| discharging_target[f.index].positive? }.sort_by{ |f| [f.value, f.index] }
+        charge_frames = frames.select { |f| discharging_target[f.index].positive? }.sort_by { |f| [f.value, f.index] }
 
         # Keeps track of how much energy is stored in each hour.
         reserve = Numo::DFloat.zeros(data.length)
@@ -116,7 +118,8 @@ module Merit
             # efficiency to ensure we have enough in reserve to account for the losses.
             available_output_energy = [
               (volume - reserve[min_index]) * output_efficiency,
-              available_output_energy].min
+              available_output_energy
+            ].min
 
             next unless available_output_energy.positive? &&
               charging_target[current.index].positive? &&
@@ -133,12 +136,14 @@ module Merit
           # Limit discharging by input capacity left for charging
           available_output_energy = [
             (charging_target[min_frame.index] * output_efficiency),
-            available_output_energy].min
+            available_output_energy
+          ].min
 
           # The amount of energy to be discharged at the max frame.
           # Limited to 1/4 of the difference in order to assign frames back on to the stack to so
           # that their energy may be more fairly shared with other nearby frames.
-          available_output_energy = [(max_frame.value - min_frame.value) / 4, available_output_energy].min
+          available_output_energy = [(max_frame.value - min_frame.value) / 4,
+                                     available_output_energy].min
 
           next if available_output_energy < 1e-5
 

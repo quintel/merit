@@ -17,7 +17,9 @@ require_relative 'merit/version'
 require_relative 'merit/errors'
 
 # Mixins
-require_relative 'merit/participants/profitable'
+require_relative 'merit/finance/base'
+require_relative 'merit/finance/flex'
+require_relative 'merit/finance/consumption'
 
 require_relative 'merit/calculator'
 require_relative 'merit/cost_strategy'

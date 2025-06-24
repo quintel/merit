@@ -5,6 +5,8 @@ module Merit
     # Base class for all flexible producers which may store or use excess energy from always-on
     # producers.
     class Base < DispatchableProducer
+      include Merit::Finance::Flex
+
       # Default attributes for all storage technologies. May be customised as needed.
       DEFAULTS = { availability: 1.0, marginal_costs: :null }.freeze
 
