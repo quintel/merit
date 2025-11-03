@@ -104,8 +104,10 @@ module Merit
         ps_users =
           select_participants(User::PriceSensitive) +
           flex.flat_map { |f| Array(f) }.select(&:consume_from_dispatchables?)
-
-        ps_users.uniq.sort_by { |u| -u.consumption_price.sortable_cost }
+        pos = 0
+        ps_users.uniq.sort_by do |u|
+          [-u.consumption_price.sortable_cost, pos += 1]
+        end
       end
     end
 
