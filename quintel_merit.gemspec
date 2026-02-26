@@ -28,6 +28,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rake',  '>= 0.9.0'
   s.add_development_dependency 'rspec', '>= 3.0'
 
+  s.add_dependency 'csv'
   s.add_dependency 'numo-narray'
   s.add_dependency 'terminal-table'
 end
