@@ -20,5 +20,3 @@ blocks:
               values:
                 - '3.3'
                 - '4.0'
-      secrets:
-        - name: Merit
