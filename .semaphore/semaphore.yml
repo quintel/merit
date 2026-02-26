@@ -14,15 +14,9 @@ blocks:
             - sem-version ruby $RUBY_VERSION
             - gem install bundler -v ">= 2.0"
             - bundle install
-            - bundle exec rspec --format RspecJunitFormatter --out junit.xml --format progress
+            - bundle exec rspec
           matrix:
             - env_var: RUBY_VERSION
               values:
-                - 2.7.5
-                - 3.1.1
-      secrets:
-        - name: Merit
-      epilogue:
-        always:
-          commands:
-            - test-results publish junit.xml
+                - '3.3'
+                - '4.0'
